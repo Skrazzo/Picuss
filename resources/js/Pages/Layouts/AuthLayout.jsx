@@ -11,8 +11,10 @@ export default function AuthLayout({ children }) {
 
     return (
         <>
-            <Drawer opened={opened} onClose={toggle} title="Menu" size={'sm'}>
-                <MenuOption icon={<IconUpload />} text={'Upload pictures'} hrefRoute={'upload'}/>
+            <Drawer padding={0} opened={opened} withCloseButton={false} onClose={toggle} size={'sm'}>
+                <div className={sty.menu}>
+                    <MenuOption icon={<IconUpload />} text={'Upload pictures'} hrefRoute={'upload'}/>
+                </div>
             </Drawer>
 
             <nav className={sty.nav}>

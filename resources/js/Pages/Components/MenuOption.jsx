@@ -1,14 +1,12 @@
 import React from 'react';
 import sty from '../../../scss/dashboard.module.scss';
 
-export default function MenuOption({ icon, text, hrefRoute }) {
+export default function MenuOption({ icon, text, hrefRoute, selected = false }) {
     return (
-        <div className={sty.menu}>
-            <div className={sty.option}>
-                <div className={sty.border}></div>
-                {icon}
-                <span>{text}</span>
-            </div>
+        <div className={(selected) ? sty.option_selected : sty.option}>
+            <div className={sty.border}></div>
+            {icon}
+            <span>{text}</span>
         </div>
     )
 }

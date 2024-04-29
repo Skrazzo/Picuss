@@ -19,7 +19,9 @@ class UserController extends Controller
         ]);
 
         User::create($data);
-        return back();
+
+        $this->login($req);
+        return redirect(route('dashboard'));
     }
 
     public function login(Request $req){
@@ -28,7 +30,7 @@ class UserController extends Controller
             'password' => 'required',
         ]);
  
-        if (auth()->attempt($credentials)) {
+        if (auth()->attempt($credentials, true)) {
             $req->session()->regenerate();
             return redirect(route('dashboard'));
         }

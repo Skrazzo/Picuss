@@ -1,0 +1,37 @@
+@import './variables.scss';
+
+@font-face {
+    font-family: tagsna;
+    src: url('../../public/Assets/Tagsna.ttf');
+}
+
+.nav{
+    // height: 75px;
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    padding: 1rem;
+
+    box-shadow: 0 0 10px -2px rgba($color: #000000, $alpha: 0.25);
+    
+    .logo{
+        display: flex;
+        
+        align-items: center;
+        gap: 0.5rem;
+
+        p{
+            font-size: 28px;
+            font-family: tagsna;
+
+            color: $darkPrimary;
+        }
+    }
+    
+}
+
+.drawer{
+
+}

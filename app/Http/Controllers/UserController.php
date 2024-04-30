@@ -39,4 +39,23 @@ class UserController extends Controller
             'error' => 'Username or password is incorrect!',
         ]);
     }
+
+    public function get_modal_info(Request $req){
+        $user = $req->user();
+
+        $picture_count = $user->picture()->get()->count();
+        $tag_count = $user->tag()->get()->count();
+
+        $rtn = [
+            'pictures' =>  ($picture_count == 0) ? 'No pictures' : $picture_count . ' pictures',
+            'tags' => ($tag_count == 0) ? 'No tags' : $tag_count . ' tags',
+            'last_picture_uploaded' => ($picture_count == 0) ? 'Never uploaded' : $user->picture()->latest()->first()->created_at->diffForHumans(now()),
+            'last_tag_created' => ($picture_count == 0) ? 'Never created' : $user->tag()->latest()->first()->created_at->diffForHumans(now()),
+            'user_created' => $user->created_at->diffForHumans(now()),
+        ];
+
+        
+
+        return response()->json($rtn);
+    }
 }

@@ -17,8 +17,6 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        // 'name',
-        // 'email',
         'username',
         'password',
     ];
@@ -41,8 +39,15 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            // 'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function picture(){
+        return $this->hasMany(\App\Models\Picture::class);
+    }
+
+    public function tag(){
+        return $this->hasMany(\App\Models\Tags::class);
     }
 }

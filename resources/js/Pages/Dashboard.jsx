@@ -8,7 +8,7 @@ export default function Dashboard({ auth }) {
     console.log(auth);
 
     return (
-        <AuthLayout>
+        <AuthLayout auth={auth}>
             <p>Hello world</p>
         </AuthLayout>
     )

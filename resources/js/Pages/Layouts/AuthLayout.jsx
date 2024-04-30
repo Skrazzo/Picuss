@@ -1,19 +1,29 @@
 import React, { Children } from 'react'
 import Logo from '../Components/Logo';
-import sty from '../../../scss/dashboard.module.scss';
-import { Burger, Drawer, Text } from '@mantine/core';
+import sty from '../../../scss/authLayout.module.scss';
+import { Burger, CloseButton, Drawer, Modal, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import MenuOption from '../Components/MenuOption';
-import { IconUpload } from '@tabler/icons-react';
+import { IconPhoto, IconUpload } from '@tabler/icons-react';
 
-export default function AuthLayout({ children }) {
-    const [opened, { toggle }] = useDisclosure();
+export default function AuthLayout({ auth, children }) {
+    const [openedDrawer, drawer] = useDisclosure();
+    const [openedUserModal, userModal] = useDisclosure();
 
     return (
         <>
-            <Drawer padding={0} opened={opened} withCloseButton={false} onClose={toggle} size={'sm'}>
+            <Modal opened={openedUserModal} onClose={userModal.close} title={auth.user.username}>
+                {/* Modal content */}
+            </Modal>
+
+            <Drawer padding={0} opened={openedDrawer} withCloseButton={false} onClose={drawer.close} size={'sm'}>
+                <div className={sty.menu_header}>
+                    <span onClick={() => {drawer.close(); userModal.open();}}>Hi {auth.user.username}</span>
+                    <CloseButton onClick={drawer.close}/>
+                </div> 
                 <div className={sty.menu}>
-                    <MenuOption icon={<IconUpload />} text={'Upload pictures'} hrefRoute={'upload'}/>
+                    <MenuOption currentRoute={auth.route} icon={<IconPhoto size={23}/>} text={'Pictures'} hrefRoute={'dashboard'}/>
+                    <MenuOption currentRoute={auth.route} icon={<IconUpload />} text={'Upload pictures'} hrefRoute={'upload'}/>
                 </div>
             </Drawer>
 
@@ -23,7 +33,7 @@ export default function AuthLayout({ children }) {
                     <Text>Picuss</Text>
                 </div>
 
-                <Burger opened={opened} onClick={toggle} aria-label="Toggle navigation" />
+                <Burger opened={openedDrawer} onClick={drawer.toggle} aria-label="Toggle navigation" />
             </nav>
 
             {children}

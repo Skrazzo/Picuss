@@ -9,6 +9,7 @@ import '@mantine/notifications/styles.css';
 import '../../public/Assets/nprogress.css';
 import NProgress from 'nprogress';
 import { router } from '@inertiajs/react'
+import '@mantine/dropzone/styles.css';
 
 let timeout = null
 
@@ -41,7 +42,7 @@ createInertiaApp({
     resolve: (name) => resolvePageComponent(`./Pages/${name}.jsx`,import.meta.glob('./Pages/**/*.jsx')),
     setup({ el, App, props }) {
         createRoot(el).render(
-            <MantineProvider defaultColorScheme='dark' theme={{ primaryColor: 'green' }}>
+            <MantineProvider defaultColorScheme='light' theme={{ primaryColor: 'green' }}>
                 <App {...props} />
                 <Notifications />
             </MantineProvider>

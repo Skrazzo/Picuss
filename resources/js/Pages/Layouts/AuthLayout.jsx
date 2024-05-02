@@ -1,10 +1,10 @@
 import React, { Children, useEffect, useState } from 'react'
 import Logo from '../Components/Logo';
 import sty from '../../../scss/authLayout.module.scss';
-import { Burger, Button, CloseButton, Drawer, Modal, SimpleGrid, Skeleton, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { ActionIcon, Affix, Burger, Button, CloseButton, Drawer, Modal, SimpleGrid, Skeleton, Text, Transition } from '@mantine/core';
+import { useDisclosure, useWindowScroll } from '@mantine/hooks';
 import MenuOption from '../Components/MenuOption';
-import { IconLogout2, IconPhoto, IconTag, IconTags, IconUpload, IconUser } from '@tabler/icons-react';
+import { IconArrowUp, IconLogout2, IconPhoto, IconTag, IconTags, IconUpload, IconUser } from '@tabler/icons-react';
 import DisabledInputInfo from '../Components/DisabledInputInfo';
 import axios from 'axios';
 import { Link } from '@inertiajs/inertia-react';
@@ -13,6 +13,7 @@ export default function AuthLayout({ auth, children }) {
     const [openedDrawer, drawer] = useDisclosure();
     const [openedUserModal, userModal] = useDisclosure();
     const [userInfo, setUserInfo] = useState(null);
+    const [scroll, scrollTo] = useWindowScroll();
 
     useEffect(() => {
         if(openedUserModal){
@@ -63,7 +64,8 @@ export default function AuthLayout({ auth, children }) {
                 </div> 
                 <div className={sty.menu}>
                     <MenuOption currentRoute={auth.route} icon={<IconPhoto size={23}/>} text={'Pictures'} hrefRoute={'dashboard'}/>
-                    <MenuOption currentRoute={auth.route} icon={<IconUpload />} text={'Upload pictures'} hrefRoute={'upload'}/>
+                    <MenuOption currentRoute={auth.route} icon={<IconUpload />} text={'Upload pictures'} hrefRoute={'upload.index'}/>
+                    <MenuOption currentRoute={auth.route} icon={<IconTags />} text={'Manage tags'} hrefRoute={'tags.index'}/>
                 </div>
             </Drawer>
 
@@ -75,6 +77,20 @@ export default function AuthLayout({ auth, children }) {
 
                 <Burger opened={openedDrawer} onClick={drawer.toggle} aria-label="Toggle navigation" />
             </nav>
+
+            <Affix position={{ bottom: 20, right: 20 }}>
+                <Transition transition="slide-up" mounted={scroll.y > 0}>
+                {(transitionStyles) => (
+                    <ActionIcon
+                        variant='subtle'
+                        style={transitionStyles}
+                        onClick={() => scrollTo({ y: 0 })}
+                    >
+                        <IconArrowUp strokeWidth={1.5}/>
+                    </ActionIcon>
+                )}
+                </Transition>
+            </Affix>
 
             {children}
         </>

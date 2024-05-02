@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Laravel</title>
         @viteReactRefresh 
-        @vite(['resources/css/app.css', 'resources/js/app.jsx'])
+        @vite(['resources/scss/app.scss', 'resources/js/app.jsx'])
         <!-- As you can see, we will use vite with jsx syntax for React-->
         @routes
         @inertiaHead

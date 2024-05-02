@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\PictureController;
+use App\Http\Controllers\TagsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -15,4 +17,13 @@ Route::get('/logout', [UserController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     Route::get('/', function () { return Inertia::render('Dashboard'); })->name('dashboard');
     Route::get('/user/info', [UserController::class, 'get_modal_info'])->name('user.modal.info');
+
+    Route::prefix('/upload')->group(function () {
+        Route::get('/', [PictureController::class, 'index'])->name('upload.index');
+
+    });
+
+    Route::prefix('/tags')->group(function () {
+        Route::get('/', [TagsController::class, 'index'])->name('tags.index');
+    });
 });

@@ -4,12 +4,13 @@ import { Checkbox, Container, Flex, Paper, Progress, Transition } from '@mantine
 
 // ------ for file dropping ------
 import { Group, Text, rem } from '@mantine/core';
-import { IconUpload, IconPhoto, IconX, IconPhotoX } from '@tabler/icons-react';
+import { IconUpload, IconPhoto, IconX, IconPhotoX, IconTags } from '@tabler/icons-react';
 import { Dropzone } from '@mantine/dropzone';
 // -------------------------------
 
 import sty from '../../scss/upload.module.scss';
 import {compressAndAppendImage, imageCompressor} from '@mbs-dev/react-image-compressor';
+import SelectCreatableTags from './Components/SelectCreatableTags';
 
 export default function Upload({ auth }) {
     const [compress, setCompress] = useState(true);
@@ -44,6 +45,13 @@ export default function Upload({ auth }) {
         setCompressing(false);
         setCompressArr([]);
         setCompressingProgress(0);
+    }
+
+    function removeHandler(idx){
+        // making hard copy so the useState notices the change
+        let tmp = [...uploadArr]; 
+        tmp.splice(idx, 1);
+        setUploadArr(tmp);
     }
 
     useEffect(() => console.log(uploadArr), [uploadArr]);
@@ -132,15 +140,15 @@ export default function Upload({ auth }) {
                 
 
                 {uploadArr.length !== 0 &&
-                    <Paper mt={32} shadow='xs' p={'xs'} >
+                    <Paper mt={16} withBorder p={'xs'} >
                         <Text my={8}>{uploadArr.length} pictures with the size of <b style={{ color: 'var(--mantine-primary-color-8)' }}>{uploadSize} MB</b></Text>
                         
                         <div className={sty.photos}>
                             {uploadArr.map((x, i) => {
                                 return (
                                     <div key={i} className={sty.photo_container}>
-                                        <div className={sty.overlay}>
-                                            <div className={sty.circle}><IconPhotoX size={30}/></div>
+                                        <div onClick={() => removeHandler(i)} className={sty.overlay}>
+                                            <div className={sty.circle}><IconPhotoX size={24}/></div>
                                             <span>Remove picture</span>
                                         </div>
                                         <img src={URL.createObjectURL(x)} />
@@ -151,6 +159,18 @@ export default function Upload({ auth }) {
                     </Paper>
                 }
 
+                
+                {uploadArr.length !== 0 &&
+                    <Paper withBorder mt={16} p={'xs'}>
+                        <Flex align={'center'} gap={8} mb={16}>
+                            <IconTags size={28} color='var(--mantine-primary-color-8)'/>
+                            <Text mt={4}>Select picture tags</Text>
+
+                        </Flex>
+                        <SelectCreatableTags/>
+                    </Paper>
+                }
+                    
             </Container>
         </AuthLayout>
     )

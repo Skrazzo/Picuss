@@ -25,5 +25,6 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('/tags')->group(function () {
         Route::get('/', [TagsController::class, 'index'])->name('tags.index');
+        Route::post('/', [TagsController::class, 'create'])->name('tags.create');
     });
 });

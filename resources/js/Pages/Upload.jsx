@@ -1,26 +1,32 @@
 import React, { useEffect, useState } from 'react'
 import AuthLayout from './Layouts/AuthLayout'
-import { Checkbox, Container, Flex, Paper, Progress, Transition } from '@mantine/core'
+import { Button, Checkbox, Container, Flex, Paper, Progress, Slider, Transition } from '@mantine/core'
 
 // ------ for file dropping ------
 import { Group, Text, rem } from '@mantine/core';
-import { IconUpload, IconPhoto, IconX, IconPhotoX, IconTags } from '@tabler/icons-react';
+import { IconUpload, IconPhoto, IconX, IconPhotoX, IconTags, IconDownload } from '@tabler/icons-react';
 import { Dropzone } from '@mantine/dropzone';
 // -------------------------------
 
 import sty from '../../scss/upload.module.scss';
 import {compressAndAppendImage, imageCompressor} from '@mbs-dev/react-image-compressor';
 import SelectCreatableTags from './Components/SelectCreatableTags';
+import TagPill from './Components/TagPill';
+import { handleZip } from './Functions/handleZip';
 
 export default function Upload({ auth }) {
     const [compress, setCompress] = useState(true);
     const [compressing, setCompressing] = useState(false);
     const [compressingProgress, setCompressingProgress] = useState(0);
+    const [imageQuality, setImageQuality] = useState(20);
+    
+    // Modify variables    
     const [compressArr, setCompressArr] = useState([]);
     const [uploadArr, setUploadArr] = useState([]);
 
     const [uploadSize, setUploadSize] = useState(0);
-
+    const [selectedTags, setSelectedTags] = useState([]);
+    
     function dropHandler(files){
         if (compress){ 
             setCompressing(true);
@@ -35,7 +41,7 @@ export default function Upload({ auth }) {
 
         for (const x of compressArr){
             console.log('compressing',x.name);
-            const compressedImage = await imageCompressor(x, 0.2);
+            const compressedImage = await imageCompressor(x, imageQuality / 100);
             tmp.push(compressedImage);
 
             setCompressingProgress(Math.round((tmp.length * 100) / compressArr.length * 100) / 100);
@@ -47,11 +53,26 @@ export default function Upload({ auth }) {
         setCompressingProgress(0);
     }
 
-    function removeHandler(idx){
+    function removeImageHandler(idx){
         // making hard copy so the useState notices the change
         let tmp = [...uploadArr]; 
         tmp.splice(idx, 1);
         setUploadArr(tmp);
+    }
+
+    function removeTagHandler(idx){
+        // making hard copy so the useState notices the change
+        let tmp = [...selectedTags]; 
+        tmp.splice(idx, 1);
+        setSelectedTags(tmp);
+    }
+
+    // Add selected tag and display it with useState
+    // And check if it already is displayed, add if not
+    function addTagHandler(tag){
+        if (!selectedTags.includes(tag)){
+            setSelectedTags([...selectedTags, tag]);
+        }
     }
 
     useEffect(() => console.log(uploadArr), [uploadArr]);
@@ -121,6 +142,14 @@ export default function Upload({ auth }) {
                         label="Compress my pictures before upload"
                     />
 
+                   
+                    {compress &&
+                        <Slider max={80} w={'100%'} mt={8} disabled={compressing} value={imageQuality} onChange={setImageQuality} label={(value) => `Image quality: ${value} %`}/>
+                    }    
+                        
+                    
+                    
+
 
                     <Transition
                         mounted={compressing}
@@ -141,13 +170,16 @@ export default function Upload({ auth }) {
 
                 {uploadArr.length !== 0 &&
                     <Paper mt={16} withBorder p={'xs'} >
-                        <Text my={8}>{uploadArr.length} pictures with the size of <b style={{ color: 'var(--mantine-primary-color-8)' }}>{uploadSize} MB</b></Text>
-                        
+                        <Flex gap={8} align={'center'} justify={'space-between'}>
+                            <Text my={8}>{uploadArr.length} pictures with the size of <b style={{ color: 'var(--mantine-primary-color-8)' }}>{uploadSize} MB</b></Text>
+                            <Button onClick={() => handleZip(uploadArr)} size='xs' variant='light' leftSection={<IconDownload size={20}/>}>Download</Button>
+                        </Flex>
+
                         <div className={sty.photos}>
                             {uploadArr.map((x, i) => {
                                 return (
-                                    <div key={i} className={sty.photo_container}>
-                                        <div onClick={() => removeHandler(i)} className={sty.overlay}>
+                                    <div key={x.name} className={sty.photo_container}>
+                                        <div onClick={() => removeImageHandler(i)} className={sty.overlay}>
                                             <div className={sty.circle}><IconPhotoX size={24}/></div>
                                             <span>Remove picture</span>
                                         </div>
@@ -161,13 +193,24 @@ export default function Upload({ auth }) {
 
                 
                 {uploadArr.length !== 0 &&
-                    <Paper withBorder mt={16} p={'xs'}>
+                    <Paper withBorder mt={16} p={'xs'} mb={128}>
                         <Flex align={'center'} gap={8} mb={16}>
                             <IconTags size={28} color='var(--mantine-primary-color-8)'/>
                             <Text mt={4}>Select picture tags</Text>
 
                         </Flex>
-                        <SelectCreatableTags/>
+
+                        <SelectCreatableTags select={(tag_array) => addTagHandler(tag_array)}/>
+
+                        {selectedTags.length !== 0 &&
+                            <Paper withBorder mt={8} p={'sm'}>
+                                <Flex gap={8} wrap={'wrap'}>
+                                    {selectedTags.map((tag, idx) => 
+                                        <TagPill key={tag.name} remove={() => removeTagHandler(idx)} name={tag.name}/>
+                                    )}
+                                </Flex>
+                            </Paper>
+                        }
                     </Paper>
                 }
                     

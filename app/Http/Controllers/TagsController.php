@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 
 class TagsController extends Controller
@@ -26,7 +27,14 @@ class TagsController extends Controller
      */
     public function get(Request $request)
     {
-        $tags = $request->user()->tag()->get();
+        // Get only needed info from the database, and sort it        
+        $tags = $request->user()->tag()
+            ->orderBy('name', 'ASC')
+            ->get()
+            ->map(function ($tag) {
+                return ['name' => $tag['name'], 'id' => $tag['id']];
+            });
+
         return response()->json($tags);
     }
 

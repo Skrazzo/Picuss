@@ -7,21 +7,47 @@ use Inertia\Inertia;
 
 class TagsController extends Controller
 {
-    public function index(Request $req){
+    /**
+     * Renders the tags management page using the Inertia library.
+     *
+     * @param Request $request The HTTP request object.
+     * @return \Inertia\Response The Inertia response.
+     */
+    public function index(Request $request)
+    {
         return Inertia::render('ManageTags');
     }
 
-    public function create(Request $req){
-        $data = $req->validate([
+    /**
+     * Retrieves the tags associated with the authenticated user.
+     *
+     * @param Request $request The HTTP request object.
+     * @return \Illuminate\Http\JsonResponse The JSON response containing the tags.
+     */
+    public function get(Request $request)
+    {
+        $tags = $request->user()->tag()->get();
+        return response()->json($tags);
+    }
+
+    /**
+     * Creates a new tag.
+     *
+     * @param Request $request The HTTP request object.
+     * @return \Illuminate\Http\RedirectResponse The redirect response.
+     */
+    public function create(Request $request)
+    {
+        $data = $request->validate([
             'name' => 'required|max:20'
         ]);
 
         $data['name'] = strtolower($data['name']); // all tags should be saved in lowercase
 
-        $user = $req->user();
+        $user = $request->user();
         $tag = $user->tag()->where('name', $data['name'])->first();
-        
-        if($tag) {
+
+        if ($tag) {
             return back()->withErrors([
                 'name' => 'Tag already exists!'
             ]);

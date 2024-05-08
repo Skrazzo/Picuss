@@ -1,9 +1,9 @@
 import { IconPhotoX } from '@tabler/icons-react';
 import sty from '../../../scss/upload.module.scss';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 const UploadImagePreview = React.memo(({ blob, onRemove }) => {
-    console.log('image render', blob);
+    const imageURL = useMemo(() => URL.createObjectURL(blob), [blob]);
 
     return (
         <div className={sty.photo_container}>
@@ -11,7 +11,7 @@ const UploadImagePreview = React.memo(({ blob, onRemove }) => {
                 <div className={sty.circle}><IconPhotoX size={24}/></div>
                 <span>Remove picture</span>
             </div>
-            <img src={URL.createObjectURL(blob)} />
+            <img src={imageURL} />
         </div>   
     );
 });

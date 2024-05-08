@@ -91,6 +91,11 @@ export default function Upload({ auth }) {
     useEffect(() => console.log(uploadArr), [uploadArr]);
     
     useEffect(() => {
+        if (uploadArr.length === 0) {
+            setUploadSize({ compressedSize: 0, unCompressedSize: 0 });
+            return;
+        }
+
         let size = 0;
         uploadArr.forEach(x => size += x.size);
         setUploadSize({...uploadSize,  compressedSize: Math.round(size / 1024 ** 2 * 100) / 100 });
@@ -181,8 +186,8 @@ export default function Upload({ auth }) {
                     <Paper mt={16} withBorder p={'xs'} >
                         <Flex gap={8} align={'center'} justify={'space-between'}>
                             <Text my={8}>
-                                {uploadArr.length} pictures with the size of <b style={{ color: 'var(--mantine-primary-color-8)' }}>{uploadSize.compressedSize} MB</b> 
-                                {(uploadSize.unCompressedSize !== 0) ? <span> saved <b style={{ color: 'var(--mantine-primary-color-8)' }}> {Math.round((uploadSize.unCompressedSize - uploadSize.compressedSize) * 100) / 100} MB</b></span> : ''} 
+                                {uploadArr.length} pictures with the size of <b style={{ color: 'var(--mantine-primary-color-8)' }}>{uploadSize.compressedSize} MB </b> 
+                                saved <b style={{ color: 'var(--mantine-primary-color-8)' }}> {Math.round((uploadSize.unCompressedSize - uploadSize.compressedSize) * 100) / 100} MB</b>
                             </Text>
                             <Button onClick={() => handleZip(uploadArr)} size='xs' variant='light' leftSection={<IconDownload size={20}/>}>Download</Button>
                         </Flex>

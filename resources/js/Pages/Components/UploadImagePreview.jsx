@@ -2,7 +2,7 @@ import { IconPhotoX } from '@tabler/icons-react';
 import sty from '../../../scss/upload.module.scss';
 import React, { useMemo } from 'react';
 
-const UploadImagePreview = React.memo(({ blob, onRemove }) => {
+export default function UploadImagePreview({ blob, onRemove }) {
     const imageURL = useMemo(() => URL.createObjectURL(blob), [blob]);
 
     return (
@@ -14,8 +14,4 @@ const UploadImagePreview = React.memo(({ blob, onRemove }) => {
             <img src={imageURL} />
         </div>   
     );
-});
-
-export default UploadImagePreview;
-    
-
+};

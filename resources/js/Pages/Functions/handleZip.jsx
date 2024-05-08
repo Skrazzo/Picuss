@@ -6,7 +6,20 @@ async function handleZip(images) {
 
     // Add Images to the zip file
     for (let i = 0; i < images.length; i++) {
-        zip.file(images[i].name, images[i]);
+        const filename = images[i].name;
+
+        // Find the last dot index
+        const lastDotIndex = filename.lastIndexOf('.');
+        
+        // Extract file name without extension
+        const filenameWithoutExtension = lastDotIndex !== -1 ? filename.slice(0, lastDotIndex) : filename;
+        
+        // Extract file extension
+        const fileExtension = lastDotIndex !== -1 ? filename.slice(lastDotIndex + 1) : '';
+
+        // add timestamp to the name
+        const finalName = filenameWithoutExtension + '_' + Date.now() + '.' + fileExtension;
+        zip.file(finalName, images[i]);
     }
 
     // Generate the zip file

@@ -13,6 +13,7 @@ import {compressAndAppendImage, imageCompressor} from '@mbs-dev/react-image-comp
 import SelectCreatableTags from './Components/SelectCreatableTags';
 import TagPill from './Components/TagPill';
 import { handleZip } from './Functions/handleZip';
+import UploadImagePreview from './Components/UploadImagePreview';
 
 export default function Upload({ auth }) {
     const [compress, setCompress] = useState(true);
@@ -24,10 +25,22 @@ export default function Upload({ auth }) {
     const [compressArr, setCompressArr] = useState([]);
     const [uploadArr, setUploadArr] = useState([]);
 
-    const [uploadSize, setUploadSize] = useState(0);
+    
+    const [uploadSize, setUploadSize] = useState({ compressedSize: 0, unCompressedSize: 0 });
     const [selectedTags, setSelectedTags] = useState([]);
     
     function dropHandler(files){
+        /*
+            We need need to count uncompressed file size, so we can compare how much
+            data we have saved
+        */
+        let oldSize = 0; // old file size
+        for (const file of files){
+            oldSize += file.size;
+        }
+
+        setUploadSize({ ...uploadSize, unCompressedSize: uploadSize.unCompressedSize + Math.round(oldSize / 1024 ** 2 * 100) / 100 });
+
         if (compress){ 
             setCompressing(true);
             setCompressArr(files); // useEffect is watching this array
@@ -38,13 +51,13 @@ export default function Upload({ auth }) {
 
     async function compressHandler(){
         let tmp = [];
-
+        
         for (const x of compressArr){
-            console.log('compressing',x.name);
+            // console.log('compressing',x.name);
+            
             const compressedImage = await imageCompressor(x, imageQuality / 100);
             tmp.push(compressedImage);
-
-            setCompressingProgress(Math.round((tmp.length * 100) / compressArr.length * 100) / 100);
+            setCompressingProgress(Math.round((tmp.length * 10) / compressArr.length * 100) / 10);
         }
         
         setUploadArr([...uploadArr, ...tmp]);
@@ -80,7 +93,7 @@ export default function Upload({ auth }) {
     useEffect(() => {
         let size = 0;
         uploadArr.forEach(x => size += x.size);
-        setUploadSize(Math.round(size / 1024 ** 2 * 100) / 100);
+        setUploadSize({...uploadSize,  compressedSize: Math.round(size / 1024 ** 2 * 100) / 100 });
         
     }, [uploadArr]);
 
@@ -147,10 +160,6 @@ export default function Upload({ auth }) {
                         <Slider max={80} w={'100%'} mt={8} disabled={compressing} value={imageQuality} onChange={setImageQuality} label={(value) => `Image quality: ${value} %`}/>
                     }    
                         
-                    
-                    
-
-
                     <Transition
                         mounted={compressing}
                         transition="fade-down"
@@ -171,21 +180,19 @@ export default function Upload({ auth }) {
                 {uploadArr.length !== 0 &&
                     <Paper mt={16} withBorder p={'xs'} >
                         <Flex gap={8} align={'center'} justify={'space-between'}>
-                            <Text my={8}>{uploadArr.length} pictures with the size of <b style={{ color: 'var(--mantine-primary-color-8)' }}>{uploadSize} MB</b></Text>
+                            <Text my={8}>
+                                {uploadArr.length} pictures with the size of <b style={{ color: 'var(--mantine-primary-color-8)' }}>{uploadSize.compressedSize} MB</b> 
+                                {(uploadSize.unCompressedSize !== 0) ? <span> saved <b style={{ color: 'var(--mantine-primary-color-8)' }}> {Math.round((uploadSize.unCompressedSize - uploadSize.compressedSize) * 100) / 100} MB</b></span> : ''} 
+                            </Text>
                             <Button onClick={() => handleZip(uploadArr)} size='xs' variant='light' leftSection={<IconDownload size={20}/>}>Download</Button>
                         </Flex>
 
                         <div className={sty.photos}>
                             {uploadArr.map((x, i) => {
                                 return (
-                                    <div key={x.name} className={sty.photo_container}>
-                                        <div onClick={() => removeImageHandler(i)} className={sty.overlay}>
-                                            <div className={sty.circle}><IconPhotoX size={24}/></div>
-                                            <span>Remove picture</span>
-                                        </div>
-                                        <img src={URL.createObjectURL(x)} />
-                                    </div>
+                                    <UploadImagePreview key={x.name} blob={x} onRemove={() => removeImageHandler(i)}/>
                                 );
+                                
                             })}
                         </div>
                     </Paper>

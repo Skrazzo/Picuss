@@ -22,6 +22,7 @@ export default function Upload({ auth }) {
     const [compressing, setCompressing] = useState(false);
     const [compressingProgress, setCompressingProgress] = useState(0);
     const [imageQuality, setImageQuality] = useState(20);
+    const [uploading, setUploading] = useState(false);
     
     // Modify variables    
     const [compressArr, setCompressArr] = useState([]);
@@ -97,7 +98,7 @@ export default function Upload({ auth }) {
             upload it to laravel
         */
 
-        
+        setUploading(true);
         
         handleZip({ images: uploadArr, download: false }).then((zipFile) => {
             // After zipping files, upload them to the cloud
@@ -106,9 +107,9 @@ export default function Upload({ auth }) {
             data.append('zip', zipFile);
             data.append('tags', JSON.stringify(selectedTags));
             
-    
-            // setUploadArr([]);
-            // setUploadSize({ compressedSize: 0, unCompressedSize: 0 });
+            // reset variables
+            setUploadArr([]);
+            setUploadSize({ compressedSize: 0, unCompressedSize: 0 });
     
             axios.post(route('upload.post'), data ,
             { // config
@@ -128,6 +129,10 @@ export default function Upload({ auth }) {
                     color: 'red',
                     icon: <IconBug strokeWidth={1.25}/>
                 });
+            })
+            .finally(() => {
+                setSelectedTags([]);
+                setUploading(false);
             });
         });
     }
@@ -157,7 +162,7 @@ export default function Upload({ auth }) {
             <Container size={'md'} py={'md'} >
                 <Dropzone
                     loading={compressing}
-                    
+                    disabled={uploading}
                     mt={16}
                     onDrop={(files) => dropHandler(files)}
                     onReject={(files) => console.log('rejected files', files)}
@@ -273,8 +278,8 @@ export default function Upload({ auth }) {
 
                 {selectedTags.length !== 0 &&
                     <Flex mb={128} gap={8}>
-                        <Button onClick={uploadHandler} leftSection={<IconUpload />} >Upload</Button>
-                        <Button leftSection={<IconClearAll />} variant='subtle'>Cancel</Button>
+                        <Button loading={uploading} onClick={uploadHandler} leftSection={<IconUpload />} >Upload</Button>
+                        <Button disabled={uploading} leftSection={<IconClearAll />} variant='subtle'>Cancel</Button>
                     </Flex>
                 }
                 

@@ -1,7 +1,7 @@
 import JSZip from "jszip";
 
 
-async function handleZip(images) {
+async function handleZip({ images, download = true }) {
     const zip = new JSZip();
 
     // Add Images to the zip file
@@ -28,11 +28,15 @@ async function handleZip(images) {
         streamFiles: true,
     });
 
-    // Create a download link for the zip file
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(zipData);
-    link.download = "Compressed pictures.zip";
-    link.click();
+    if (download) {
+        // Create a download link for the zip file
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(zipData);
+        link.download = "Compressed pictures.zip";
+        link.click();
+    }else{
+        return zipData;
+    }
 }
 
 export { handleZip };

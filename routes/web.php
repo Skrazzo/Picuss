@@ -21,7 +21,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('/upload')->group(function () {
         Route::get('/', [PictureController::class, 'index'])->name('upload.index'); // Render upload page
-
+        Route::post('/', [PictureController::class, 'upload'])->name('upload.post'); // Upload image zip
     });
 
     Route::prefix('/tags')->group(function () {

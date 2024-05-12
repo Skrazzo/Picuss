@@ -49,6 +49,11 @@ return [
             'root' => '/home/skrazzo/Desktop/tmpZipFiles',
         ],
 
+        'images' => [
+            'driver' => 'local',
+            'root' => storage_path('app') . '/images/',
+        ],
+
     ],
 
     /*

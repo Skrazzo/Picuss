@@ -30,3 +30,5 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [TagsController::class, 'create'])->name('tags.create'); // Api POST call to create a new tag
     });
 });
+
+Route::get('/zip', [PictureController::class, 'get_zip']);

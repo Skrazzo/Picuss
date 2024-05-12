@@ -108,8 +108,8 @@ export default function Upload({ auth }) {
             data.append('tags', JSON.stringify(selectedTags));
             
             // reset variables
-            // setUploadArr([]);
-            // setUploadSize({ compressedSize: 0, unCompressedSize: 0 });
+            setUploadArr([]);
+            setUploadSize({ compressedSize: 0, unCompressedSize: 0 });
     
             axios.post(route('upload.post'), data ,
             { // config
@@ -131,7 +131,7 @@ export default function Upload({ auth }) {
                 });
             })
             .finally(() => {
-                // setSelectedTags([]);
+                setSelectedTags([]);
                 setUploading(false);
             });
         });

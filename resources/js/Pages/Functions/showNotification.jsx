@@ -16,6 +16,7 @@ const showNotification = ({
         message: message,
         color: color,
         withBorder: withBorder,
+        withCloseButton: withCloseButton
     });
 }
 

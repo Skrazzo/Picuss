@@ -105,7 +105,10 @@ export default function Upload({ auth }) {
             // We are using FormData, because we cannot send blob otherwise with axios
             const data = new FormData();
             data.append('zip', zipFile);
-            data.append('tags', JSON.stringify(selectedTags));
+
+            // Convert selected tags, to array of tag ids
+            const tagIds = selectedTags.map(tag => tag.id);
+            data.append('tags', JSON.stringify(tagIds));
             
             // reset variables
             setUploadArr([]);
@@ -118,7 +121,12 @@ export default function Upload({ auth }) {
                 }
             })
             .then(res => {
-                console.log('Response:',res.data);
+                // console.log('Response:',res.data);
+                // show good notification
+                showNotification({ 
+                    message: res.data.message,
+                    title: 'Success',
+                });
             })
             .catch(err => {
                 console.error(err);
@@ -130,7 +138,7 @@ export default function Upload({ auth }) {
                     icon: <IconBug strokeWidth={1.25}/>
                 });
             })
-            .finally(() => {
+            .finally((res) => {
                 setSelectedTags([]);
                 setUploading(false);
             });

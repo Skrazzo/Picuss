@@ -16,5 +16,9 @@ class Tags extends Model
         return $this->belongsTo(\App\Models\User::class);
     }
 
+    protected $casts = [
+        'tags' => 'array'
+    ];
+
     use HasFactory;
 }

@@ -105,6 +105,7 @@ export default function SelectCreatableTags({ select }) {
                     rightSection={(processing || loading) ? <Loader size={18}/> : <Combobox.Chevron />}
                     disabled={processing || loading}
                     rightSectionPointerEvents="none"
+                    maxLength={20}
                 />
             </Combobox.Target>
 

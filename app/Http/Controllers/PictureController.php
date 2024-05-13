@@ -15,12 +15,12 @@ class PictureController extends Controller
 
     public function upload(Request $req){
         $data = $req->validate([
-            'zip' => 'required|file|mimes:zip',
+            'zip' => 'required|file|mimes:zip|max:512000', // 500MB
             'tags' => 'required|json'
         ]);
 
-        
         $SERVER_TMP_ZIP_DISK = env('SERVER_TMP_ZIP_DISK', 'tmp');
+        $SERVER_IMAGE_DISK = env('SERVER_IMAGE_DISK', 'images');
         $tmpZipFile = '';
 
         if ($req->file('zip')->isValid()) {
@@ -30,27 +30,13 @@ class PictureController extends Controller
             return response()->json([ 'message' => 'File is not valid' ], 400);
         }
 
-        // Open zip containing all compressed images and read all of its contents
-        $zipPath = Storage::disk($SERVER_TMP_ZIP_DISK)->get($tmpZipFile);
-
-        
-
-
-        return response()->json($data);
-    }
-
-    public function get_zip(){
-        $SERVER_TMP_ZIP_DISK = env('SERVER_TMP_ZIP_DISK', 'tmp');
-        $SERVER_IMAGE_DISK = env('SERVER_IMAGE_DISK', 'images');
-
-        $tmpZipFile = 'wpVVlV1OlSMP1FPnt4odty42Vxx0MYrpmsaZ7RDG.zip';
-
-        
+        // Check if zip file exists
         if (!Storage::disk($SERVER_TMP_ZIP_DISK)->exists($tmpZipFile)) {
             // This error really shouldn't appear, but im making it just in case
-            dd('Temporary zip file does not exist!'); // Replace with proper response
+            return response()->json([ 'message' => 'Temporary zip file does not exist!'], 404);
         }
 
+        // Open zip file
         $zipPath = Storage::disk($SERVER_TMP_ZIP_DISK)->path($tmpZipFile);
 
         $zip = new ZipArchive();
@@ -58,7 +44,7 @@ class PictureController extends Controller
 
         // Check if zip has been opened properly
         if (!$zipStatus) {
-            dd('Could not open zip file'); // replace with error response
+            return response()->json([ 'message' => 'Could not open zip file'], 500);
         }
 
         // get all zip file contents
@@ -77,23 +63,46 @@ class PictureController extends Controller
 
         // Check if any of zip files were found in the image directory
         if (!$noOverwrite) {
-            dd("Files exist in destination directory!"); // Replace with proper response
+            return response()->json([ 'message' => "Files exist in destination directory!"], 409);
         }
 
         // Extract zip file
         $success = $zip->extractTo(Storage::disk($SERVER_IMAGE_DISK)->path(''));
         if (!$success) {
-            dd("Files could not be extracted!");
+            return response()->json([ 'message' => "Files could not be extracted!" ], 500);
         }
-        
+
+        // close zip
+        $zip->close();
+
         // Delete zip file
         $deleted = Storage::disk($SERVER_TMP_ZIP_DISK)->delete($tmpZipFile);
         if (!$deleted) {
-            dd("Could not delete temporary zip file!"); // Replace with proper response
+            return response()->json([ 'message' => "Could not delete temporary zip file!"], 500);
         }
 
+        // Check if all files are extracted successfully, and if they're then add to the database
+        $allExtracted = true;
+        foreach ($zipFiles as $file) {
+            if (!Storage::disk($SERVER_IMAGE_DISK)->exists($file)) {
+                $allExtracted = false;
+                continue;
+            }
 
-        // TODO: Add to the database
-        dd('hello world');
+            $id = $req->user()->picture()->create([
+                'image' => $file,
+                'tags' => $data['tags'] // tag ids
+            ]);
+
+            if (!$id) { // check if database record was created successfully
+                return response()->json([ 'message' => 'Could not create a database record!' ], 500);
+            }
+        }
+
+        if (!$allExtracted) {
+            return response()->json([ 'message' => 'Not all files could be extracted successfully!'], 500);
+        }
+
+        return response()->json([ 'message' => 'All images were uploaded successfully' ], 201);
     }
 }

@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pictures', function (Blueprint $table) {
-            $table->string('id')->primary()->default(uniqid());
+            $table->id();
+            $table->string('public_id')->nullable()->unique();
             $table->foreignId('user_id')->constrained();
             $table->text('image');
             $table->json('tags')->default(json_encode([]));
-            $table->string('name');
             $table->timestamps();
         });
     }

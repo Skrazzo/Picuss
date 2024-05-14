@@ -1,12 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import AuthLayout from './Layouts/AuthLayout'
-import { Button, Container, Flex, Input } from '@mantine/core';
+import { Button, CloseButton, Container, Flex, Input } from '@mantine/core';
 import TitleWithIcon from './Components/TitleWithIcon';
-import { IconTags } from '@tabler/icons-react';
-import TagList from './Components/TagList';
+import { IconSearch, IconTags } from '@tabler/icons-react';
+import TagList from './Components/TagList/TagList';
 
 
 export default function ManageTags({ auth, tags }) {
+    const [search, setSearch] = useState('');
+    
     return (
         <AuthLayout auth={auth}>
             <Container size={'md'} py={'md'} >
@@ -14,7 +16,12 @@ export default function ManageTags({ auth, tags }) {
                 
                 <Flex gap={8}>
                     <Input.Wrapper label="" description="Search or create new tags" error="" w={'100%'}>
-                        <Input placeholder="Search tag name" />
+                        <Input 
+                            value={search}
+                            onChange={(e) => setSearch(e.currentTarget.value)}
+                            leftSection={<IconSearch size={18} />}
+                            placeholder="Search tag name"
+                        />
                     </Input.Wrapper>
                 </Flex>
 

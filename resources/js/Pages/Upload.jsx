@@ -16,6 +16,7 @@ import { handleZip } from './Functions/handleZip';
 import UploadImagePreview from './Components/UploadImagePreview';
 import axios from 'axios';
 import showNotification from './Functions/showNotification';
+import TitleWithIcon from './Components/TitleWithIcon';
 
 export default function Upload({ auth }) {
     const [compress, setCompress] = useState(true);
@@ -168,6 +169,7 @@ export default function Upload({ auth }) {
     return (
         <AuthLayout auth={auth}>
             <Container size={'md'} py={'md'} >
+                <TitleWithIcon title='Upload pictures' order={3} icon={<IconUpload size={28} strokeWidth={1.5}/>} my={16}/>
                 <Dropzone
                     loading={compressing}
                     disabled={uploading}

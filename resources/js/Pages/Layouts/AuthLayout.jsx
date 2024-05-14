@@ -70,7 +70,7 @@ export default function AuthLayout({ auth, children }) {
             </Drawer>
 
             <nav className={sty.nav}>
-                <div className={sty.logo}>
+                <div className={sty.logo} onClick={() => drawer.open()}>
                     <Logo size={50}/>
                     <Text>Picuss</Text>
                 </div>

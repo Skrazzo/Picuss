@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class TagsController extends Controller
@@ -15,19 +16,19 @@ class TagsController extends Controller
      * @return \Inertia\Response The Inertia response.
      */
     public function index(Request $req) {
-        // $pictures = $req->user()->picture()->get();
         $tags = $req->user()->tag()
-            ->orderBy('name', 'ASC')
+            ->orderBy('created_at', 'DESC')
             ->get()
             ->map(function ($tag, $idx) {
                 // Search json for the tag id
+                // It shows an error, but trust me bro, it works
                 $pictureCount = auth()->user()->picture()->whereJsonContains('tags', $tag['id'])->count();
                      
                 return ['name' => $tag['name'], 'id' => $tag['id'], 'pictureCount' => $pictureCount];
             });
 
                 
-        return Inertia::render('ManageTags');
+        return Inertia::render('ManageTags', [ 'tags' => $tags ]);
     }
 
     /**

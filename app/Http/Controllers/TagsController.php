@@ -14,8 +14,17 @@ class TagsController extends Controller
      * @param Request $request The HTTP request object.
      * @return \Inertia\Response The Inertia response.
      */
-    public function index(Request $request)
-    {
+    public function index(Request $req) {
+        $pictures = $req->user()->picture()->get();
+        $tags = $req->user()->tag()
+            ->orderBy('name', 'ASC')
+            ->get()
+            ->map(function ($tag) {
+                
+                return ['name' => $tag['name'], 'id' => $tag['id']];
+            });
+
+        dd($pictures[0]->tags);
         return Inertia::render('ManageTags');
     }
 

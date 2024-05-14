@@ -91,7 +91,7 @@ class PictureController extends Controller
 
             $id = $req->user()->picture()->create([
                 'image' => $file,
-                'tags' => $data['tags'] // tag ids
+                'tags' => json_decode($data['tags']) // tag ids
             ]);
 
             if (!$id) { // check if database record was created successfully

@@ -27,6 +27,17 @@
         
         min-height: 350px;
 
+        .create_msg {
+            padding: 1rem;
+            background-color: var(--mantine-primary-color-light);
+
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+
+            border-bottom: 1px solid var(--mantine-color-default-border);
+        }
+
         &_empty {
             @extend .tag_container;
             

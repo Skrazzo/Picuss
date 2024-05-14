@@ -25,7 +25,7 @@ export default function ManageTags({ auth, tags }) {
                     </Input.Wrapper>
                 </Flex>
 
-                <TagList tags={tags}/>
+                <TagList tags={tags} search={search}/>
             </Container>
         </AuthLayout>
     )

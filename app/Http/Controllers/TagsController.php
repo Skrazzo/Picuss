@@ -15,16 +15,18 @@ class TagsController extends Controller
      * @return \Inertia\Response The Inertia response.
      */
     public function index(Request $req) {
-        $pictures = $req->user()->picture()->get();
+        // $pictures = $req->user()->picture()->get();
         $tags = $req->user()->tag()
             ->orderBy('name', 'ASC')
             ->get()
-            ->map(function ($tag) {
-                
-                return ['name' => $tag['name'], 'id' => $tag['id']];
+            ->map(function ($tag, $idx) {
+                // Search json for the tag id
+                $pictureCount = auth()->user()->picture()->whereJsonContains('tags', $tag['id'])->count();
+                     
+                return ['name' => $tag['name'], 'id' => $tag['id'], 'pictureCount' => $pictureCount];
             });
 
-        dd($pictures[0]->tags);
+                
         return Inertia::render('ManageTags');
     }
 

@@ -7,9 +7,8 @@ import CheckTag from './CheckTag';
 import capitalizeFirstLetter from '../../Functions/capitalizeFirstLetter';
 import removeArrValue from '../../Functions/removeArrValue';
 
-export default function TagList({ tags, search }) {
+export default function TagList({ tags, search, setTags }) {
     const [selectedTags, setSelectedTags] = useState([]);
-    const [useTags, setUseTags] = useState(tags);
 
     const empty_list_children = <>
         <div className={sty.tag_container_empty}>
@@ -81,9 +80,9 @@ export default function TagList({ tags, search }) {
                     }
                 </Transition>
 
-                {(useTags.length === 0) ? empty_list_children : 
+                {(tags.length === 0) ? empty_list_children : 
                     <div>
-                        {useTags.map((tag) => {
+                        {tags.map((tag) => {
                             if (search === '' || tag.name.toLowerCase().includes(search.toLowerCase())) {
                                 return <CheckTag
                                     key={tag.name}
@@ -92,7 +91,7 @@ export default function TagList({ tags, search }) {
                                     id={tag.id}
                                     onChange={checkboxCheckHandler}
                                     checked={selectedTags.includes(tag.id)}
-                                    setTags={(tags) => setUseTags(tags)}
+                                    setTags={setTags}
                                 />;
                             }
                         })}

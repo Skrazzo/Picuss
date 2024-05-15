@@ -76,19 +76,29 @@ class TagsController extends Controller
 
         $user->tag()->create($data);
 
-        return back();
+        $tags = $request->user()->tag()
+            ->orderBy('created_at', 'DESC')
+            ->get()
+            ->map(function ($tag, $idx) {
+                // Search json for the tag id
+                // It shows an error, but trust me bro, it works
+                $pictureCount = auth()->user()->picture()->whereJsonContains('tags', $tag['id'])->count();
+                     
+                return ['name' => $tag['name'], 'id' => $tag['id'], 'pictureCount' => $pictureCount];
+            });
+        return back()->with('tags', $tags);
     }
 
     function editName(Tags $tag, Request $req) {
-        $data = $req->validate([
+        $data = $req->validate([ // validate tag name
             'name' => 'required|max:20'
         ]);
 
-        if ($tag->user_id !== $req->user()->id) {
+        if ($tag->user_id !== $req->user()->id) { // check if user is the owner of the tag
             return response()->json([ 'message' => 'This is not your tag ...' ], 403);
         }
 
-        $tag->name = strtolower($data['name']);
+        $tag->name = strtolower($data['name']); // All tags are lowercased
         if($tag->save()) {
             // Get only needed info from the database, and sort it        
             $tags = $req->user()->tag()
@@ -104,7 +114,7 @@ class TagsController extends Controller
 
             return response()->json([ 'message' => 'Successfully changed tag name', 'tags' => $tags ]);
         }
-        
-        return response()->json([ 'message' => 'It seems that database did not save new name', 'tags' => [] ]);
+        // This error should not happen unless database failes to save the record
+        return response()->json([ 'message' => 'It seems that database did not save new name', 'tags' => [] ], 500);
     }
 }

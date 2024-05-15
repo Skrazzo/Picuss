@@ -76,23 +76,27 @@
     gap: 0.25rem;
     padding: 0.5rem 0.9rem;
 
-    border-left: 2px solid transparent;
+    border-left: 3px solid transparent;
 
     height: 3rem;
     
-    &:nth-child(odd) {
-        background-color: var(--mantine-color-default-hover);
+    &:nth-child(even) {
+        background-color: var(--mantine-color-default);
     }
 
     transition: 250ms ease-in;
     &_selected {
         @extend .tag;
 
-        border-left: 2px solid var(--mantine-color-anchor);
+        border-left: 3px solid var(--mantine-color-anchor);
         background-color: var(--mantine-primary-color-light);
 
         &:nth-child(even) {
             background-color: var(--mantine-primary-color-light-hover);
+        }
+
+        &:nth-child(odd) {
+            background-color: var(--mantine-primary-color-light );
         }
     }
 }

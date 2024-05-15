@@ -25,8 +25,11 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('/tags')->group(function () {
-        Route::get('/', [TagsController::class, 'index'])->name('tags.index'); // Render manage tags page
-        Route::get('/get', [TagsController::class, 'get'])->name('tags.get'); // Get all user tags in api format
-        Route::post('/', [TagsController::class, 'create'])->name('tags.create'); // Api POST call to create a new tag
+        Route::controller(TagsController::class)->group(function () {
+            Route::get('/', 'index')->name('tags.index'); // Render manage tags page
+            Route::get('/get', 'get')->name('tags.get'); // Get all user tags in api format
+            Route::post('/', 'create')->name('tags.create'); // Api POST call to create a new tag
+            Route::put('/name/{tag:id}', 'editName')->name('tags.editName'); // Edit tag name
+        });
     });
 });

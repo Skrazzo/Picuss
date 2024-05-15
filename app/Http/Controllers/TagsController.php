@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Tags;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -76,5 +77,34 @@ class TagsController extends Controller
         $user->tag()->create($data);
 
         return back();
+    }
+
+    function editName(Tags $tag, Request $req) {
+        $data = $req->validate([
+            'name' => 'required|max:20'
+        ]);
+
+        if ($tag->user_id !== $req->user()->id) {
+            return response()->json([ 'message' => 'This is not your tag ...' ], 403);
+        }
+
+        $tag->name = strtolower($data['name']);
+        if($tag->save()) {
+            // Get only needed info from the database, and sort it        
+            $tags = $req->user()->tag()
+                ->orderBy('name', 'ASC')
+                ->get()
+                ->map(function ($tag, $idx) {
+                    // Search json for the tag id
+                    // It shows an error, but trust me bro, it works
+                    $pictureCount = auth()->user()->picture()->whereJsonContains('tags', $tag['id'])->count();
+                         
+                    return ['name' => $tag['name'], 'id' => $tag['id'], 'pictureCount' => $pictureCount];
+                });
+
+            return response()->json([ 'message' => 'Successfully changed tag name', 'tags' => $tags ]);
+        }
+        
+        return response()->json([ 'message' => 'It seems that database did not save new name', 'tags' => [] ]);
     }
 }

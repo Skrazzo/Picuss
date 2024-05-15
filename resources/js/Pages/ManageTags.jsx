@@ -21,6 +21,7 @@ export default function ManageTags({ auth, tags }) {
                             onChange={(e) => setSearch(e.currentTarget.value)}
                             leftSection={<IconSearch size={18} />}
                             placeholder="Search tag name"
+                            maxLength={20}
                         />
                     </Input.Wrapper>
                 </Flex>

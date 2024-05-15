@@ -12,20 +12,28 @@
         padding: 0.5rem;
 
         border-bottom: 1px solid var(--mantine-color-default-border);
-        background-color: var(--mantine-color-default);
+        background-color: var(--mantine-color-default-hover);
+        border-left: 2px transparent solid;
 
         .selected {
             // font-style: italic;
             font-size: small;
-            color: var(--mantine-color-placeholder);
+            color: var(--mantine-color-dimmed);
         }
         
     }
 
+    .table_headers {
+        @extend .head;
+
+        padding: 0.5rem 0.9rem;
+        background-color: var(--mantine-color-default);
+    }
+
     .tag_container{
 
-        
         min-height: 350px;
+        
 
         .create_msg {
             padding: 1rem;
@@ -41,6 +49,7 @@
         &_empty {
             @extend .tag_container;
             
+            
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -54,6 +63,36 @@
             .desc {
                 color: var(--mantine-color-dimmed);
             }
+        }
+    }
+}
+
+.tag {
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 0.25rem;
+    padding: 0.5rem 0.9rem;
+
+    border-left: 2px solid transparent;
+
+    height: 3rem;
+    
+    &:nth-child(odd) {
+        background-color: var(--mantine-color-default-hover);
+    }
+
+    transition: 250ms ease-in;
+    &_selected {
+        @extend .tag;
+
+        border-left: 2px solid var(--mantine-color-anchor);
+        background-color: var(--mantine-primary-color-light);
+
+        &:nth-child(even) {
+            background-color: var(--mantine-primary-color-light-hover);
         }
     }
 }

@@ -71,7 +71,7 @@ export default function CheckTag({
                 <Checkbox onChange={() => onChange(id)} value={id} checked={checked}/>
                 {(!nameEdit) 
                 ? <Text py={8} px={1} style={{ cursor: 'pointer' }} size='sm' onClick={() => setNameEdit(true)}>{nameValue}</Text>
-                : <> {processing && <Loader size={14} type='bars' />} <Input onBlur={() => setNameEdit(false)} maxLength={20} w={'100%'} autoFocus variant='unstyled' placeholder={name} value={nameValue} onChange={(e) => setNameValue(e.currentTarget.value)}/></>
+                : <> {processing && <Loader size={14} />} <Input onBlur={() => setNameEdit(false)} maxLength={20} w={'100%'} autoFocus variant='unstyled' placeholder={name} value={nameValue} onChange={(e) => setNameValue(e.currentTarget.value)}/></>
                 }
                 
             </Flex>

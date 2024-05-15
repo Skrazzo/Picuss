@@ -19,7 +19,7 @@ export default function ManageTags({ auth, tags }) {
         if (form.data.name === '') return ;
         
         form.post(route('tags.create'), {
-            onSuccess: (res) => setUseTags(res.props.tags),
+            onSuccess: (res) => {setUseTags(res.props.tags); form.reset()},
         });
     }
 

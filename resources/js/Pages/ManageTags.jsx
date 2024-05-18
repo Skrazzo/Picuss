@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import AuthLayout from './Layouts/AuthLayout'
-import { Button, CloseButton, Container, Flex, Input } from '@mantine/core';
+import { Container, Flex, Input } from '@mantine/core';
 import TitleWithIcon from './Components/TitleWithIcon';
 import { IconSearch, IconTags } from '@tabler/icons-react';
 import TagList from './Components/TagList/TagList';

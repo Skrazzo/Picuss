@@ -9,7 +9,7 @@ import removeArrValue from '../../Functions/removeArrValue';
 
 export default function TagList({ tags, search, setTags }) {
     const [selectedTags, setSelectedTags] = useState([]);
-
+    
     const empty_list_children = <>
         <div className={sty.tag_container_empty}>
             <IconWind style={{ opacity: 0.9 }} color='var(--mantine-primary-color-filled-hover)' size={'20%'} stroke={1.25} />
@@ -39,11 +39,16 @@ export default function TagList({ tags, search, setTags }) {
             setSelectedTags([]);
         }
     }
+
+    useEffect(() => {
+        setSelectedTags([]);
+    }, [tags]);
+    
     
     return (
         <div className={sty.container}>
             <div className={sty.head}>
-                <TagMenu selectedTags={selectedTags} setTags={setTags}/>
+                <TagMenu selectedTags={selectedTags} setTags={(tags) => setTags(tags)}/>
                 <span className={sty.selected}>{selectedTags.length} {(selectedTags.length === 1) ? 'tag' : 'tags'}  selected</span>
             </div>
             <div className={sty.table_headers}>

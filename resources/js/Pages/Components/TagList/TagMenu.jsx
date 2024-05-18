@@ -1,6 +1,6 @@
 import React from 'react';
-import { ActionIcon, Flex, Menu, Text } from '@mantine/core';
-import { IconDotsVertical, IconSelectAll, IconTags, IconTrash } from '@tabler/icons-react';
+import { ActionIcon, Menu, Text } from '@mantine/core';
+import { IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import DeleteConfirmModal from './DeleteConfirmModal';
 

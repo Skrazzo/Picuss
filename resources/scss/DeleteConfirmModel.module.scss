@@ -37,6 +37,8 @@
     
                 display: grid;
                 place-content: center;
+
+                // animation: icon_pulse 1.5s infinite ease-in;
     
                 svg {
                     transform: translate(-1px, -1px);
@@ -74,3 +76,19 @@
         }
     }
 }
+
+// @keyframes icon_pulse {
+//     0%{
+//         box-shadow: 0 0 0 0px var(--mantine-color-red-light-hover);
+//         scale: 1.1;
+//     }
+//     30% {
+//         box-shadow: 0 0 0 10px var(--mantine-color-red-light-hover);
+//         scale: 1;
+//     }
+
+//     100% {
+//         box-shadow: 0 0 0 0px var(--mantine-color-red-light-hover);
+//         scale: 1.1;
+//     }
+// }

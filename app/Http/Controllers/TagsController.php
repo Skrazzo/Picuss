@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\Tags;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class TagsController extends Controller
@@ -116,5 +116,49 @@ class TagsController extends Controller
         }
         // This error should not happen unless database failes to save the record
         return response()->json([ 'message' => 'It seems that database did not save new name', 'tags' => [] ], 500);
+    }
+
+    public function deleteTags(Request $req) {
+        $data = $req->validate([
+            'tags' => 'required|array',
+        ]);
+
+        $user = $req->user();
+        $SERVER_IMAGE_DISK = env('SERVER_IMAGE_DISK', 'images');
+
+        // Go through every id, delete tag and pictures that belong to those tags
+        foreach ($data['tags'] as $tagId) {
+            $pictures = $user->picture()->whereJsonContains('tags', $tagId)->get();
+            foreach($pictures as $pic) {
+                // Delete picture from storage, and then if success delete it from database
+                $imgPath = Storage::disk($SERVER_IMAGE_DISK)->path($pic->image);
+                if (!unlink($imgPath)) {
+                    return response()->json([ 'message' => 'We could not delete one of your pictures, please try again' ], 500);
+                }
+
+                if (!$pic->delete()) {
+                    return response()->json([ 'message' => 'We could not delete picture from our database, please try again' ], 500);
+                }
+            }
+
+            $tag = $user->tag()->find($tagId);
+            if (!$tag->delete()) {
+                return response()->json([ 'message' => 'We could not delete tag from our database, please try again' ], 500);
+            }
+        }
+
+        // Get only needed info from the database, and sort it        
+        $tags = $req->user()->tag()
+            ->orderBy('name', 'ASC')
+            ->get()
+            ->map(function ($tag, $idx) {
+                // Search json for the tag id
+                // It shows an error, but trust me bro, it works
+                $pictureCount = auth()->user()->picture()->whereJsonContains('tags', $tag['id'])->count();
+                    
+                return ['name' => $tag['name'], 'id' => $tag['id'], 'pictureCount' => $pictureCount];
+            });
+
+        return response()->json([ 'message' => 'Successfully deleted tags', 'tags' => $tags ]);
     }
 }

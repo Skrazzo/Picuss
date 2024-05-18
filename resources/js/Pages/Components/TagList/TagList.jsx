@@ -43,7 +43,7 @@ export default function TagList({ tags, search, setTags }) {
     return (
         <div className={sty.container}>
             <div className={sty.head}>
-                <TagMenu />
+                <TagMenu selectedTags={selectedTags} setTags={setTags}/>
                 <span className={sty.selected}>{selectedTags.length} {(selectedTags.length === 1) ? 'tag' : 'tags'}  selected</span>
             </div>
             <div className={sty.table_headers}>

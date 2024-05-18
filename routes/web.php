@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/get', 'get')->name('tags.get'); // Get all user tags in api format
             Route::post('/', 'create')->name('tags.create'); // Api POST call to create a new tag
             Route::put('/name/{tag:id}', 'editName')->name('tags.editName'); // Edit tag name
+            Route::delete('/', 'deleteTags')->name('tags.delete'); // Route for deleting tags
         });
     });
 });

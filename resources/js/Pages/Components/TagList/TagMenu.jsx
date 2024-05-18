@@ -4,10 +4,13 @@ import { IconDotsVertical, IconSelectAll, IconTags, IconTrash } from '@tabler/ic
 import { useDisclosure } from '@mantine/hooks';
 import DeleteConfirmModal from './DeleteConfirmModal';
 
-export default function TagMenu() {
+export default function TagMenu({ selectedTags, setTags }) {
     const [deleteModal, setDeleteModal] = useDisclosure(false);
 
-    
+    function setTagsAndClose(tags) {
+        setTags(tags);
+        setDeleteModal.close();
+    }
 
     return (
         <>
@@ -25,7 +28,7 @@ export default function TagMenu() {
                 </Menu.Dropdown>
             </Menu>
 
-           <DeleteConfirmModal opened={deleteModal} close={() => setDeleteModal.close()}/> 
+           <DeleteConfirmModal setTagsAndClose={setTagsAndClose} selectedTags={selectedTags} opened={deleteModal} close={() => setDeleteModal.close()}/> 
         </>
     )
 }

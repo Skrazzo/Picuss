@@ -2,10 +2,10 @@ import React from 'react'
 import AuthLayout from './Layouts/AuthLayout';
 
 
-export default function Dashboard({ auth }) {
+export default function Dashboard({ auth, pictures }) {
     
   
-    console.log(auth);
+    console.log(pictures);
 
     return (
         <AuthLayout auth={auth}>

@@ -16,12 +16,17 @@ Route::get('/logout', [UserController::class, 'logout'])->name('logout');
 
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', function () { return Inertia::render('Dashboard'); })->name('dashboard'); // display main page
+    
     Route::get('/user/info', [UserController::class, 'get_modal_info'])->name('user.modal.info'); // Api request to get user information
 
-    Route::prefix('/upload')->group(function () {
-        Route::get('/', [PictureController::class, 'index'])->name('upload.index'); // Render upload page
-        Route::post('/', [PictureController::class, 'upload'])->name('upload.post'); // Upload image zip
+    Route::controller(PictureController::class)->group(function () {
+        Route::prefix('/upload')->group(function () {
+            Route::get('/', 'upload_index')->name('upload.index'); // Render upload page
+            Route::post('/', 'upload')->name('upload.post'); // Upload image zip
+        });
+
+        Route::get('/', 'dashboard_index')->name('dashboard'); // display main page
+        Route::get('/image/{picture:public_id}', 'get_image')->name('get.image'); // Get image
     });
 
     Route::prefix('/tags')->group(function () {

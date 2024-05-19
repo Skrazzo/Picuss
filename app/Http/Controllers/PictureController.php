@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Picture;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -9,8 +10,28 @@ use ZipArchive;
 
 class PictureController extends Controller
 {
-    public function index(Request $req){
+    public function upload_index(Request $req){
         return Inertia::render('Upload');
+    }
+
+    public function dashboard_index(Request $req) {
+        $pictures = $req->user()->picture()->orderBy('created_at', 'DESC')->get();
+
+        return Inertia::render('Dashboard', [ 'pictures' => $pictures ]);
+    }
+
+    public function get_image(Picture $picture) {
+        $SERVER_IMAGE_DISK = env('SERVER_IMAGE_DISK', 'images');
+        if (!Storage::disk($SERVER_IMAGE_DISK)->exists($picture->image)) {
+            return response('Could not find the image on local disk', 404);
+        }
+
+        if (auth()->user()->id != $picture->user_id) {
+            return response('You don\'t have the permission to view this image', 403);
+        }
+
+        return Storage::disk($SERVER_IMAGE_DISK)->response($picture->image);
+        
     }
 
     public function upload(Request $req){

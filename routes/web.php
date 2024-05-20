@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/', 'dashboard_index')->name('dashboard'); // display main page
         Route::get('/image/{picture:public_id}', 'get_image')->name('get.image'); // Get image
+        Route::get('/image/resized/{page}', 'get_resized_images')->name('get.resized.images'); // Get resized image array for the whole page
     });
 
     Route::prefix('/tags')->group(function () {

@@ -54,6 +54,11 @@ return [
             'root' => storage_path('app') . '/images/',
         ],
 
+        'thumbnails' => [
+            'driver' => 'local',
+            'root' => '/home/skrazzo/Desktop/picuss_thumbnails'
+        ],
+
     ],
 
     /*

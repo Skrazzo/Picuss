@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use ZipArchive;
 
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Imagick\Driver;
+
 class PictureController extends Controller
 {
     public function upload_index(Request $req){
@@ -15,9 +18,7 @@ class PictureController extends Controller
     }
 
     public function dashboard_index(Request $req) {
-        $pictures = $req->user()->picture()->orderBy('created_at', 'DESC')->get();
-
-        return Inertia::render('Dashboard', [ 'pictures' => $pictures ]);
+        return Inertia::render('Dashboard');
     }
 
     public function get_image(Picture $picture) {
@@ -32,6 +33,35 @@ class PictureController extends Controller
 
         return Storage::disk($SERVER_IMAGE_DISK)->response($picture->image);
         
+    }
+
+    public function get_resized_images(Request $req, $page) {
+        $SERVER_IMAGE_DISK = env('SERVER_IMAGE_DISK', 'images');
+
+        if ($page < 1) {
+            return response()->json([ 'message' => 'Page cannot be below 0' ], 422);
+        }
+
+        $perPage = 15;
+        $skip = ($page - 1) * $perPage;
+        $pictures = $req->user()->picture()->orderBy('created_at', 'DESC')->skip($skip)->take($perPage)->get();
+        
+        $rtn_arr = [];
+        foreach ($pictures as $pic) {
+            $path = Storage::disk($SERVER_IMAGE_DISK)->path($pic->image);
+        
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($path);
+            $image->scaleDown(width: 300);
+            $image->pixelate(16);
+            
+            $rtn_arr[] = [
+                'id' => $pic->public_id,
+                'thumb' => 'data:image/webp;base64,' . base64_encode($image->encode())
+            ];
+        }
+        
+        return response()->json($rtn_arr);
     }
 
     public function upload(Request $req){

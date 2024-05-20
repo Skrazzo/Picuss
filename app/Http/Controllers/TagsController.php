@@ -125,6 +125,7 @@ class TagsController extends Controller
 
         $user = $req->user();
         $SERVER_IMAGE_DISK = env('SERVER_IMAGE_DISK', 'images');
+        $SERVER_THUMBNAILS_DISK = env('$SERVER_THUMBNAILS_DISK', 'thumbnails');
 
         // Go through every id, delete tag and pictures that belong to those tags
         foreach ($data['tags'] as $tagId) {
@@ -139,6 +140,8 @@ class TagsController extends Controller
                 if (!$pic->delete()) {
                     return response()->json([ 'message' => 'We could not delete picture from our database, please try again' ], 500);
                 }
+
+                Storage::disk($SERVER_THUMBNAILS_DISK)->delete($pic->image);
             }
 
             $tag = $user->tag()->find($tagId);

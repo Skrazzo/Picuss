@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Picture;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use ZipArchive;
@@ -37,28 +38,49 @@ class PictureController extends Controller
 
     public function get_resized_images(Request $req, $page) {
         $SERVER_IMAGE_DISK = env('SERVER_IMAGE_DISK', 'images');
+        $SERVER_THUMBNAILS_DISK = env('SERVER_THUMBNAILS_DISK', 'thumbnails');
 
         if ($page < 1) {
             return response()->json([ 'message' => 'Page cannot be below 0' ], 422);
         }
 
-        $perPage = 15;
+        $perPage = 40;
         $skip = ($page - 1) * $perPage;
         $pictures = $req->user()->picture()->orderBy('created_at', 'DESC')->skip($skip)->take($perPage)->get();
         
-        $rtn_arr = [];
+        
+        $rtn_arr = [ 'totalPages' => ceil($req->user()->picture()->count() / $perPage) , 'images' => [] ];
         foreach ($pictures as $pic) {
             $path = Storage::disk($SERVER_IMAGE_DISK)->path($pic->image);
-        
-            $manager = new ImageManager(new Driver());
-            $image = $manager->read($path);
-            $image->scaleDown(width: 300);
-            $image->pixelate(16);
+            $thumbDISK = Storage::disk($SERVER_THUMBNAILS_DISK);
+
+            if (!$thumbDISK->exists($pic->image)) { // need to create new thumbnail and save it to the disk
+                $manager = new ImageManager(new Driver());
+                
+                // Check if image's resolution is too big, then skip making thumbnail for it
+                $imageSize = getimagesize($path);
+                if ($imageSize[0] > 6800 || $imageSize[1] > 6800) {
+                    // Add image without a thumbnail
+                    $rtn_arr['images'][] = [
+                        'id' => $pic->public_id,
+                        'thumb' => 'data:image/webp;base64,'
+                    ];
+
+                    continue;
+                }
+                
+                $image = $manager->read($path);
+                $image->scaleDown(width: 20);
+                // $image->pixelate(8);
+
+                $image->save($thumbDISK->path($pic->image)); // Save image to the local path
+            }
             
-            $rtn_arr[] = [
+            $rtn_arr['images'][] = [
                 'id' => $pic->public_id,
-                'thumb' => 'data:image/webp;base64,' . base64_encode($image->encode())
+                'thumb' => 'data:image/webp;base64,' . base64_encode($thumbDISK->get($pic->image))
             ];
+            
         }
         
         return response()->json($rtn_arr);

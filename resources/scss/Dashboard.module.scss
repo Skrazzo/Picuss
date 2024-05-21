@@ -1,6 +1,6 @@
 .container {
     padding: 1rem;
-    column-count: 6;
+    column-count: 7;
     column-gap: 10px;
 
     span {
@@ -18,6 +18,40 @@
         grid-column: 1;
 
         border-radius: 0.25rem;
+    }
+}
+
+.empty_picture_container {
+    position: absolute;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    left: 50%;
+    transform: translateX(-50%);
+    
+    height: 400px;
+    width: 70%;
+    max-width: 350px;
+
+    .main {
+        text-align: center;
+        letter-spacing: 1px;
+        font-weight: 900;
+    }
+
+    .desc {
+        margin-top: 0.5rem;
+        text-align: justify;
+        color: var(--mantine-color-dimmed);
+    }
+
+    @media (min-width: 450px) {
+        .desc {
+            text-align: center;
+        }
     }
 }
 

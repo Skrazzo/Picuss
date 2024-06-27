@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Picture;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -63,7 +64,13 @@ class PictureController extends Controller
                     // Add image without a thumbnail
                     $rtn_arr['images'][] = [
                         'id' => $pic->public_id,
-                        'thumb' => 'data:image/webp;base64,'
+                        'name' => $pic->image,
+                        'size' => round($pic->size, 3),
+                        'tags' => $pic->tags,
+                        'uploaded' => $pic->created_at,
+                        'uploaded_ago' => str_replace('before', 'ago', $pic->created_at->diffForHumans(now()) ),
+                        'thumb' => 'data:image/webp;base64,',
+                        
                     ];
 
                     continue;
@@ -78,6 +85,11 @@ class PictureController extends Controller
             
             $rtn_arr['images'][] = [
                 'id' => $pic->public_id,
+                'name' => $pic->image,
+                'size' => round($pic->size, 3),
+                'tags' => $pic->tags,
+                'uploaded' => $pic->created_at,
+                'uploaded_ago' => str_replace('before', 'ago', $pic->created_at->diffForHumans(now()) ),
                 'thumb' => 'data:image/webp;base64,' . base64_encode($thumbDISK->get($pic->image))
             ];
             
@@ -164,7 +176,8 @@ class PictureController extends Controller
 
             $id = $req->user()->picture()->create([
                 'image' => $file,
-                'tags' => json_decode($data['tags']) // tag ids
+                'tags' => json_decode($data['tags']), // tag ids
+                'size' => Storage::disk($SERVER_IMAGE_DISK)->size($file) / 1048576 // convert to MB
             ]);
 
             if (!$id) { // check if database record was created successfully

@@ -13,6 +13,7 @@ export default function Dashboard({ auth }) {
     const [images, setImages] = useState(null);
     const [totalPages, setTotalPages] = useState(1);
     const [processing, setProcessing] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
 
     const skelets = Array(20).fill(null);
 

@@ -15,6 +15,7 @@ class Picture extends Model
         'user_id',
         'image',
         'tags',
+        'size',
         'name'
     ];
 

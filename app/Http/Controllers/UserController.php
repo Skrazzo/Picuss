@@ -49,9 +49,9 @@ class UserController extends Controller
         $rtn = [
             'pictures' =>  ($picture_count == 0) ? 'No pictures' : $picture_count . ' pictures',
             'tags' => ($tag_count == 0) ? 'No tags' : $tag_count . ' tags',
-            'last_picture_uploaded' => ($picture_count == 0) ? 'Never uploaded' : $user->picture()->latest()->first()->created_at->diffForHumans(now()),
-            'last_tag_created' => ($tag_count == 0) ? 'Never created' : $user->tag()->latest()->first()->created_at->diffForHumans(now()),
-            'user_created' => $user->created_at->diffForHumans(now()),
+            'last_picture_uploaded' => ($picture_count == 0) ? 'Never uploaded' : str_replace('before', 'ago', $user->picture()->latest()->first()->created_at->diffForHumans(now())),
+            'last_tag_created' => ($tag_count == 0) ? 'Never created' : str_replace('before', 'ago', $user->tag()->latest()->first()->created_at->diffForHumans(now())),
+            'user_created' => str_replace('before', 'ago', $user->created_at->diffForHumans(now())),
         ];
 
         return response()->json($rtn);

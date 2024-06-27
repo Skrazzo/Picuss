@@ -8,7 +8,11 @@
         display: grid;
         grid-template-rows: 1fr auto;
         margin-bottom: 10px;
-        break-inside: avoid;    
+        break-inside: avoid;
+
+        border: 1px solid rgba($color: #000000, $alpha: 0.1);
+        border-radius: 0.25rem;
+        overflow: hidden;
     }
 
     img {
@@ -28,10 +32,10 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    
+
     left: 50%;
     transform: translateX(-50%);
-    
+
     height: 400px;
     width: 70%;
     max-width: 350px;
@@ -68,7 +72,7 @@
         column-count: 5;
     }
 }
-  
+
 @media (max-width: 1000px) {
     .container {
         column-count: 4;
@@ -86,4 +90,3 @@
         column-count: 2;
     }
 }
-  

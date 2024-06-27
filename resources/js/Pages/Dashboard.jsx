@@ -7,6 +7,7 @@ import { Center, Pagination, Skeleton, Text } from "@mantine/core";
 import axios from "axios";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import { IconPhotoOff } from "@tabler/icons-react";
+import PictureViewer from "./Components/PictureViewer";
 
 export default function Dashboard({ auth }) {
     const [page, setPage] = useState(1);
@@ -52,6 +53,11 @@ export default function Dashboard({ auth }) {
 
     return (
         <AuthLayout auth={auth}>
+            <PictureViewer
+                images={images}
+                selected={selectedImage}
+                setSelected={setSelectedImage}
+            />
             <div className={sty.container}>
                 {!images ? ( // getting a list of pictures to load
                     <>
@@ -79,6 +85,9 @@ export default function Dashboard({ auth }) {
                                             placeholderSrc={img.thumb}
                                             src={route("get.image", img.id)}
                                             effect="blur"
+                                            onClick={() =>
+                                                setSelectedImage(img.id)
+                                            }
                                         />
                                     )
                                 )}

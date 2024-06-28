@@ -26,6 +26,11 @@
     }
 }
 
+.no_scroll {
+    height: 100dvh;
+    overflow: hidden;
+}
+
 .empty_picture_container {
     position: absolute;
 

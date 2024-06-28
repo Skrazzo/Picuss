@@ -1,11 +1,11 @@
-@import './variables.scss';
+@import "./variables.scss";
 
 @font-face {
     font-family: tagsna;
-    src: url('../../public/Assets/Tagsna.ttf');
+    src: url("../../public/Assets/Tagsna.ttf");
 }
 
-.nav{
+.nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -13,26 +13,30 @@
     padding: 1rem;
 
     box-shadow: 0 0 10px -2px rgba($color: #000000, $alpha: 0.25);
-    
-    .logo{
+
+    .logo {
         display: flex;
         cursor: pointer;
-        
+
         align-items: center;
         gap: 0.5rem;
 
-        p{
+        p {
             font-size: 28px;
             font-family: tagsna;
 
             color: $darkPrimary;
         }
     }
-    
 }
 
-.menu{
-    .option{
+.no_scroll {
+    height: 100dvh;
+    overflow: hidden;
+}
+
+.menu {
+    .option {
         cursor: pointer;
         position: relative;
 
@@ -46,13 +50,12 @@
         &:hover {
             box-shadow: 0 0 10px 0 rgba($color: #000000, $alpha: 0.1);
 
-            .border{
+            .border {
                 width: 10px;
-               
             }
         }
 
-        .border{
+        .border {
             background-color: $primary;
             height: 45px;
             width: 0px;
@@ -65,11 +68,11 @@
 
             background-color: rgba($color: $primary, $alpha: 0.1);
 
-            &:hover{
+            &:hover {
                 background-color: rgba($color: $primary, $alpha: 0.3);
             }
 
-            .border{
+            .border {
                 width: 4px;
             }
         }
@@ -83,9 +86,9 @@
 
     padding: 1rem;
 
-    span{
+    span {
         cursor: pointer;
-        
+
         font-size: larger;
         font-weight: bold;
         color: $primary;

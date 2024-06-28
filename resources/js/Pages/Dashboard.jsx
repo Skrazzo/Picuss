@@ -15,6 +15,7 @@ export default function Dashboard({ auth }) {
     const [totalPages, setTotalPages] = useState(1);
     const [processing, setProcessing] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [userTags, setUserTags] = useState([]);
 
     const skelets = Array(20).fill(null);
 
@@ -25,6 +26,9 @@ export default function Dashboard({ auth }) {
     useEffect(() => {
         resetStates();
         setProcessing(true);
+
+        // get user tags
+        axios.get(route("tags.get")).then((res) => setUserTags(res.data));
 
         axios.get(route("get.resized.images", page)).then((res) => {
             setImages(res.data.images);
@@ -52,13 +56,14 @@ export default function Dashboard({ auth }) {
     );
 
     return (
-        <AuthLayout auth={auth}>
+        <AuthLayout auth={auth} className={selectedImage ? sty.no_scroll : ""}>
             <PictureViewer
                 images={images}
                 selected={selectedImage}
                 setSelected={setSelectedImage}
+                tags={userTags}
             />
-            <div className={sty.container}>
+            <div className={`${sty.container}`}>
                 {!images ? ( // getting a list of pictures to load
                     <>
                         {skelets.map((x, i) => (

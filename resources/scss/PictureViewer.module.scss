@@ -1,3 +1,6 @@
+$green: #2f9e4b;
+$iconSize: 25px;
+
 .container {
     position: fixed;
     top: 0;
@@ -10,4 +13,104 @@
     backdrop-filter: blur(4px);
 
     z-index: 100;
+
+    display: flex;
+
+    .side {
+        padding: 1rem;
+
+        background-color: var(--mantine-color-body);
+        width: 460px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        .title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            svg {
+                stroke: $green;
+                stroke-width: 1.5;
+            }
+        }
+
+        .section_title {
+            margin-top: 2rem;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            p {
+                margin-top: 3px;
+                font-weight: 600;
+                font-size: 20px;
+            }
+
+            svg {
+                width: $iconSize;
+                stroke: $green;
+                stroke-width: 1.5;
+            }
+
+            div {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+        }
+
+        .info_container {
+            margin-top: 0.5rem;
+            margin-right: 0.25rem;
+            margin-left: $iconSize + 8;
+
+            .checkboxes {
+                overflow-y: auto;
+                max-height: 300px;
+            }
+        }
+
+        .buttons {
+            display: flex;
+            gap: 0.5rem;
+
+            button {
+                flex: 1;
+            }
+        }
+    }
+
+    .green {
+        &_text {
+            color: $green;
+            @for $i from 1 through 10 {
+                &_#{$i} {
+                    color: rgba($color: $green, $alpha: calc(#{$i} / 10));
+                }
+            }
+        }
+        &_bg {
+            background-color: $green;
+            @for $i from 1 through 10 {
+                &_#{$i} {
+                    background-color: rgba(
+                        $color: $green,
+                        $alpha: calc(#{$i} / 10)
+                    );
+                }
+            }
+        }
+    }
+
+    @media (max-width: 800px) {
+        flex-direction: column-reverse;
+
+        .side {
+            width: 100%;
+        }
+    }
 }

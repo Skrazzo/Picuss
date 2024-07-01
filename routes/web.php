@@ -26,8 +26,15 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::get('/', 'dashboard_index')->name('dashboard'); // display main page
-        Route::get('/image/{picture:public_id}', 'get_image')->name('get.image'); // Get image
-        Route::get('/image/resized/{page}', 'get_resized_images')->name('get.resized.images'); // Get resized image array for the whole page
+        
+        Route::prefix('/image')->group(function () {
+            Route::get('/{picture:public_id}', 'get_image')->name('get.image'); // Get image
+            Route::get('/resized/{page}', 'get_resized_images')->name('get.resized.images'); // Get resized image array for the whole page
+            Route::delete('/delete/{picture:public_id}', 'delete_picture')->name('delete.picture');
+
+            Route::put('/tags/{picture:public_id}', 'edit_tags')->name('edit.tags');
+
+        });
     });
 
     Route::prefix('/tags')->group(function () {

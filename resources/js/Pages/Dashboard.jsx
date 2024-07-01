@@ -55,9 +55,15 @@ export default function Dashboard({ auth }) {
         </>
     );
 
+    function onImageDelete(id) {
+        setSelectedImage(null);
+        setImages(images.filter((image) => image.id !== id));
+    }
+
     return (
         <AuthLayout auth={auth} className={selectedImage ? sty.no_scroll : ""}>
             <PictureViewer
+                onDelete={onImageDelete}
                 images={images}
                 selected={selectedImage}
                 setSelected={setSelectedImage}
@@ -85,15 +91,17 @@ export default function Dashboard({ auth }) {
                                         img,
                                         i // Loading actual pictures
                                     ) => (
-                                        <LazyLoadImage
-                                            key={i}
-                                            placeholderSrc={img.thumb}
-                                            src={route("get.image", img.id)}
-                                            effect="blur"
-                                            onClick={() =>
-                                                setSelectedImage(img.id)
-                                            }
-                                        />
+                                        <div className={sty.overflow_hidden}>
+                                            <LazyLoadImage
+                                                key={i}
+                                                placeholderSrc={img.thumb}
+                                                src={route("get.image", img.id)}
+                                                effect="blur"
+                                                onClick={() =>
+                                                    setSelectedImage(img.id)
+                                                }
+                                            />
+                                        </div>
                                     )
                                 )}
                             </>

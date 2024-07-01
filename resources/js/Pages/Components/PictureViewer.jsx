@@ -4,6 +4,7 @@ import {
     ActionIcon,
     Button,
     Checkbox,
+    Menu,
     Paper,
     Table,
     Text,
@@ -16,10 +17,19 @@ import {
     IconDotsVertical,
     IconFileInfo,
     IconTags,
+    IconTrash,
 } from "@tabler/icons-react";
 import capitalizeFirstLetter from "../Functions/capitalizeFirstLetter";
+import axios from "axios";
+import showNotification from "../Functions/showNotification";
 
-export default function PictureViewer({ selected, setSelected, images, tags }) {
+export default function PictureViewer({
+    selected,
+    setSelected,
+    images,
+    tags,
+    onDelete,
+}) {
     if (!selected) return <></>;
 
     // Find image and recheck if it exists
@@ -64,6 +74,32 @@ export default function PictureViewer({ selected, setSelected, images, tags }) {
         }
     }
 
+    function saveTags() {
+        if (selectedTags.length === 0) return;
+
+        let data = {
+            tags: selectedTags,
+        };
+
+        axios
+            .put(route("edit.tags", image.id), data)
+            .then((res) => showNotification({ message: "Saved tags" }))
+            .catch((err) => {
+                alert("Error happened! " + error);
+                console.error(err);
+            });
+    }
+
+    function deletePicture() {
+        axios
+            .delete(route("delete.picture", image.id))
+            .then(() => onDelete(image.id))
+            .catch((err) => {
+                alert("Error appeared! " + err);
+                console.error(err);
+            });
+    }
+
     return (
         <div className={sty.container}>
             <div className={sty.side}>
@@ -77,9 +113,23 @@ export default function PictureViewer({ selected, setSelected, images, tags }) {
                             {image.name}
                         </Text>
 
-                        <ActionIcon variant="subtle">
-                            <IconDotsVertical />
-                        </ActionIcon>
+                        <Menu>
+                            <Menu.Target>
+                                <ActionIcon variant="subtle">
+                                    <IconDotsVertical />
+                                </ActionIcon>
+                            </Menu.Target>
+
+                            <Menu.Dropdown>
+                                <Menu.Item
+                                    onClick={deletePicture}
+                                    color={"red"}
+                                    leftSection={<IconTrash size={16} />}
+                                >
+                                    <Text mt={2}>Delete</Text>
+                                </Menu.Item>
+                            </Menu.Dropdown>
+                        </Menu>
                     </div>
 
                     <SectionTitle text={"File"} icon={<IconFileInfo />} />
@@ -97,7 +147,7 @@ export default function PictureViewer({ selected, setSelected, images, tags }) {
                                 {selectedTags.length === 0 ? (
                                     <IconBan />
                                 ) : (
-                                    <IconDeviceFloppy />
+                                    <IconDeviceFloppy onClick={saveTags} />
                                 )}
                             </ActionIcon>
                         }

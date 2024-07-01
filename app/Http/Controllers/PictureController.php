@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use ZipArchive;
 
@@ -190,5 +191,39 @@ class PictureController extends Controller
         }
 
         return response()->json([ 'message' => 'All images were uploaded successfully' ], 201);
+    }
+
+    public function edit_tags(Picture $picture, Request $req) {
+
+        $validator = Validator::make($req->all(), [
+            'tags' => 'required|array'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 400);
+        } else {
+            //process the request
+            $data = $validator->valid(); // validated data
+            $picture->tags = $data['tags'];
+
+            if($picture->save()) {
+                return response('saved');
+            }
+        }
+
+        return response('Something went wrong, and couln\'dnt save tags', 500);
+    }
+
+    function delete_picture (Picture $picture) {
+
+        $SERVER_THUMBNAILS_DISK = env('SERVER_THUMBNAILS_DISK', 'thumbnails');
+        $SERVER_IMAGE_DISK = env('SERVER_IMAGE_DISK', 'images');
+
+        Storage::disk($SERVER_IMAGE_DISK)->delete($picture->image);
+        Storage::disk($SERVER_THUMBNAILS_DISK)->delete($picture->image);
+        
+        $picture->delete();
+        
+        return response('Picture deleted');
     }
 }

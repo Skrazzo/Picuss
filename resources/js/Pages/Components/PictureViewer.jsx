@@ -18,10 +18,12 @@ import {
     IconFileInfo,
     IconTags,
     IconTrash,
+    IconX,
 } from "@tabler/icons-react";
 import capitalizeFirstLetter from "../Functions/capitalizeFirstLetter";
 import axios from "axios";
 import showNotification from "../Functions/showNotification";
+import { LazyLoadImage } from "react-lazy-load-image-component";
 
 export default function PictureViewer({
     selected,
@@ -29,12 +31,14 @@ export default function PictureViewer({
     images,
     tags,
     onDelete,
+    close,
 }) {
-    if (!selected) return <></>;
-
     // Find image and recheck if it exists
     const image = images.filter((x) => x.id === selected)[0] || {};
     if (!("id" in image)) return <></>;
+
+    // current images index
+    const imageIndex = images.findIndex((x) => x.id === image.id);
 
     // Use states
     const [selectedTags, setSelectedTags] = useState(image.tags);
@@ -98,6 +102,18 @@ export default function PictureViewer({
                 alert("Error appeared! " + err);
                 console.error(err);
             });
+    }
+
+    function previousImage() {
+        if (imageIndex === 0) return;
+
+        setSelected(images[imageIndex - 1].id);
+    }
+
+    function nextImage() {
+        if (imageIndex === images.length - 1) return;
+
+        setSelected(images[imageIndex + 1].id);
     }
 
     return (
@@ -175,18 +191,45 @@ export default function PictureViewer({
                 </div>
 
                 <div className={sty.buttons}>
-                    <Button variant="default" leftSection={<IconChevronLeft />}>
-                        Previous
-                    </Button>
-                    <Button
-                        variant="default"
-                        rightSection={<IconChevronRight />}
-                    >
-                        Next
-                    </Button>
+                    {imageIndex !== 0 && (
+                        <Button
+                            variant="default"
+                            leftSection={<IconChevronLeft />}
+                            onClick={previousImage}
+                        >
+                            Previous
+                        </Button>
+                    )}
+
+                    {imageIndex !== images.length - 1 && (
+                        <Button
+                            variant="default"
+                            rightSection={<IconChevronRight />}
+                            onClick={nextImage}
+                        >
+                            Next
+                        </Button>
+                    )}
                 </div>
             </div>
-            Picture viewer
+
+            <div className={sty.picture_container}>
+                <ActionIcon
+                    onClick={close}
+                    variant="light"
+                    className={sty.closeBtn}
+                >
+                    <IconX />
+                </ActionIcon>
+
+                <div className={sty.picture}>
+                    <LazyLoadImage
+                        placeholderSrc={image.thumb}
+                        src={route("get.image", image.id)}
+                        effect="blur"
+                    />
+                </div>
+            </div>
         </div>
     );
 }

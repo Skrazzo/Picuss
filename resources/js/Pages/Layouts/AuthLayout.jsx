@@ -51,7 +51,10 @@ export default function AuthLayout({ auth, children, className = "" }) {
     }, [openedUserModal]);
 
     return (
-        <div className={className}>
+        <div
+            className={className}
+            style={{ height: "100dvh", overflow: "auto" }}
+        >
             <Modal
                 opened={openedUserModal}
                 onClose={userModal.close}

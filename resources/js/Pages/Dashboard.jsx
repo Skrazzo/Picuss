@@ -62,13 +62,16 @@ export default function Dashboard({ auth }) {
 
     return (
         <AuthLayout auth={auth} className={selectedImage ? sty.no_scroll : ""}>
-            <PictureViewer
-                onDelete={onImageDelete}
-                images={images}
-                selected={selectedImage}
-                setSelected={setSelectedImage}
-                tags={userTags}
-            />
+            {selectedImage && (
+                <PictureViewer
+                    close={() => setSelectedImage(null)}
+                    onDelete={onImageDelete}
+                    images={images}
+                    selected={selectedImage}
+                    setSelected={setSelectedImage}
+                    tags={userTags}
+                />
+            )}
             <div className={`${sty.container}`}>
                 {!images ? ( // getting a list of pictures to load
                     <>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import sty from "../../../scss/PictureViewer.module.scss";
 import {
     ActionIcon,
@@ -25,6 +25,8 @@ import axios from "axios";
 import showNotification from "../Functions/showNotification";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useSwipeable } from "react-swipeable";
+import ThumbnailScroll from "./ThumbnailScroll";
+import useElementSize from "../Functions/useElementSize";
 
 export default function PictureViewer({
     selected,
@@ -44,9 +46,12 @@ export default function PictureViewer({
     // Use states
     const [selectedTags, setSelectedTags] = useState(image.tags);
 
-    console.log(image);
-    console.log(tags);
-    console.log(selectedTags);
+    // use refs
+    const [containerSize, containerRef] = useElementSize();
+
+    // console.log(image);
+    // console.log(tags);
+    // console.log(selectedTags);
 
     const SectionTitle = ({ text, icon, rightSection = <></> }) => (
         <div className={sty.section_title}>
@@ -249,7 +254,7 @@ export default function PictureViewer({
                 </div>
             </div>
 
-            <div className={sty.picture_container}>
+            <div className={sty.picture_container} ref={containerRef}>
                 <ActionIcon
                     onClick={close}
                     variant="light"
@@ -265,6 +270,13 @@ export default function PictureViewer({
                         effect="blur"
                     />
                 </div>
+
+                <ThumbnailScroll
+                    images={images}
+                    currentIndex={imageIndex}
+                    onClick={(idx) => setSelected(images[idx].id)}
+                    pictureContainerSize={containerSize}
+                />
             </div>
         </div>
     );

@@ -36,6 +36,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "dayjs": "^1.11.11",
     "embla-carousel-react": "^8.0.2",
+    "framer-motion": "^11.2.12",
     "jszip": "^3.10.1",
     "nprogress": "^0.2.0",
     "postcss": "^8.4.38",

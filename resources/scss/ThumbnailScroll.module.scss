@@ -1,0 +1,31 @@
+.container {
+    position: absolute;
+    min-width: 100%;
+
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+
+    border-top: 1px solid var(--mantine-color-default-border);
+    background-color: var(--mantine-color-default-hover);
+
+    backdrop-filter: blur(0.25rem);
+    overflow: hidden;
+
+    padding: 0.5rem 0 0 0;
+
+    .thumbnail {
+        overflow: hidden;
+        cursor: pointer;
+
+        img {
+            height: 90px;
+            aspect-ratio: 1/2;
+
+            object-fit: fill;
+            object-position: center;
+
+            filter: blur(1px);
+        }
+    }
+}

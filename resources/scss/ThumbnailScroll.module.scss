@@ -9,20 +9,25 @@
     border-top: 1px solid var(--mantine-color-default-border);
     background-color: var(--mantine-color-default-hover);
 
-    backdrop-filter: blur(0.25rem);
     overflow: hidden;
 
-    padding: 0.5rem 0 0 0;
+    padding: 0.5rem 0 0.5rem 0;
 
     .thumbnail {
         overflow: hidden;
         cursor: pointer;
 
-        img {
-            height: 90px;
-            aspect-ratio: 1/2;
+        // border: 1px solid red;
+        border-radius: 0.25rem;
 
-            object-fit: fill;
+        height: 90px;
+        aspect-ratio: 1/2;
+
+        img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
             object-position: center;
 
             filter: blur(1px);

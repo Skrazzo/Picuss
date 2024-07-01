@@ -24,11 +24,11 @@ export default function ThumbnailScroll({
             22.5 -
             4 * currentIndex;
 
-        // console.log(
-        //     `width: ${pictureContainerSize.width} index: ${currentIndex}`
-        // );
+        console.log(
+            `width: ${pictureContainerSize.width} index: ${currentIndex}`
+        );
         setOffset(thumbnailOffset);
-    }, [currentIndex]);
+    }, [currentIndex, pictureContainerSize.width]);
 
     return (
         <motion.div
@@ -45,6 +45,10 @@ export default function ThumbnailScroll({
                         key={idx}
                         onClick={() => onClick(idx)}
                         className={sty.thumbnail}
+                        style={{
+                            aspectRatio: idx === currentIndex ? "1/1" : "",
+                            transition: "250ms",
+                        }}
                     >
                         <img src={img.thumb} />
                     </div>

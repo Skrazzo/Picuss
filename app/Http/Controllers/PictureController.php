@@ -46,7 +46,9 @@ class PictureController extends Controller
             return response()->json([ 'message' => 'Page cannot be below 0' ], 422);
         }
 
-        $perPage = 80;
+        // Picture per page
+        // $perPage = 80;
+        $perPage = 40;
         $skip = ($page - 1) * $perPage;
         $pictures = $req->user()->picture()->orderBy('created_at', 'DESC')->skip($skip)->take($perPage)->get();
         

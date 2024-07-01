@@ -24,6 +24,7 @@ import capitalizeFirstLetter from "../Functions/capitalizeFirstLetter";
 import axios from "axios";
 import showNotification from "../Functions/showNotification";
 import { LazyLoadImage } from "react-lazy-load-image-component";
+import { useSwipeable } from "react-swipeable";
 
 export default function PictureViewer({
     selected,
@@ -105,16 +106,51 @@ export default function PictureViewer({
     }
 
     function previousImage() {
-        if (imageIndex === 0) return;
+        if (imageIndex === 0) {
+            setSelected(null);
+            return;
+        }
 
         setSelected(images[imageIndex - 1].id);
     }
 
     function nextImage() {
-        if (imageIndex === images.length - 1) return;
+        if (imageIndex === images.length - 1) {
+            setSelected(null);
+            return;
+        }
 
         setSelected(images[imageIndex + 1].id);
     }
+
+    const swipeHandlers = useSwipeable({
+        onSwipedLeft: () => nextImage(),
+        onSwipedRight: () => previousImage(),
+    });
+
+    // register keyboard shortcuts
+    const handleKeyDown = (event) => {
+        switch (event.key) {
+            case "ArrowLeft":
+                previousImage();
+                break;
+            case "ArrowRight":
+                nextImage();
+                break;
+            case "Escape":
+                setSelected(null);
+                break;
+            default:
+                break;
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [imageIndex]);
 
     return (
         <div className={sty.container}>
@@ -222,7 +258,7 @@ export default function PictureViewer({
                     <IconX />
                 </ActionIcon>
 
-                <div className={sty.picture}>
+                <div className={sty.picture} {...swipeHandlers}>
                     <LazyLoadImage
                         placeholderSrc={image.thumb}
                         src={route("get.image", image.id)}

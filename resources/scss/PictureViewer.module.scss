@@ -40,12 +40,11 @@ $iconSize: 25px;
             justify-content: space-between;
 
             p {
-                display: -webkit-box;
-                -webkit-box-orient: vertical;
-                -webkit-line-clamp: 2; /* Allow 3 lines (2 breaks) */
                 overflow: hidden;
+                text-wrap: nowrap;
+                text-overflow: ellipsis;
 
-                margin-right: 0.5rem;
+                margin-right: 1rem;
             }
 
             svg {

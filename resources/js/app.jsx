@@ -47,7 +47,7 @@ createInertiaApp({
     setup({ el, App, props }) {
         createRoot(el).render(
             <MantineProvider
-                defaultColorScheme="dark"
+                defaultColorScheme="light"
                 theme={{ primaryColor: "green" }}
             >
                 <App {...props} />

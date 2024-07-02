@@ -80,7 +80,7 @@ class PictureController extends Controller
                 }
                 
                 $image = $manager->read($path);
-                $image->scaleDown(width: 20);
+                $image->scaleDown(width: 40);
                 // $image->pixelate(8);
 
                 $image->save($thumbDISK->path($pic->image)); // Save image to the local path

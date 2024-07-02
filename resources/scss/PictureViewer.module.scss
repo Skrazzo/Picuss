@@ -39,6 +39,15 @@ $iconSize: 25px;
             align-items: center;
             justify-content: space-between;
 
+            p {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2; /* Allow 3 lines (2 breaks) */
+                overflow: hidden;
+
+                margin-right: 0.5rem;
+            }
+
             svg {
                 stroke: $green;
                 stroke-width: 1.5;

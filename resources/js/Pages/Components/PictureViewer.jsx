@@ -152,6 +152,9 @@ export default function PictureViewer({
 
     useEffect(() => {
         window.addEventListener("keydown", handleKeyDown);
+
+        setSelectedTags(image.tags);
+
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };
@@ -221,9 +224,7 @@ export default function PictureViewer({
                                     key={idx}
                                     mt={idx === 0 ? 0 : 8}
                                     onChange={() => tagHandler(tag.id)}
-                                    defaultChecked={selectedTags.includes(
-                                        tag.id
-                                    )}
+                                    checked={selectedTags.includes(tag.id)}
                                     label={capitalizeFirstLetter(tag.name)}
                                 />
                             ))}

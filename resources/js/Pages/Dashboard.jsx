@@ -31,7 +31,11 @@ export default function Dashboard({ auth }) {
 
         // Wait for 2 seconds for tags to finish changing
         const timeoutID = setTimeout(() => {
-            imageSearch();
+            if (page !== 1) {
+                setPage(1);
+            } else {
+                imageSearch();
+            }
         }, 2000);
         return () => clearTimeout(timeoutID);
     }, [queryTags[0]]);
@@ -148,6 +152,7 @@ export default function Dashboard({ auth }) {
             <Center>
                 <Pagination
                     disabled={processing}
+                    value={page}
                     mx={"auto"}
                     my={32}
                     total={totalPages}

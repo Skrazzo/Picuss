@@ -164,7 +164,11 @@ export default function AuthLayout({
                 {auth.route === "dashboard" && (
                     <>
                         <Divider my={16} />
-                        <SearchTags queryTags={queryTags} userTags={userTags} />
+                        <SearchTags
+                            queryTags={queryTags}
+                            userTags={userTags}
+                            closeDrawer={() => drawer.close()}
+                        />
                     </>
                 )}
             </Drawer>

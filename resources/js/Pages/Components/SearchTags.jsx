@@ -1,10 +1,11 @@
 import { ActionIcon, Checkbox, Flex, Paper, TextInput } from "@mantine/core";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import capitalizeFirstLetter from "../Functions/capitalizeFirstLetter";
 import { IconClearAll, IconZoom } from "@tabler/icons-react";
 
-export default function SearchTags({ userTags, queryTags }) {
+export default function SearchTags({ userTags, queryTags, closeDrawer }) {
     const [search, setSearch] = useState("");
+    const firstRender = useRef(true);
 
     const tags = userTags.filter((tag) => tag.name.includes(search));
 
@@ -20,6 +21,19 @@ export default function SearchTags({ userTags, queryTags }) {
         setSearch("");
         queryTags[1]([]);
     }
+
+    useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            return;
+        }
+
+        const timeoutID = setTimeout(() => {
+            console.log("asd");
+            closeDrawer();
+        }, 2000);
+        return () => clearTimeout(timeoutID);
+    }, [queryTags[0]]);
 
     return (
         <>

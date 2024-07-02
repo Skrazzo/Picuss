@@ -67,8 +67,17 @@ class PictureController extends Controller
                 }
             })->orderBy('created_at', 'DESC')->skip($skip)->take($perPage)->get();
         
-        
-        $rtn_arr = [ 'totalPages' => ceil($req->user()->picture()->count() / $perPage) , 'images' => [] ];
+        // build a return array
+        $rtn_arr = [ 
+            'totalPages' => ceil($req->user()->picture()
+                ->where(function ($query) use ($queryTags) { // This function searches for tags in json
+                    foreach ($queryTags as $tagId) {
+                        $query->orWhereJsonContains('tags', $tagId);
+                    }
+                })->count() / $perPage), 
+            'images' => [] 
+        ];
+
         foreach ($pictures as $pic) {
             $path = Storage::disk($SERVER_IMAGE_DISK)->path($pic->image);
             $thumbDISK = Storage::disk($SERVER_THUMBNAILS_DISK);

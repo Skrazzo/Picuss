@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AuthLayout from "./Layouts/AuthLayout";
 import sty from "../../scss/Dashboard.module.scss";
 import { LazyLoadImage } from "react-lazy-load-image-component";
@@ -15,12 +15,20 @@ export default function Dashboard({ auth }) {
     const [totalPages, setTotalPages] = useState(1);
     const [processing, setProcessing] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
+
     // Available tagas
     const [userTags, setUserTags] = useState([]);
 
     // queried tags
     const queryTags = useState([]);
+    const firstRender = useRef(true);
+
     useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            return;
+        }
+
         // Wait for 2 seconds for tags to finish changing
         const timeoutID = setTimeout(() => {
             imageSearch();

@@ -7,6 +7,7 @@ import {
     Burger,
     Button,
     CloseButton,
+    Divider,
     Drawer,
     Modal,
     SimpleGrid,
@@ -28,8 +29,15 @@ import {
 import DisabledInputInfo from "../Components/DisabledInputInfo";
 import axios from "axios";
 import { Link } from "@inertiajs/inertia-react";
+import SearchTags from "../Components/SearchTags";
 
-export default function AuthLayout({ auth, children, className = "" }) {
+export default function AuthLayout({
+    auth,
+    children,
+    className = "",
+    queryTags = null, // [0] - value [1] - set new value
+    userTags = [],
+}) {
     const [openedDrawer, drawer] = useDisclosure();
     const [openedUserModal, userModal] = useDisclosure();
     const [userInfo, setUserInfo] = useState(null);
@@ -152,6 +160,13 @@ export default function AuthLayout({ auth, children, className = "" }) {
                         hrefRoute={"tags.index"}
                     />
                 </div>
+
+                {auth.route === "dashboard" && (
+                    <>
+                        <Divider my={16} />
+                        <SearchTags queryTags={queryTags} userTags={userTags} />
+                    </>
+                )}
             </Drawer>
 
             <nav className={sty.nav}>

@@ -15,7 +15,18 @@ export default function Dashboard({ auth }) {
     const [totalPages, setTotalPages] = useState(1);
     const [processing, setProcessing] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
+    // Available tagas
     const [userTags, setUserTags] = useState([]);
+
+    // queried tags
+    const queryTags = useState([]);
+    useEffect(() => {
+        // Wait for 2 seconds for tags to finish changing
+        const timeoutID = setTimeout(() => {
+            imageSearch();
+        }, 2000);
+        return () => clearTimeout(timeoutID);
+    }, [queryTags[0]]);
 
     const skelets = Array(20).fill(null);
 
@@ -24,18 +35,26 @@ export default function Dashboard({ auth }) {
     }
 
     useEffect(() => {
+        imageSearch();
+    }, [page]);
+
+    function imageSearch() {
         resetStates();
         setProcessing(true);
 
         // get user tags
         axios.get(route("tags.get")).then((res) => setUserTags(res.data));
 
-        axios.get(route("get.resized.images", page)).then((res) => {
-            setImages(res.data.images);
-            setTotalPages(res.data.totalPages);
-            setProcessing(false);
-        });
-    }, [page]);
+        axios
+            .get(route("get.resized.images", page), {
+                params: { queryTags: JSON.stringify(queryTags[0]) },
+            })
+            .then((res) => {
+                setImages(res.data.images);
+                setTotalPages(res.data.totalPages);
+                setProcessing(false);
+            });
+    }
 
     const noPicturesFound = (
         <>
@@ -61,7 +80,12 @@ export default function Dashboard({ auth }) {
     }
 
     return (
-        <AuthLayout auth={auth} className={selectedImage ? sty.no_scroll : ""}>
+        <AuthLayout
+            queryTags={queryTags}
+            userTags={userTags}
+            auth={auth}
+            className={selectedImage ? sty.no_scroll : ""}
+        >
             {selectedImage && (
                 <PictureViewer
                     close={() => setSelectedImage(null)}

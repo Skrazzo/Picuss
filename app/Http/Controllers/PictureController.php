@@ -46,11 +46,26 @@ class PictureController extends Controller
             return response()->json([ 'message' => 'Page cannot be below 0' ], 422);
         }
 
+        // queriedTags
+        $queryTags = [];
+
+        // Check either user is querying tags or not
+        $data = $req->all();
+        if(isset($data['queryTags'])) {
+            $queryTags = json_decode($data['queryTags']);
+        }
+
         // Picture per page
         // $perPage = 80;
         $perPage = 40;
         $skip = ($page - 1) * $perPage;
-        $pictures = $req->user()->picture()->orderBy('created_at', 'DESC')->skip($skip)->take($perPage)->get();
+
+        $pictures = $req->user()->picture()
+            ->where(function ($query) use ($queryTags) { // This function searches for tags in json
+                foreach ($queryTags as $tagId) {
+                    $query->orWhereJsonContains('tags', $tagId);
+                }
+            })->orderBy('created_at', 'DESC')->skip($skip)->take($perPage)->get();
         
         
         $rtn_arr = [ 'totalPages' => ceil($req->user()->picture()->count() / $perPage) , 'images' => [] ];

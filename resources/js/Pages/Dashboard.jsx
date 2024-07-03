@@ -219,6 +219,8 @@ export default function Dashboard({ auth }) {
                         />
                     ))}
                 </div>
+            ) : images.length === 0 ? ( // Couldnt find any pictures in segments
+                noPicturesFound
             ) : (
                 images.map((segment, idx) => {
                     let segImages = segment[1];
@@ -226,45 +228,34 @@ export default function Dashboard({ auth }) {
                         <>
                             <PictureDivider title={segment[0]} />
                             <div className={`${sty.container}`}>
-                                {segImages.length === 0 ? (
-                                    noPicturesFound // Displaying no pictures found message
-                                ) : (
-                                    <>
-                                        {segImages.map(
-                                            (
-                                                img,
-                                                i // Loading actual pictures
-                                            ) => (
-                                                <div
-                                                    className={
-                                                        sty.overflow_hidden
+                                <>
+                                    {segImages.map(
+                                        (
+                                            img,
+                                            i // Loading actual pictures
+                                        ) => (
+                                            <div
+                                                className={sty.overflow_hidden}
+                                            >
+                                                <LazyLoadImage
+                                                    style={{
+                                                        backgroundColor: "red",
+                                                    }}
+                                                    key={i}
+                                                    placeholderSrc={img.thumb}
+                                                    src={route(
+                                                        "get.image",
+                                                        img.id
+                                                    )}
+                                                    effect="blur"
+                                                    onClick={() =>
+                                                        setSelectedImage(img.id)
                                                     }
-                                                >
-                                                    <LazyLoadImage
-                                                        style={{
-                                                            backgroundColor:
-                                                                "red",
-                                                        }}
-                                                        key={i}
-                                                        placeholderSrc={
-                                                            img.thumb
-                                                        }
-                                                        src={route(
-                                                            "get.image",
-                                                            img.id
-                                                        )}
-                                                        effect="blur"
-                                                        onClick={() =>
-                                                            setSelectedImage(
-                                                                img.id
-                                                            )
-                                                        }
-                                                    />
-                                                </div>
-                                            )
-                                        )}
-                                    </>
-                                )}
+                                                />
+                                            </div>
+                                        )
+                                    )}
+                                </>
                             </div>
                         </>
                     );

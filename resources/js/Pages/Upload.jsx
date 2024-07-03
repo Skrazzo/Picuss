@@ -54,6 +54,7 @@ export default function Upload({ auth }) {
         unCompressedSize: 0,
     });
     const [selectedTags, setSelectedTags] = useState([]);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     function dropHandler(files) {
         /*
@@ -154,6 +155,12 @@ export default function Upload({ auth }) {
                     headers: {
                         "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
                     },
+                    onUploadProgress: (data) => {
+                        //Set the progress value to show the progress bar
+                        setUploadProgress(
+                            Math.round((100 * data.loaded) / data.total)
+                        );
+                    },
                 })
                 .then((res) => {
                     // console.log('Response:',res.data);
@@ -176,8 +183,25 @@ export default function Upload({ auth }) {
                 .finally((res) => {
                     setSelectedTags([]);
                     setUploading(false);
+                    setUploadProgress(0);
                 });
         });
+    }
+
+    function handleCancel() {
+        setCompress(true);
+        setCompressing(false);
+        setCompressingProgress(0);
+        setImageQuality(20);
+        setUploading(false);
+        setCompressArr([]);
+        setUploadArr([]);
+        setUploadSize({
+            compressedSize: 0,
+            unCompressedSize: 0,
+        });
+        setSelectedTags([]);
+        setUploadProgress(0);
     }
 
     useEffect(() => console.log("upload arr", uploadArr), [uploadArr]);
@@ -402,7 +426,7 @@ export default function Upload({ auth }) {
                 )}
 
                 {selectedTags.length !== 0 && (
-                    <Flex mb={128} gap={8}>
+                    <Flex mb={128} gap={8} align={"center"}>
                         <Button
                             loading={uploading}
                             onClick={uploadHandler}
@@ -413,10 +437,16 @@ export default function Upload({ auth }) {
                         <Button
                             disabled={uploading}
                             leftSection={<IconClearAll />}
-                            variant="subtle"
+                            variant="default"
+                            onClick={handleCancel}
                         >
                             Cancel
                         </Button>
+
+                        <Text c={"dimmed"} ml={16}>
+                            {uploadProgress}%
+                        </Text>
+                        <Progress value={uploadProgress} flex={"1"} animated />
                     </Flex>
                 )}
             </Container>

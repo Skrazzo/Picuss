@@ -4,12 +4,14 @@ import sty from "../../../scss/authLayout.module.scss";
 import {
     ActionIcon,
     Affix,
+    Box,
     Burger,
     Button,
     CloseButton,
     Divider,
     Drawer,
     Modal,
+    SegmentedControl,
     SimpleGrid,
     Skeleton,
     Text,
@@ -21,6 +23,7 @@ import {
     IconArrowUp,
     IconLogout2,
     IconPhoto,
+    IconSeparatorVertical,
     IconTag,
     IconTags,
     IconUpload,
@@ -36,6 +39,7 @@ export default function AuthLayout({
     children,
     className = "",
     queryTags = null, // [0] - value [1] - set new value
+    segmentControl = null,
     userTags = [],
 }) {
     const [openedDrawer, drawer] = useDisclosure();
@@ -163,11 +167,40 @@ export default function AuthLayout({
 
                 {auth.route === "dashboard" && (
                     <>
-                        <Divider my={16} />
+                        <Divider
+                            my={16}
+                            label={
+                                <>
+                                    <IconTags size={16} />
+                                    <Box ml={4}>Filter by tags</Box>
+                                </>
+                            }
+                        />
                         <SearchTags
                             queryTags={queryTags}
                             userTags={userTags}
                             closeDrawer={() => drawer.close()}
+                        />
+
+                        <Divider
+                            my={16}
+                            label={
+                                <>
+                                    <IconSeparatorVertical size={16} />
+                                    <Box ml={4}>Separate pictures</Box>
+                                </>
+                            }
+                        />
+                        <SegmentedControl
+                            fullWidth
+                            mx={8}
+                            value={segmentControl[0]}
+                            onChange={segmentControl[1]}
+                            data={[
+                                { label: "All", value: "all" },
+                                { label: "Year", value: "year" },
+                                { label: "Month", value: "month" },
+                            ]}
                         />
                     </>
                 )}

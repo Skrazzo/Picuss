@@ -63,9 +63,12 @@ export default function PictureViewer({
         </div>
     );
 
+    let d = new Date(image.uploaded);
+    let formatedDate = d.toDateString();
+
     const fileInfo = [
         ["Size", `${image.size} MB`],
-        ["Upload Date", image.uploaded],
+        ["Upload Date", formatedDate],
         ["Uploaded", image.uploaded_ago],
     ];
 

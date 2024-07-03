@@ -8,6 +8,7 @@ import axios from "axios";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import { IconPhotoOff } from "@tabler/icons-react";
 import PictureViewer from "./Components/PictureViewer";
+import PictureDivider from "./Components/PictureDivider";
 
 export default function Dashboard({ auth }) {
     const [page, setPage] = useState(1);
@@ -22,6 +23,9 @@ export default function Dashboard({ auth }) {
     // queried tags
     const queryTags = useState([]);
     const firstRender = useRef(true);
+
+    // Divide by months year etc
+    const segmentControl = useState("month");
 
     useEffect(() => {
         if (firstRender.current) {
@@ -50,6 +54,12 @@ export default function Dashboard({ auth }) {
         imageSearch();
     }, [page]);
 
+    useEffect(() => {
+        if (firstRender.current) return;
+        if (!images) return;
+        segmentalSwitch();
+    }, [segmentControl[0]]);
+
     function imageSearch() {
         resetStates();
         setProcessing(true);
@@ -62,10 +72,89 @@ export default function Dashboard({ auth }) {
                 params: { queryTags: JSON.stringify(queryTags[0]) },
             })
             .then((res) => {
-                setImages(res.data.images);
+                segmentalSwitch(res.data.images); // Checks the switch, to see what images to display
+
                 setTotalPages(res.data.totalPages);
                 setProcessing(false);
             });
+    }
+
+    function segmentalSwitch(allImages = null) {
+        if (!allImages) {
+            allImages = images.map((img) => img[1]).flat();
+        }
+
+        let arr = [];
+        switch (segmentControl[0]) {
+            case "all":
+                setImages([["All pictures", allImages]]);
+                break;
+            case "year":
+                arr = [];
+                allImages.forEach((img) => {
+                    const year = new Date(img.uploaded).getFullYear();
+
+                    // We'll try to find array that matches images year, if not, the value will be false, otherwise index
+                    let itemIndex = false;
+                    for (let i = 0; i < arr.length; i++) {
+                        if (arr[i][0] === year) {
+                            itemIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (itemIndex !== false) {
+                        arr[itemIndex][1].push(img);
+                    } else {
+                        arr.push([year, [img]]);
+                    }
+                });
+
+                setImages(arr);
+                break;
+            case "month":
+                arr = [];
+                allImages.forEach((img) => {
+                    const d = new Date(img.uploaded);
+
+                    // Get year and month variables
+                    const year = d.getFullYear();
+
+                    let months = [
+                        "January",
+                        "February",
+                        "March",
+                        "April",
+                        "May",
+                        "June",
+                        "July",
+                        "August",
+                        "September",
+                        "October",
+                        "November",
+                        "December",
+                    ];
+                    let month = months[d.getMonth()];
+
+                    // We'll try to find array that matches images year, if not, the value will be false, otherwise index
+                    let itemIndex = false;
+                    for (let i = 0; i < arr.length; i++) {
+                        if (arr[i][0] === `${month} ${year}`) {
+                            itemIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (itemIndex !== false) {
+                        arr[itemIndex][1].push(img);
+                    } else {
+                        arr.push([`${month} ${year}`, [img]]);
+                    }
+                });
+
+                setImages(arr);
+                break;
+        }
     }
 
     const noPicturesFound = (
@@ -88,12 +177,23 @@ export default function Dashboard({ auth }) {
 
     function onImageDelete(id) {
         setSelectedImage(null);
-        setImages(images.filter((image) => image.id !== id));
+
+        let newImages = [];
+        images.forEach((imgArr) => {
+            let rtn = [imgArr[0], imgArr[1].filter((image) => image.id !== id)];
+
+            newImages.push(rtn);
+        });
+
+        setImages(newImages);
     }
+
+    console.log(images);
 
     return (
         <AuthLayout
             queryTags={queryTags}
+            segmentControl={segmentControl}
             userTags={userTags}
             auth={auth}
             className={selectedImage ? sty.no_scroll : ""}
@@ -102,64 +202,83 @@ export default function Dashboard({ auth }) {
                 <PictureViewer
                     close={() => setSelectedImage(null)}
                     onDelete={onImageDelete}
-                    images={images}
+                    images={images.map((img) => img[1]).flat()}
                     selected={selectedImage}
                     setSelected={setSelectedImage}
                     tags={userTags}
                 />
             )}
-            <div className={`${sty.container}`}>
-                {!images ? ( // getting a list of pictures to load
-                    <>
-                        {skelets.map((x, i) => (
-                            <Skeleton
-                                key={i}
-                                className={sty.column}
-                                h={generateRandomBetween(100, 300)}
-                            />
-                        ))}
-                    </>
-                ) : (
-                    <>
-                        {images.length === 0 ? (
-                            noPicturesFound // Displaying no pictures found message
-                        ) : (
-                            <>
-                                {images.map(
-                                    (
-                                        img,
-                                        i // Loading actual pictures
-                                    ) => (
-                                        <div className={sty.overflow_hidden}>
-                                            <LazyLoadImage
-                                                style={{
-                                                    backgroundColor: "red",
-                                                }}
-                                                key={i}
-                                                placeholderSrc={img.thumb}
-                                                src={route("get.image", img.id)}
-                                                effect="blur"
-                                                onClick={() =>
-                                                    setSelectedImage(img.id)
-                                                }
-                                            />
-                                        </div>
-                                    )
+
+            {!images ? ( // getting a list of pictures to load
+                <div className={`${sty.container}`}>
+                    {skelets.map((x, i) => (
+                        <Skeleton
+                            key={i}
+                            className={sty.column}
+                            h={generateRandomBetween(100, 300)}
+                        />
+                    ))}
+                </div>
+            ) : (
+                images.map((segment, idx) => {
+                    let segImages = segment[1];
+                    return (
+                        <>
+                            <PictureDivider title={segment[0]} />
+                            <div className={`${sty.container}`}>
+                                {segImages.length === 0 ? (
+                                    noPicturesFound // Displaying no pictures found message
+                                ) : (
+                                    <>
+                                        {segImages.map(
+                                            (
+                                                img,
+                                                i // Loading actual pictures
+                                            ) => (
+                                                <div
+                                                    className={
+                                                        sty.overflow_hidden
+                                                    }
+                                                >
+                                                    <LazyLoadImage
+                                                        style={{
+                                                            backgroundColor:
+                                                                "red",
+                                                        }}
+                                                        key={i}
+                                                        placeholderSrc={
+                                                            img.thumb
+                                                        }
+                                                        src={route(
+                                                            "get.image",
+                                                            img.id
+                                                        )}
+                                                        effect="blur"
+                                                        onClick={() =>
+                                                            setSelectedImage(
+                                                                img.id
+                                                            )
+                                                        }
+                                                    />
+                                                </div>
+                                            )
+                                        )}
+                                    </>
                                 )}
-                            </>
-                        )}
-                    </>
-                )}
-            </div>
+                            </div>
+                        </>
+                    );
+                })
+            )}
 
             <Center>
                 <Pagination
+                    siblings={1}
                     disabled={processing}
                     value={page}
                     mx={"auto"}
                     my={32}
                     total={totalPages}
-                    withEdges
                     onChange={setPage}
                 />
             </Center>

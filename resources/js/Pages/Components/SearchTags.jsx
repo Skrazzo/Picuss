@@ -37,7 +37,7 @@ export default function SearchTags({ userTags, queryTags, closeDrawer }) {
 
     return (
         <>
-            <Flex align={"center"} p={8} gap={8}>
+            <Flex align={"center"} pt={0} p={8} gap={8}>
                 <TextInput
                     value={search}
                     style={{ flex: "1" }}

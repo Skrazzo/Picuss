@@ -4,6 +4,8 @@
     column-gap: 10px;
 
     span {
+        display: block;
+
         margin: 0;
         display: grid;
         grid-template-rows: 1fr auto;

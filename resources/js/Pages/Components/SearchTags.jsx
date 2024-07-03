@@ -52,8 +52,7 @@ export default function SearchTags({ userTags, queryTags, closeDrawer }) {
                 withBorder
                 mx={8}
                 p={8}
-                // mah={300}
-                mih={1000}
+                mah={300}
                 style={{ overflowY: "auto" }}
             >
                 {tags.map((tag, idx) => (

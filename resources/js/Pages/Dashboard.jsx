@@ -132,6 +132,9 @@ export default function Dashboard({ auth }) {
                                     ) => (
                                         <div className={sty.overflow_hidden}>
                                             <LazyLoadImage
+                                                style={{
+                                                    backgroundColor: "red",
+                                                }}
                                                 key={i}
                                                 placeholderSrc={img.thumb}
                                                 src={route("get.image", img.id)}

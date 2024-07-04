@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import AuthLayout from "./Layouts/AuthLayout";
 import sty from "../../scss/Dashboard.module.scss";
-import { LazyLoadImage } from "react-lazy-load-image-component";
 import generateRandomBetween from "./Functions/randomNumberBetween";
 import { Center, Pagination, Skeleton, Text } from "@mantine/core";
 import axios from "axios";
@@ -9,6 +8,8 @@ import "react-lazy-load-image-component/src/effects/blur.css";
 import { IconPhotoOff } from "@tabler/icons-react";
 import PictureViewer from "./Components/PictureViewer";
 import PictureDivider from "./Components/PictureDivider";
+import useElementSize from "./Functions/useElementSize";
+import LazyLoadImageComponent from "./Components/LazyLoadImageComponent";
 
 export default function Dashboard({ auth }) {
     const [page, setPage] = useState(1);
@@ -26,6 +27,8 @@ export default function Dashboard({ auth }) {
 
     // Divide by months year etc
     const segmentControl = useState("month");
+
+    const [containerSize, containerRef] = useElementSize();
 
     useEffect(() => {
         if (firstRender.current) {
@@ -85,6 +88,8 @@ export default function Dashboard({ auth }) {
         }
 
         let arr = [];
+        let months = [];
+
         switch (segmentControl[0]) {
             case "all":
                 setImages([["All pictures", allImages]]);
@@ -114,26 +119,28 @@ export default function Dashboard({ auth }) {
                 break;
             case "month":
                 arr = [];
+
+                months = [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December",
+                ];
+
                 allImages.forEach((img) => {
                     const d = new Date(img.uploaded);
 
                     // Get year and month variables
                     const year = d.getFullYear();
 
-                    let months = [
-                        "January",
-                        "February",
-                        "March",
-                        "April",
-                        "May",
-                        "June",
-                        "July",
-                        "August",
-                        "September",
-                        "October",
-                        "November",
-                        "December",
-                    ];
                     let month = months[d.getMonth()];
 
                     // We'll try to find array that matches images year, if not, the value will be false, otherwise index
@@ -149,6 +156,50 @@ export default function Dashboard({ auth }) {
                         arr[itemIndex][1].push(img);
                     } else {
                         arr.push([`${month} ${year}`, [img]]);
+                    }
+                });
+
+                setImages(arr);
+                break;
+            case "day":
+                arr = [];
+
+                months = [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
+                ];
+
+                allImages.forEach((img) => {
+                    const d = new Date(img.uploaded);
+
+                    // Get year and month variables
+                    const year = d.getFullYear();
+                    const month = months[d.getMonth()];
+                    const day = d.getDate();
+
+                    // We'll try to find array that matches images year, if not, the value will be false, otherwise index
+                    let itemIndex = false;
+                    for (let i = 0; i < arr.length; i++) {
+                        if (arr[i][0] === `${month} ${day} ${year}`) {
+                            itemIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (itemIndex !== false) {
+                        arr[itemIndex][1].push(img);
+                    } else {
+                        arr.push([`${month} ${day} ${year}`, [img]]);
                     }
                 });
 
@@ -187,8 +238,6 @@ export default function Dashboard({ auth }) {
 
         setImages(newImages);
     }
-
-    console.log(images);
 
     return (
         <AuthLayout
@@ -229,32 +278,13 @@ export default function Dashboard({ auth }) {
                             <PictureDivider title={segment[0]} />
                             <div className={`${sty.container}`}>
                                 <>
-                                    {segImages.map(
-                                        (
-                                            img,
-                                            i // Loading actual pictures
-                                        ) => (
-                                            <div
-                                                className={sty.overflow_hidden}
-                                            >
-                                                <LazyLoadImage
-                                                    style={{
-                                                        backgroundColor: "red",
-                                                    }}
-                                                    key={i}
-                                                    placeholderSrc={img.thumb}
-                                                    src={route(
-                                                        "get.image",
-                                                        img.id
-                                                    )}
-                                                    effect="blur"
-                                                    onClick={() =>
-                                                        setSelectedImage(img.id)
-                                                    }
-                                                />
-                                            </div>
-                                        )
-                                    )}
+                                    {segImages.map((img, i) => (
+                                        <LazyLoadImageComponent
+                                            setSelectedImage={setSelectedImage}
+                                            img={img}
+                                            key={i}
+                                        />
+                                    ))}
                                 </>
                             </div>
                         </>
@@ -262,17 +292,19 @@ export default function Dashboard({ auth }) {
                 })
             )}
 
-            <Center>
+            <Center ref={containerRef}>
                 <Pagination
-                    siblings={1}
+                    siblings={2}
                     disabled={processing}
                     value={page}
                     mx={"auto"}
                     my={32}
                     total={totalPages}
                     onChange={setPage}
+                    size={containerSize.width < 600 ? "xs" : "md"}
                 />
             </Center>
+            <section id="bottom-section"></section>
         </AuthLayout>
     );
 }

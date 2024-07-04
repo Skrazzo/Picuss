@@ -1,6 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import sty from "../../../scss/ThumbnailScroll.module.scss";
 import { motion } from "framer-motion";
+
+const Thumbnail = memo(function Thumbnail({ idx, currentIndex, img, onClick }) {
+    return (
+        <div
+            key={idx}
+            onClick={() => onClick(idx)}
+            className={sty.thumbnail}
+            style={{
+                aspectRatio: idx === currentIndex ? "1/1" : "",
+                transition: "250ms",
+            }}
+        >
+            <img src={img.thumb} />
+        </div>
+    );
+});
 
 export default function ThumbnailScroll({
     images,
@@ -24,9 +40,9 @@ export default function ThumbnailScroll({
             22.5 -
             4 * currentIndex;
 
-        console.log(
-            `width: ${pictureContainerSize.width} index: ${currentIndex}`
-        );
+        // console.log(
+        //     `width: ${pictureContainerSize.width} index: ${currentIndex}`
+        // );
         setOffset(thumbnailOffset);
     }, [currentIndex, pictureContainerSize.width]);
 
@@ -41,17 +57,7 @@ export default function ThumbnailScroll({
                 style={{ display: "flex", gap: "0.25rem" }}
             >
                 {images.map((img, idx) => (
-                    <div
-                        key={idx}
-                        onClick={() => onClick(idx)}
-                        className={sty.thumbnail}
-                        style={{
-                            aspectRatio: idx === currentIndex ? "1/1" : "",
-                            transition: "250ms",
-                        }}
-                    >
-                        <img src={img.thumb} />
-                    </div>
+                    <Thumbnail img={img} idx={idx} onClick={onClick} />
                 ))}
             </motion.div>
         </motion.div>

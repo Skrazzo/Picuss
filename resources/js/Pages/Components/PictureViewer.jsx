@@ -16,6 +16,7 @@ import {
     IconDeviceFloppy,
     IconDotsVertical,
     IconFileInfo,
+    IconShare,
     IconTags,
     IconTrash,
     IconX,
@@ -124,6 +125,13 @@ export default function PictureViewer({
 
     function nextImage() {
         if (imageIndex === images.length - 1) {
+            setTimeout(() => {
+                const element = document.getElementById("bottom-section");
+                if (element) {
+                    // 👇 Will scroll smoothly to the top of the next section
+                    element.scrollIntoView({ behavior: "smooth" });
+                }
+            }, 500);
             setSelected(null);
             return;
         }
@@ -134,6 +142,7 @@ export default function PictureViewer({
     const swipeHandlers = useSwipeable({
         onSwipedLeft: () => nextImage(),
         onSwipedRight: () => previousImage(),
+        onSwipedDown: () => close(),
     });
 
     // register keyboard shortcuts
@@ -163,6 +172,8 @@ export default function PictureViewer({
         };
     }, [imageIndex]);
 
+    function shareHandler() {}
+
     return (
         <div className={sty.container}>
             <div className={sty.side}>
@@ -184,6 +195,12 @@ export default function PictureViewer({
                             </Menu.Target>
 
                             <Menu.Dropdown>
+                                <Menu.Item
+                                    leftSection={<IconShare size={16} />}
+                                    onClick={shareHandler}
+                                >
+                                    <Text>Share</Text>
+                                </Menu.Item>
                                 <Menu.Item
                                     onClick={deletePicture}
                                     color={"red"}

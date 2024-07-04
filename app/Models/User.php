@@ -50,4 +50,8 @@ class User extends Authenticatable
     public function tag(){
         return $this->hasMany(\App\Models\Tags::class);
     }
+
+    public function sharedImage() {
+        return $this->hasMany(\App\Models\ShareImages::class);
+    }
 }

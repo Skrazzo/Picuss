@@ -200,6 +200,7 @@ export default function AuthLayout({
                                 { label: "All", value: "all" },
                                 { label: "Year", value: "year" },
                                 { label: "Month", value: "month" },
+                                { label: "Day", value: "day" },
                             ]}
                         />
                     </>

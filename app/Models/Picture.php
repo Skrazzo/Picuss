@@ -23,5 +23,9 @@ class Picture extends Model
         'tags' => 'json'
     ];
 
+    public function sharedImage() {
+        return $this->hasOne(\App\Models\ShareImages::class, 'picture_id', 'public_id');
+    }
+
     use HasFactory;
 }

@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('share_images', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->foreignId('picture_id')->constrained();
+
+            $table->string('picture_id');
+            $table->foreign('picture_id')->references('public_id')->on('pictures')->onDelete('cascade');
+
             $table->integer('views')->unsigned()->default(0);
             $table->integer('downloads')->unsigned()->default(0);
             $table->timestamps();

@@ -17,6 +17,7 @@ import {
     IconDotsVertical,
     IconFileInfo,
     IconShare,
+    IconShareOff,
     IconTags,
     IconTrash,
     IconX,
@@ -46,6 +47,7 @@ export default function PictureViewer({
 
     // Use states
     const [selectedTags, setSelectedTags] = useState(image.tags);
+    const [shared, setShared] = useState(image.shared);
 
     // use refs
     const [containerSize, containerRef] = useElementSize();
@@ -53,6 +55,10 @@ export default function PictureViewer({
     // console.log(image);
     // console.log(tags);
     // console.log(selectedTags);
+
+    useEffect(() => {
+        setShared(image.shared);
+    }, [image]);
 
     const SectionTitle = ({ text, icon, rightSection = <></> }) => (
         <div className={sty.section_title}>
@@ -172,7 +178,37 @@ export default function PictureViewer({
         };
     }, [imageIndex]);
 
-    function shareHandler() {}
+    function shareHandler() {
+        axios
+            .post(route("share.image.create"), { imageId: image.id })
+            .then((res) => {
+                showNotification({
+                    message: res.data.message,
+                    title: res.data.title,
+                });
+
+                if (res.data.public) {
+                    setShared(true);
+                    navigator.clipboard
+                        .writeText(res.data.link)
+                        .then(() => {
+                            setTimeout(() => {
+                                showNotification({
+                                    message:
+                                        "Sharable link was copied to your clipboard",
+                                    title: "Copied",
+                                });
+                            }, 250);
+                        })
+                        .catch((err) => {
+                            console.error("Failed to link: ", err);
+                        });
+                } else {
+                    setShared(false);
+                }
+            })
+            .catch((err) => console.error(err));
+    }
 
     return (
         <div className={sty.container}>
@@ -195,12 +231,21 @@ export default function PictureViewer({
                             </Menu.Target>
 
                             <Menu.Dropdown>
-                                <Menu.Item
-                                    leftSection={<IconShare size={16} />}
-                                    onClick={shareHandler}
-                                >
-                                    <Text>Share</Text>
-                                </Menu.Item>
+                                {shared ? (
+                                    <Menu.Item
+                                        leftSection={<IconShareOff size={16} />}
+                                        onClick={shareHandler}
+                                    >
+                                        <Text>Make private</Text>
+                                    </Menu.Item>
+                                ) : (
+                                    <Menu.Item
+                                        leftSection={<IconShare size={16} />}
+                                        onClick={shareHandler}
+                                    >
+                                        <Text>Make public</Text>
+                                    </Menu.Item>
+                                )}
                                 <Menu.Item
                                     onClick={deletePicture}
                                     color={"red"}

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PictureController;
+use App\Http\Controllers\ShareImagesController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +44,26 @@ Route::middleware('auth')->group(function () {
             Route::post('/', 'create')->name('tags.create'); // Api POST call to create a new tag
             Route::put('/name/{tag:id}', 'editName')->name('tags.editName'); // Edit tag name
             Route::delete('/', 'deleteTags')->name('tags.delete'); // Route for deleting tags
+        });
+    });
+
+    
+});
+
+// Shared images routes
+Route::prefix('/s')->group(function () { 
+    Route::controller(ShareImagesController::class)->group(function () {
+        Route::get('/{picture:public_id}', 'view')->name('share.image.page');
+        Route::get('/{picture:public_id}/get', 'get')->name('share.get.image');
+        Route::get('/{picture:public_id}/download', 'download')->name('share.download.image');
+
+
+        // Routes with password
+        Route::middleware('auth')->group(function () {
+            Route::get('/', 'manage_index')->name('share.links.manage');
+            Route::delete('/{picture:public_id}/delete', 'delete')->name('share.links.delete');
+
+            Route::post('/create', 'create')->name('share.image.create');
         });
     });
 });

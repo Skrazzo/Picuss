@@ -1,9 +1,9 @@
-@import './variables.scss';
+@import "./variables.scss";
 
 a {
     color: inherit;
     text-decoration: none;
-    
+
     &:hover {
         color: inherit;
         text-decoration: none;
@@ -26,4 +26,29 @@ a {
 ::-webkit-scrollbar-thumb {
     background-color: rgba($color: $lightPrimary, $alpha: 1);
     border-radius: 10px;
+}
+
+.green {
+    &_text {
+        color: $green !important;
+        @for $i from 1 through 10 {
+            &_#{$i} {
+                color: rgba(
+                    $color: $green,
+                    $alpha: calc(#{$i} / 10)
+                ) !important;
+            }
+        }
+    }
+    &_bg {
+        background-color: $green !important;
+        @for $i from 1 through 10 {
+            &_#{$i} {
+                background-color: rgba(
+                    $color: $green,
+                    $alpha: calc(#{$i} / 10)
+                ) !important;
+            }
+        }
+    }
 }

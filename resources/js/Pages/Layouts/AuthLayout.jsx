@@ -21,6 +21,7 @@ import { useDisclosure, useWindowScroll } from "@mantine/hooks";
 import MenuOption from "../Components/MenuOption";
 import {
     IconArrowUp,
+    IconLink,
     IconLogout2,
     IconPhoto,
     IconSeparatorVertical,
@@ -163,6 +164,12 @@ export default function AuthLayout({
                         text={"Manage tags"}
                         hrefRoute={"tags.index"}
                     />
+                    <MenuOption
+                        currentRoute={auth.route}
+                        icon={<IconLink />}
+                        text={"Shared links"}
+                        hrefRoute={"share.links.manage"}
+                    />
                 </div>
 
                 {auth.route === "dashboard" && (
@@ -210,7 +217,7 @@ export default function AuthLayout({
             <nav className={sty.nav}>
                 <div className={sty.logo} onClick={() => drawer.open()}>
                     <Logo size={50} />
-                    <Text>Picuss</Text>
+                    <Text fw={500}>Picuss</Text>
                 </div>
 
                 <Burger

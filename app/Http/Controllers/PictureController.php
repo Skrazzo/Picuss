@@ -95,6 +95,7 @@ class PictureController extends Controller
                         'size' => round($pic->size, 3),
                         'tags' => $pic->tags,
                         'uploaded' => $pic->created_at,
+                        'shared' => ($pic->sharedImage()->count() >= 1) ? true : false,
                         'uploaded_ago' => str_replace('before', 'ago', $pic->created_at->diffForHumans(now()) ),
                         'thumb' => 'data:image/webp;base64,',
                         
@@ -115,6 +116,7 @@ class PictureController extends Controller
                 'name' => $pic->image,
                 'size' => round($pic->size, 3),
                 'tags' => $pic->tags,
+                'shared' => ($pic->sharedImage()->count() >= 1) ? true : false,
                 'uploaded' => $pic->created_at,
                 'uploaded_ago' => str_replace('before', 'ago', $pic->created_at->diffForHumans(now()) ),
                 'thumb' => 'data:image/webp;base64,' . base64_encode($thumbDISK->get($pic->image))

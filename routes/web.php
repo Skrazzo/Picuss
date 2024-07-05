@@ -33,7 +33,6 @@ Route::middleware('auth')->group(function () {
             Route::delete('/delete/{picture:public_id}', 'delete_picture')->name('delete.picture');
 
             Route::put('/tags/{picture:public_id}', 'edit_tags')->name('edit.tags');
-
         });
     });
 

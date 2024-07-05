@@ -225,6 +225,10 @@ class PictureController extends Controller
             'tags' => 'required|array'
         ]);
 
+        if (auth()->user()->id != $picture->user_id) {
+            return response('You don\'t have the permission to view this image', 403);
+        }
+
         if ($validator->fails()) {
             return response()->json($validator->messages(), 400);
         } else {
@@ -248,6 +252,10 @@ class PictureController extends Controller
         Storage::disk($SERVER_IMAGE_DISK)->delete($picture->image);
         Storage::disk($SERVER_THUMBNAILS_DISK)->delete($picture->image);
         
+        if (auth()->user()->id != $picture->user_id) {
+            return response('You don\'t have the permission to view this image', 403);
+        }
+
         $picture->delete();
         
         return response('Picture deleted');

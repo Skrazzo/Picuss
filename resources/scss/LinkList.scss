@@ -1,0 +1,53 @@
+@mixin d-flex($gap: 0.5rem, $justify: "left", $align: "center") {
+    display: flex;
+    justify-content: $justify;
+    align-items: $align;
+    gap: $gap;
+}
+
+.linkList-container {
+    padding: 0.5rem;
+
+    .no-links {
+        padding-bottom: 1rem;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .main {
+            letter-spacing: 1px;
+            font-weight: 900;
+        }
+
+        .desc {
+            color: var(--mantine-color-dimmed);
+        }
+
+        svg {
+            width: 20%;
+            height: 20%;
+        }
+
+        @media (max-width: 500px) {
+            svg {
+                width: 35%;
+                height: 35%;
+            }
+        }
+    }
+
+    @include d-flex($justify: "space-between");
+
+    .checkTag {
+        .check {
+            @include d-flex;
+        }
+
+        .stats {
+            @include d-flex;
+            background-color: red;
+        }
+    }
+}

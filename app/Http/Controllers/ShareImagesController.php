@@ -117,10 +117,8 @@ class ShareImagesController extends Controller
 
     public function manage_index() {
         $userId = auth()->id();
-        
         $links = ShareImages::where('user_id', $userId)->get();
-        dd($links);
 
-        return Inertia::render('ManageLinks');
+        return Inertia::render('ManageLinks', ['links' => $links]);
     }
 }

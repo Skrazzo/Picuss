@@ -55,7 +55,21 @@ export default function ViewSharedImage({ thumb, picture }) {
 
             <AnimatePresence>
                 {selected && (
-                    <div className="overlay">
+                    <motion.div
+                        initial={{
+                            backgroundColor: "rgba(0,0,0,0)",
+                            backdropFilter: "blur(0px)",
+                        }}
+                        animate={{
+                            backgroundColor: "rgba(0,0,0,0.2)",
+                            backdropFilter: "blur(10px)",
+                        }}
+                        exit={{
+                            backgroundColor: "rgba(0,0,0,0)",
+                            backdropFilter: "blur(0px)",
+                        }}
+                        className="overlay"
+                    >
                         <motion.img
                             layoutId="image"
                             src={route("share.get.image", picture.id)}
@@ -74,7 +88,7 @@ export default function ViewSharedImage({ thumb, picture }) {
                                 <IconX />
                             </ActionIcon>
                         </motion.div>
-                    </div>
+                    </motion.div>
                 )}
             </AnimatePresence>
         </GuestLayout>

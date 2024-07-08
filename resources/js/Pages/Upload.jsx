@@ -37,8 +37,9 @@ import UploadImagePreview from "./Components/UploadImagePreview";
 import axios from "axios";
 import showNotification from "./Functions/showNotification";
 import TitleWithIcon from "./Components/TitleWithIcon";
+import Title from "./Components/Title";
 
-export default function Upload({ auth }) {
+export default function Upload({ auth, title = "" }) {
     const [compress, setCompress] = useState(true);
     const [compressing, setCompressing] = useState(false);
     const [compressingProgress, setCompressingProgress] = useState(0);
@@ -228,6 +229,7 @@ export default function Upload({ auth }) {
 
     return (
         <AuthLayout auth={auth}>
+            <Title title={title} />
             <Container size={"md"} py={"md"}>
                 <TitleWithIcon
                     title="Upload pictures"

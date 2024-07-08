@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Picture;
 use App\Models\ShareImages;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -70,6 +71,9 @@ class ShareImagesController extends Controller
         $share->views = $share->views + 1;
         $share->save();
 
+        $username = User::where('id', $picture->user_id)->select('username')->first()['username'];
+        if (empty($username)) $username = 'User';
+
         return Inertia::render('ViewSharedImage', [
             'thumb' => 'data:image/webp;base64,' . base64_encode($thumbDisk->get($picture->image)),
             'picture' => [
@@ -77,8 +81,14 @@ class ShareImagesController extends Controller
                 'size' => round($picture->size, 3),
                 'name' => $picture->image,
             ],
+            'meta' => [
+                'og:title' => $picture->image,
+                'og:description' =>  $username . ' shared picture with you',
+                'og:image' => route('get.thumb.image', $picture->public_id),
+                'og:url' => url()->current(),
+            ],
+            'title' => 'Shared image',    
         ]);
-
     }
 
     public function get(Picture $picture) {
@@ -119,6 +129,26 @@ class ShareImagesController extends Controller
         $userId = auth()->id();
         $links = ShareImages::where('user_id', $userId)->get();
 
-        return Inertia::render('ManageLinks', ['links' => $links]);
+        return Inertia::render('ManageLinks', ['links' => $links, 'title' => 'Manage links']);
+    }
+
+    public function delete(Request $req) {
+        $validator = Validator::make($req->all(), [
+            'images' => 'required|array'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 500);
+        }
+        $data = $validator->valid(); // validated data
+
+        $images = ShareImages::whereIn('picture_id', $data['images'])->where('user_id', auth()->id())->delete();
+        
+        if($images == count($data['images'])) {
+            return response('OK');
+        }
+        return response('Something went wrong', 500);
+        
+        
     }
 }

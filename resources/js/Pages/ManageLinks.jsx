@@ -4,16 +4,18 @@ import { Container, Flex, Paper, Tabs } from "@mantine/core";
 import TitleWithIcon from "./Components/TitleWithIcon";
 import { IconPhoto, IconShare2, IconTags } from "@tabler/icons-react";
 import LinkList from "./Components/LinkList/LinkList";
+import Title from "./Components/Title";
 
-export default function ManageLinks({ auth, links: dbLinks }) {
+export default function ManageLinks({ auth, links: dbLinks, title = "" }) {
     const [links, setLinks] = useState(dbLinks);
     const iconStyle = { size: 16 };
 
     return (
         <AuthLayout auth={auth}>
+            <Title title={title} />
             <Container size={"md"} py={"md"}>
                 <TitleWithIcon
-                    title={`Manage your ${links.length} shared links`}
+                    title={`Manage your shared links`}
                     order={3}
                     icon={<IconShare2 size={28} strokeWidth={1.5} />}
                     my={16}

@@ -29,7 +29,7 @@ class TagsController extends Controller
             });
 
                 
-        return Inertia::render('ManageTags', [ 'tags' => $tags ]);
+        return Inertia::render('ManageTags', [ 'tags' => $tags, 'title' => 'Manage tags' ]);
     }
 
     /**

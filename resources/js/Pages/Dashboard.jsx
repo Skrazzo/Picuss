@@ -10,8 +10,9 @@ import PictureViewer from "./Components/PictureViewer";
 import PictureDivider from "./Components/PictureDivider";
 import useElementSize from "./Functions/useElementSize";
 import LazyLoadImageComponent from "./Components/LazyLoadImageComponent";
+import Title from "./Components/Title";
 
-export default function Dashboard({ auth }) {
+export default function Dashboard({ auth, title = "" }) {
     const [page, setPage] = useState(1);
     const [images, setImages] = useState(null);
     const [totalPages, setTotalPages] = useState(1);
@@ -247,6 +248,7 @@ export default function Dashboard({ auth }) {
             auth={auth}
             className={selectedImage ? sty.no_scroll : ""}
         >
+            <Title title={title} />
             {selectedImage && (
                 <PictureViewer
                     close={() => setSelectedImage(null)}

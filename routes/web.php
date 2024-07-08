@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // display login and register page
-Route::get('/auth', function () { return Inertia::render('Auth'); })->name('login');
+Route::get('/auth', function () { return Inertia::render('Auth', ['title' => 'Login']); })->name('login');
 
 // api routes for auth
 Route::post('/login', [UserController::class, 'login'])->name('post.login');
@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('/image')->group(function () {
             Route::get('/{picture:public_id}', 'get_image')->name('get.image'); // Get image
             Route::get('/resized/{page}', 'get_resized_images')->name('get.resized.images'); // Get resized image array for the whole page
+            Route::get('/thumb/{picture:public_id}', 'get_thumbnail')->name('get.thumb.image'); // get thumbnail
             Route::delete('/delete/{picture:public_id}', 'delete_picture')->name('delete.picture');
 
             Route::put('/tags/{picture:public_id}', 'edit_tags')->name('edit.tags');
@@ -61,7 +62,7 @@ Route::prefix('/s')->group(function () {
         // Routes with password
         Route::middleware('auth')->group(function () {
             Route::get('/', 'manage_index')->name('share.links.manage');
-            Route::delete('/{picture:public_id}/delete', 'delete')->name('share.links.delete');
+            Route::delete('/delete', 'delete')->name('share.links.delete');
 
             Route::post('/create', 'create')->name('share.image.create');
         });

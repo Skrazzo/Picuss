@@ -17,7 +17,7 @@ use Intervention\Image\Drivers\Imagick\Driver;
 class PictureController extends Controller
 {
     public function upload_index(Request $req){
-        return Inertia::render('Upload');
+        return Inertia::render('Upload', ['title' => 'Upload']);
     }
 
     public function dashboard_index(Request $req) {
@@ -36,6 +36,24 @@ class PictureController extends Controller
 
         return Storage::disk($SERVER_IMAGE_DISK)->response($picture->image);
         
+    }
+
+    public function get_thumbnail(Picture $picture) {
+        $SERVER_THUMBNAILS_DISK = env('SERVER_THUMBNAILS_DISK', 'thumbnails');
+        $disk = Storage::disk($SERVER_THUMBNAILS_DISK);
+
+        if (!$disk->exists($picture->image)) {
+            return response('Could not find the image on local disk', 404);
+        }
+
+        if (!$picture->sharedImage()->first()) {
+            if (auth()->user()->id != $picture->user_id) {
+                return response('You don\'t have the permission to view this image', 403);
+            }
+        }
+
+
+        return $disk->response($picture->image);
     }
 
     public function get_resized_images(Request $req, $page) {
@@ -105,7 +123,7 @@ class PictureController extends Controller
                 }
                 
                 $image = $manager->read($path);
-                $image->scaleDown(width: 40);
+                $image->scaleDown(width: 50);
                 // $image->pixelate(8);
 
                 $image->save($thumbDISK->path($pic->image)); // Save image to the local path

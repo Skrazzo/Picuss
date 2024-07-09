@@ -228,7 +228,7 @@ export default function Dashboard({ auth, title = "" }) {
     );
 
     function onImageDelete(id) {
-        setSelectedImage(null);
+        // setSelectedImage(null);
 
         let newImages = [];
         images.forEach((imgArr) => {

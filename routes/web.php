@@ -31,7 +31,8 @@ Route::middleware('auth')->group(function () {
         Route::prefix('/image')->group(function () {
             Route::get('/{picture:public_id}', 'get_image')->name('get.image'); // Get image
             Route::get('/resized/{page}', 'get_resized_images')->name('get.resized.images'); // Get resized image array for the whole page
-            Route::get('/thumb/{picture:public_id}', 'get_thumbnail')->name('get.thumb.image'); // get thumbnail
+            // Moved outside of auth middleware
+            // Route::get('/thumb/{picture:public_id}', 'get_thumbnail')->name('get.thumb.image'); // get thumbnail
             Route::delete('/delete/{picture:public_id}', 'delete_picture')->name('delete.picture');
 
             Route::put('/tags/{picture:public_id}', 'edit_tags')->name('edit.tags');
@@ -50,6 +51,8 @@ Route::middleware('auth')->group(function () {
 
     
 });
+
+Route::get('/image/thumb/{picture:public_id}', [PictureController::class, 'get_thumbnail'])->name('get.thumb.image'); // get thumbnail
 
 // Shared images routes
 Route::prefix('/s')->group(function () { 

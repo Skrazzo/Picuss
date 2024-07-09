@@ -94,7 +94,7 @@ export default function ConfirmationModal({
 
                                     <Button
                                         onClick={close}
-                                        variant={"outline"}
+                                        variant={confirm ? "light" : "outline"}
                                         color={colors[color]}
                                     >
                                         Cancel

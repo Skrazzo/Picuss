@@ -46,7 +46,15 @@ class PictureController extends Controller
             return response('Could not find the image on local disk', 404);
         }
 
-        if (!$picture->sharedImage()->first()) {
+        if (!$picture->sharedImage()->first()) { 
+            // If image isn't shared, check if user is logged in, and if the thumb belongs to him
+            // If user isn't logged in, then it does not have permission to view it.
+
+            $user = auth()->user();
+            if(!$user) { // isnt logged in
+                return response('You don\'t have the permission to view this image', 403);
+            }
+
             if (auth()->user()->id != $picture->user_id) {
                 return response('You don\'t have the permission to view this image', 403);
             }

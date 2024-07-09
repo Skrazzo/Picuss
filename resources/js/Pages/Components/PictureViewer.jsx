@@ -13,6 +13,7 @@ import {
     IconBan,
     IconChevronLeft,
     IconChevronRight,
+    IconCopy,
     IconDeviceFloppy,
     IconDotsVertical,
     IconFileInfo,
@@ -31,6 +32,7 @@ import ThumbnailScroll from "./ThumbnailScroll";
 import useElementSize from "../Functions/useElementSize";
 import { useDisclosure } from "@mantine/hooks";
 import ConfirmationModal from "./ConfirmationModal";
+import copyToClipboard from "../Functions/copyToClipboard";
 
 export default function PictureViewer({
     selected,
@@ -116,7 +118,16 @@ export default function PictureViewer({
     function deletePicture() {
         axios
             .delete(route("delete.picture", image.id))
-            .then(() => onDelete(image.id))
+            .then(() => {
+                nextImage();
+                onDelete(image.id);
+                showNotification({
+                    title: "Deleted",
+                    message: "Image was deleted successfully",
+                    icon: <IconTrash size={20} strokeWidth={1.25} />,
+                    color: "red",
+                });
+            })
             .catch((err) => {
                 alert("Error appeared! " + err);
                 console.error(err);
@@ -192,20 +203,12 @@ export default function PictureViewer({
 
                 if (res.data.public) {
                     setShared(true);
-                    navigator.clipboard
-                        .writeText(res.data.link)
-                        .then(() => {
-                            setTimeout(() => {
-                                showNotification({
-                                    message:
-                                        "Sharable link was copied to your clipboard",
-                                    title: "Copied",
-                                });
-                            }, 250);
-                        })
-                        .catch((err) => {
-                            console.error("Failed to link: ", err);
-                        });
+                    copyToClipboard(
+                        res.data.link,
+                        true,
+                        "Sharable link was copied to your clipboard",
+                        "Copied"
+                    );
                 } else {
                     setShared(false);
                 }
@@ -213,13 +216,18 @@ export default function PictureViewer({
             .catch((err) => console.error(err));
     }
 
+    const iconProps = {
+        size: 20,
+        strokeWidth: 1.25,
+    };
+
     return (
         <div className={sty.container}>
             <ConfirmationModal
                 color={"red"}
                 opened={confirmDelete}
                 icon={<IconTrash />}
-                onConfirm={() => console.log("confirmed")}
+                onConfirm={deletePicture}
                 title={"Delete picture?"}
                 close={() => setConfirmDelete.close()}
                 confirmBtnText="Delete"
@@ -247,15 +255,39 @@ export default function PictureViewer({
 
                             <Menu.Dropdown>
                                 {shared ? (
-                                    <Menu.Item
-                                        leftSection={<IconShareOff size={16} />}
-                                        onClick={shareHandler}
-                                    >
-                                        <Text>Make private</Text>
-                                    </Menu.Item>
+                                    <>
+                                        <Menu.Item
+                                            leftSection={
+                                                <IconShareOff {...iconProps} />
+                                            }
+                                            onClick={shareHandler}
+                                        >
+                                            <Text>Make private</Text>
+                                        </Menu.Item>
+                                        <Menu.Item
+                                            leftSection={
+                                                <IconCopy {...iconProps} />
+                                            }
+                                            onClick={() =>
+                                                copyToClipboard(
+                                                    route(
+                                                        "share.image.page",
+                                                        image.id
+                                                    ),
+                                                    true,
+                                                    "Sharable link was copied to your clipboard",
+                                                    "Copied"
+                                                )
+                                            }
+                                        >
+                                            <Text>Copy link</Text>
+                                        </Menu.Item>
+                                    </>
                                 ) : (
                                     <Menu.Item
-                                        leftSection={<IconShare size={16} />}
+                                        leftSection={
+                                            <IconShare {...iconProps} />
+                                        }
                                         onClick={shareHandler}
                                     >
                                         <Text>Make public</Text>
@@ -264,10 +296,9 @@ export default function PictureViewer({
                                 <Menu.Item
                                     onClick={() => {
                                         setConfirmDelete.open();
-                                        // deletePicture();
                                     }}
                                     color={"red"}
-                                    leftSection={<IconTrash size={16} />}
+                                    leftSection={<IconTrash {...iconProps} />}
                                 >
                                     <Text>Delete</Text>
                                 </Menu.Item>
@@ -347,11 +378,15 @@ export default function PictureViewer({
                     <IconX />
                 </ActionIcon>
 
-                <div className={sty.picture} {...swipeHandlers}>
+                <div onClick={close} className={sty.picture} {...swipeHandlers}>
                     <LazyLoadImage
                         placeholderSrc={image.thumb}
                         src={route("get.image", image.id)}
                         effect="blur"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            console.log("asd");
+                        }}
                     />
                 </div>
 

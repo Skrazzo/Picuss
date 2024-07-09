@@ -1,3 +1,4 @@
+@use "./mixins";
 @import "./variables.scss";
 
 $iconSize: 25px;
@@ -139,11 +140,19 @@ $iconSize: 25px;
             span {
                 height: 100%;
                 width: 100%;
+
+                @include mixins.center;
+                display: flex !important;
             }
 
             img {
-                height: 100%;
-                width: 100%;
+                max-height: 100%;
+                max-width: 100%;
+                // width: 100%;
+
+                @media (max-width: 1000px) {
+                    max-height: calc(100% - 90px - 8px - 8px);
+                }
 
                 object-fit: contain;
             }

@@ -1,5 +1,17 @@
-import { Checkbox, Flex, Text } from "@mantine/core";
-import { IconDownload, IconEye } from "@tabler/icons-react";
+import {
+    ActionIcon,
+    Checkbox,
+    CopyButton,
+    Flex,
+    Text,
+    Tooltip,
+} from "@mantine/core";
+import {
+    IconCheck,
+    IconCopy,
+    IconDownload,
+    IconEye,
+} from "@tabler/icons-react";
 import React from "react";
 
 export default function CheckTag({ id, views, downloads, onChange, checked }) {
@@ -22,6 +34,41 @@ export default function CheckTag({ id, views, downloads, onChange, checked }) {
                     }
                     alt="thumbnail"
                 />
+
+                <div className="link">
+                    <Text
+                        size="sm"
+                        c={"dimmed"}
+                        onClick={() =>
+                            window
+                                .open(route("share.image.page", id), "_blank")
+                                .focus()
+                        }
+                    >
+                        {route("share.image.page", id)}
+                    </Text>
+
+                    <CopyButton
+                        value={route("share.image.page", id)}
+                        timeout={2000}
+                    >
+                        {({ copied, copy }) => (
+                            <Tooltip
+                                label={copied ? "Copied" : "Copy"}
+                                withArrow
+                                position="right"
+                            >
+                                <ActionIcon variant="subtle" onClick={copy}>
+                                    {copied ? (
+                                        <IconCheck {...defaultIconProps} />
+                                    ) : (
+                                        <IconCopy {...defaultIconProps} />
+                                    )}
+                                </ActionIcon>
+                            </Tooltip>
+                        )}
+                    </CopyButton>
+                </div>
             </div>
 
             <div className="stats">

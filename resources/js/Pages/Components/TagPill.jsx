@@ -1,6 +1,6 @@
-import { Flex, Pill, Transition } from '@mantine/core'
-import { IconHash } from '@tabler/icons-react'
-import React, { useEffect, useState } from 'react'
+import { Flex, Pill, Text, Transition } from "@mantine/core";
+import { IconHash } from "@tabler/icons-react";
+import React, { useEffect, useState } from "react";
 
 export default function TagPill({ remove, name }) {
     const transitionDuration = 100; // In miliseconds
@@ -18,15 +18,25 @@ export default function TagPill({ remove, name }) {
             timingFunction="ease"
             onExited={remove}
         >
-            {(styles) => 
-                <Pill style={styles} withRemoveButton onRemove={() => setMounted(false)}> 
-                    <Flex align={'center'} gap={4}>
-                        <IconHash size={14} strokeWidth={1.3} color='var(--mantine-primary-color-8)'/>
+            {(styles) => (
+                <Pill
+                    style={styles}
+                    withRemoveButton
+                    onRemove={() => setMounted(false)}
+                    py={2}
+                    pr={4}
+                >
+                    <Flex align={"end"} gap={2}>
+                        <IconHash
+                            size={16}
+                            strokeWidth={1.25}
+                            color="var(--mantine-primary-color-8)"
+                        />
 
-                        {name}
+                        <Text size="xs">{name}</Text>
                     </Flex>
                 </Pill>
-            }
+            )}
         </Transition>
-    )
+    );
 }

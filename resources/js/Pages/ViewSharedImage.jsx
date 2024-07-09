@@ -17,6 +17,11 @@ import { motion } from "framer-motion";
 export default function ViewSharedImage({ thumb, picture }) {
     const [selected, setSelected] = useState(null);
 
+    const iconProps = {
+        size: 20,
+        strokeWidth: 1.25,
+    };
+
     return (
         <GuestLayout>
             <Container mt={32} size={"sm"}>
@@ -27,7 +32,7 @@ export default function ViewSharedImage({ thumb, picture }) {
 
                     <Button
                         miw={"max-content"}
-                        rightSection={<IconDownload size={16} />}
+                        rightSection={<IconDownload {...iconProps} />}
                         onClick={() =>
                             (window.location.href = route(
                                 "share.download.image",

@@ -227,6 +227,11 @@ export default function Upload({ auth, title = "" }) {
         }
     }, [compressArr]);
 
+    const iconProps = {
+        size: 20,
+        strokeWidth: 1.25,
+    };
+
     return (
         <AuthLayout auth={auth}>
             <Title title={title} />
@@ -427,30 +432,29 @@ export default function Upload({ auth, title = "" }) {
                     </Paper>
                 )}
 
-                {selectedTags.length !== 0 && (
-                    <Flex mb={128} gap={8} align={"center"}>
-                        <Button
-                            loading={uploading}
-                            onClick={uploadHandler}
-                            leftSection={<IconUpload />}
-                        >
-                            Upload
-                        </Button>
-                        <Button
-                            disabled={uploading}
-                            leftSection={<IconClearAll />}
-                            variant="default"
-                            onClick={handleCancel}
-                        >
-                            Cancel
-                        </Button>
+                <Flex mb={128} gap={8} align={"center"}>
+                    <Button
+                        loading={uploading}
+                        onClick={uploadHandler}
+                        leftSection={<IconUpload {...iconProps} />}
+                        disabled={selectedTags.length == 0}
+                    >
+                        Upload
+                    </Button>
+                    <Button
+                        disabled={uploading}
+                        leftSection={<IconClearAll {...iconProps} />}
+                        variant="default"
+                        onClick={handleCancel}
+                    >
+                        Cancel
+                    </Button>
 
-                        <Text c={"dimmed"} ml={16}>
-                            {uploadProgress}%
-                        </Text>
-                        <Progress value={uploadProgress} flex={"1"} animated />
-                    </Flex>
-                )}
+                    <Text c={"dimmed"} ml={16}>
+                        {uploadProgress}%
+                    </Text>
+                    <Progress value={uploadProgress} flex={"1"} animated />
+                </Flex>
             </Container>
         </AuthLayout>
     );

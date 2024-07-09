@@ -46,7 +46,7 @@ return [
 
         'tmp' => [
             'driver' => 'local',
-            'root' => '/home/skrazzo/Desktop/tmpZipFiles',
+            'root' => storage_path('app/tmpZipFiles'),
         ],
 
         'images' => [
@@ -56,8 +56,13 @@ return [
 
         'thumbnails' => [
             'driver' => 'local',
-            'root' => '/home/skrazzo/Desktop/picuss_thumbnails'
+            'root' => storage_path('app/thumbnails'),
         ],
+
+        'half_images' => [
+            'driver' => 'local',
+            'root' => storage_path('app') . '/half images/',
+        ]
 
     ],
 

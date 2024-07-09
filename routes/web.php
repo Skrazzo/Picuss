@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/resized/{page}', 'get_resized_images')->name('get.resized.images'); // Get resized image array for the whole page
             // Moved outside of auth middleware
             // Route::get('/thumb/{picture:public_id}', 'get_thumbnail')->name('get.thumb.image'); // get thumbnail
+            Route::get('/half/{picture:public_id}', 'get_half_picture')->name('get.half.image'); // get scaled down image
             Route::delete('/delete/{picture:public_id}', 'delete_picture')->name('delete.picture');
 
             Route::put('/tags/{picture:public_id}', 'edit_tags')->name('edit.tags');

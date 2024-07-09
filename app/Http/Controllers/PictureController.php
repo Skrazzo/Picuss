@@ -64,6 +64,46 @@ class PictureController extends Controller
         return $disk->response($picture->image);
     }
 
+    public function get_half_picture(Picture $picture) {
+        if(auth()->id() != $picture->user_id) {
+            return response('You\'re not allowed to view this', 403);
+        }
+
+        // Get storages
+        $SERVER_IMAGE_HALF_DISK = env('SERVER_IMAGE_HALF_DISK', 'half_images');
+        $disk = Storage::disk($SERVER_IMAGE_HALF_DISK);
+               
+        
+        // If half size already exists, show it
+        if ($disk->exists($picture->image)) { // if exists return
+            return $disk->response($picture->image);
+        }
+
+        // ------ Create half size image -------
+        
+        // Get storage
+        $SERVER_IMAGE_DISK = env('SERVER_IMAGE_DISK', 'images');
+        $imageDisk = Storage::disk($SERVER_IMAGE_DISK);
+
+        // Check if image exists
+        if (!$imageDisk->exists($picture->image)) return response('Original Image does not exist!!!', 500);
+
+        // Scale down original image
+        $path = $imageDisk->path($picture->image);
+        $imageSize = getimagesize($path);
+        $scalePercentage = 20; // Image is going to be n% from all the width pixels
+        $resultPixels = $scalePercentage * $imageSize[0] / 100;
+
+        // Initiate scaling down, and save the image
+        $manager = new ImageManager(new Driver());
+        $image = $manager->read($path);
+        $image->scaleDown(width: $resultPixels);
+        $image->save($disk->path($picture->image)); 
+
+        // Return half size image
+        return $disk->response($picture->image);
+    }
+
     public function get_resized_images(Request $req, $page) {
         $SERVER_IMAGE_DISK = env('SERVER_IMAGE_DISK', 'images');
         $SERVER_THUMBNAILS_DISK = env('SERVER_THUMBNAILS_DISK', 'thumbnails');

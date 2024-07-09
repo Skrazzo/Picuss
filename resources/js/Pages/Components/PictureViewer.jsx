@@ -29,6 +29,8 @@ import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useSwipeable } from "react-swipeable";
 import ThumbnailScroll from "./ThumbnailScroll";
 import useElementSize from "../Functions/useElementSize";
+import { useDisclosure } from "@mantine/hooks";
+import ConfirmationModal from "./ConfirmationModal";
 
 export default function PictureViewer({
     selected,
@@ -48,6 +50,7 @@ export default function PictureViewer({
     // Use states
     const [selectedTags, setSelectedTags] = useState(image.tags);
     const [shared, setShared] = useState(image.shared);
+    const [confirmDelete, setConfirmDelete] = useDisclosure(false);
 
     // use refs
     const [containerSize, containerRef] = useElementSize();
@@ -79,8 +82,8 @@ export default function PictureViewer({
         ["Uploaded", image.uploaded_ago],
     ];
 
-    const fileInfoRows = fileInfo.map((row) => (
-        <Table.Tr>
+    const fileInfoRows = fileInfo.map((row, idx) => (
+        <Table.Tr key={idx}>
             <Table.Td>{row[0]}</Table.Td>
             <Table.Td>{row[1]}</Table.Td>
         </Table.Tr>
@@ -212,6 +215,18 @@ export default function PictureViewer({
 
     return (
         <div className={sty.container}>
+            <ConfirmationModal
+                color={"red"}
+                opened={confirmDelete}
+                icon={<IconTrash />}
+                onConfirm={() => console.log("confirmed")}
+                title={"Delete picture?"}
+                close={() => setConfirmDelete.close()}
+                confirmBtnText="Delete"
+            >
+                Are you sure you want to delete this picture?
+            </ConfirmationModal>
+
             <div className={sty.side}>
                 <div>
                     <div className={sty.title}>
@@ -247,11 +262,14 @@ export default function PictureViewer({
                                     </Menu.Item>
                                 )}
                                 <Menu.Item
-                                    onClick={deletePicture}
+                                    onClick={() => {
+                                        setConfirmDelete.open();
+                                        // deletePicture();
+                                    }}
                                     color={"red"}
                                     leftSection={<IconTrash size={16} />}
                                 >
-                                    <Text mt={2}>Delete</Text>
+                                    <Text>Delete</Text>
                                 </Menu.Item>
                             </Menu.Dropdown>
                         </Menu>

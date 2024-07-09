@@ -7,6 +7,12 @@
     padding-right: $pr;
 }
 
+@mixin center() {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 @mixin overlay($opacity: 0.2, $color: black, $blur: 2px, $center: true) {
     top: 0;
     left: 0;

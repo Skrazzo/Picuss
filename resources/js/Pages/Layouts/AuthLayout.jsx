@@ -63,6 +63,11 @@ export default function AuthLayout({
         }
     }, [openedUserModal]);
 
+    const defaultIconProps = {
+        strokeWidth: 2,
+        size: 24,
+    };
+
     return (
         <div
             className={className}
@@ -148,25 +153,25 @@ export default function AuthLayout({
                 <div className={sty.menu}>
                     <MenuOption
                         currentRoute={auth.route}
-                        icon={<IconPhoto size={23} />}
+                        icon={<IconPhoto {...defaultIconProps} />}
                         text={"Pictures"}
                         hrefRoute={"dashboard"}
                     />
                     <MenuOption
                         currentRoute={auth.route}
-                        icon={<IconUpload />}
+                        icon={<IconUpload {...defaultIconProps} />}
                         text={"Upload pictures"}
                         hrefRoute={"upload.index"}
                     />
                     <MenuOption
                         currentRoute={auth.route}
-                        icon={<IconTags />}
+                        icon={<IconTags {...defaultIconProps} />}
                         text={"Manage tags"}
                         hrefRoute={"tags.index"}
                     />
                     <MenuOption
                         currentRoute={auth.route}
-                        icon={<IconLink />}
+                        icon={<IconLink {...defaultIconProps} />}
                         text={"Shared links"}
                         hrefRoute={"share.links.manage"}
                     />

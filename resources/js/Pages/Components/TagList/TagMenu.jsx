@@ -27,9 +27,7 @@ export default function TagMenu({ selectedTags, setTags }) {
                         leftSection={<IconTrash strokeWidth={1} />}
                         onClick={() => setDeleteModal.open()}
                     >
-                        <Text mt={2} size="sm">
-                            Delete tags
-                        </Text>
+                        <Text size="sm">Delete tags</Text>
                     </Menu.Item>
                 </Menu.Dropdown>
             </Menu>

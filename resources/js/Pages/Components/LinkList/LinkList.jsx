@@ -72,7 +72,7 @@ export default function LinkList({ links: propLink }) {
                 showNotification({
                     title: "Deleted",
                     message: "Successfully deleted your shared links",
-                    icon: <IconUnlink strokeWidth={1.25} />,
+                    icon: <IconUnlink strokeWidth={1.25} size={20} />,
                 });
             })
             .catch((err) => {
@@ -82,7 +82,7 @@ export default function LinkList({ links: propLink }) {
                     title: "Error occurred",
                     message: "Could not delete your shared images",
                     color: "red",
-                    icon: <IconTrashX strokeWidth={1.25} />,
+                    icon: <IconTrashX strokeWidth={1.25} size={20} />,
                 });
                 console.error(err);
             });

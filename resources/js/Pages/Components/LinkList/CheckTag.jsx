@@ -3,6 +3,12 @@ import { IconDownload, IconEye } from "@tabler/icons-react";
 import React from "react";
 
 export default function CheckTag({ id, views, downloads, onChange, checked }) {
+    const defaultIconProps = {
+        color: "var(--mantine-color-placeholder)",
+        size: 20,
+        strokeWidth: 1.25,
+    };
+
     return (
         <div className={checked ? "checkTag_selected" : "checkTag"}>
             <div className="check">
@@ -20,12 +26,12 @@ export default function CheckTag({ id, views, downloads, onChange, checked }) {
 
             <div className="stats">
                 <Flex align={"center"} gap={4}>
-                    <IconEye size={16} color="gray" />
-                    <Text mt={3}>{views}</Text>
+                    <IconEye {...defaultIconProps} />
+                    <Text>{views}</Text>
                 </Flex>
                 <Flex align={"center"} gap={4}>
-                    <IconDownload size={16} color="gray" />
-                    <Text mt={3}>{downloads}</Text>
+                    <IconDownload {...defaultIconProps} />
+                    <Text>{downloads}</Text>
                 </Flex>
             </div>
         </div>

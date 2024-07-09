@@ -57,7 +57,12 @@ export default function ThumbnailScroll({
                 style={{ display: "flex", gap: "0.25rem" }}
             >
                 {images.map((img, idx) => (
-                    <Thumbnail img={img} idx={idx} onClick={onClick} />
+                    <Thumbnail
+                        key={img.name}
+                        img={img}
+                        idx={idx}
+                        onClick={onClick}
+                    />
                 ))}
             </motion.div>
         </motion.div>

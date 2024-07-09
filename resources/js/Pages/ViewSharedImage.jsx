@@ -74,10 +74,12 @@ export default function ViewSharedImage({ thumb, picture }) {
                             backdropFilter: "blur(0px)",
                         }}
                         className="overlay"
+                        onClick={() => setSelected(null)}
                     >
                         <motion.img
                             layoutId="image"
                             src={route("share.get.image", picture.id)}
+                            onClick={(e) => e.stopPropagation()}
                         />
 
                         <motion.div

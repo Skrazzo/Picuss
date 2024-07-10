@@ -91,7 +91,7 @@ class PictureController extends Controller
         // Scale down original image
         $path = $imageDisk->path($picture->image);
         $imageSize = getimagesize($path);
-        $scalePercentage = 20; // Image is going to be n% from all the width pixels
+        $scalePercentage = 10; // Image is going to be n% from all the width pixels
         $resultPixels = $scalePercentage * $imageSize[0] / 100;
 
         // Initiate scaling down, and save the image

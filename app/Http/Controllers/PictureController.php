@@ -64,6 +64,19 @@ class PictureController extends Controller
         return $disk->response($picture->image);
     }
 
+    public function get_meta_image($image) {
+        $picture = Picture::where('image', $image)->first();
+        if(!$picture) return abort(404);
+        if(!$picture->sharedImage()->first()) return abort(404);
+        
+        // Get storages
+        $SERVER_IMAGE_HALF_DISK = env('SERVER_IMAGE_HALF_DISK', 'half_images');
+        $disk = Storage::disk($SERVER_IMAGE_HALF_DISK);
+
+        if(!$disk->exists($image)) return abort(404);
+        return $disk->response($image);
+    }
+
     public function get_half_picture(Picture $picture) {
         if(auth()->id() != $picture->user_id) {
             return response('You\'re not allowed to view this', 403);

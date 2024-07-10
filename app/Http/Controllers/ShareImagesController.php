@@ -84,7 +84,9 @@ class ShareImagesController extends Controller
             'meta' => [
                 'og:title' => $picture->image,
                 'og:description' =>  $username . ' shared picture with you',
-                'og:image' => route('get.thumb.image', $picture->public_id),
+                // 'og:image' => route('get.thumb.image', $picture->public_id),
+                'og:type' => 'website',
+                'og:image' => 'https://vast-deer-invent.loca.lt/test.jpg',
                 'og:url' => url()->current(),
             ],
             'title' => 'Shared image',    

@@ -104,7 +104,7 @@ class PictureController extends Controller
         // Scale down original image
         $path = $imageDisk->path($picture->image);
         $imageSize = getimagesize($path);
-        $scalePercentage = 15; // Image is going to be n% from all the width pixels
+        $scalePercentage = env('scaledDownImages', 20); // Image is going to be n% from all the width pixels
         $resultPixels = $scalePercentage * $imageSize[0] / 100;
 
         // Initiate scaling down, and save the image
@@ -134,9 +134,9 @@ class PictureController extends Controller
             $queryTags = json_decode($data['queryTags']);
         }
 
+        
         // Picture per page
-        // $perPage = 80;
-        $perPage = 40;
+        $perPage = env('perPage', 40);
         $skip = ($page - 1) * $perPage;
 
         $pictures = $req->user()->picture()
@@ -183,8 +183,9 @@ class PictureController extends Controller
                     continue;
                 }
                 
+                $thumbWidth = env('thumbWidth', 40);
                 $image = $manager->read($path);
-                $image->scaleDown(width: 40);
+                $image->scaleDown(width: $thumbWidth);
                 // $image->pixelate(8);
 
                 $image->save($thumbDISK->path($pic->image)); // Save image to the local path

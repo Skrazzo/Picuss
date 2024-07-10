@@ -8,11 +8,15 @@ import { useForm } from "@inertiajs/inertia-react";
 import Title from "./Components/Title";
 
 export default function ManageTags({ auth, tags, title = "" }) {
-    const [useTags, setUseTags] = useState(tags);
+    const [useTags, setUseTags] = useState(sortTags(tags));
 
     const form = useForm({
         name: "",
     });
+
+    function sortTags(tags) {
+        return tags.sort((a, b) => b.pictureCount - a.pictureCount);
+    }
 
     function formSubmitHandler(e) {
         e.preventDefault();
@@ -20,7 +24,7 @@ export default function ManageTags({ auth, tags, title = "" }) {
 
         form.post(route("tags.create"), {
             onSuccess: (res) => {
-                setUseTags(res.props.tags);
+                setUseTags(sortTags(res.props.tags));
                 form.reset();
             },
         });

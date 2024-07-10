@@ -17,6 +17,7 @@ import {
     IconDeviceFloppy,
     IconDotsVertical,
     IconFileInfo,
+    IconInfoCircleFilled,
     IconShare,
     IconShareOff,
     IconTags,
@@ -56,12 +57,15 @@ export default function PictureViewer({
 
     // use refs
     const [containerSize, containerRef] = useElementSize();
+    const firstLoad = useRef(true);
 
     // console.log(image);
     // console.log(tags);
     // console.log(selectedTags);
 
     useEffect(() => {
+        firstLoad.current = true; // set this to true, so selected tags useeffect does not refresh
+
         setShared(image.shared);
     }, [image]);
 
@@ -93,11 +97,34 @@ export default function PictureViewer({
 
     function tagHandler(id) {
         if (selectedTags.includes(id)) {
-            setSelectedTags(selectedTags.filter((tag) => tag !== id));
+            if (selectedTags.length === 1) {
+                showNotification({
+                    color: "red",
+                    title: "Not allowed",
+                    message:
+                        "Each image has to have at least one tag, that's why you cannot remove it.",
+                    icon: <IconInfoCircleFilled />,
+                });
+            } else {
+                setSelectedTags(selectedTags.filter((tag) => tag !== id));
+            }
         } else {
             setSelectedTags([...selectedTags, id]);
         }
     }
+
+    useEffect(() => {
+        if (firstLoad.current) {
+            firstLoad.current = false;
+            return;
+        }
+
+        const timeoutID = setTimeout(() => {
+            saveTags();
+        }, 1500);
+
+        return () => clearTimeout(timeoutID);
+    }, [selectedTags]);
 
     function saveTags() {
         if (selectedTags.length === 0) return;
@@ -108,7 +135,12 @@ export default function PictureViewer({
 
         axios
             .put(route("edit.tags", image.id), data)
-            .then((res) => showNotification({ message: "Saved tags" }))
+            .then((res) =>
+                showNotification({
+                    message: "Your edited tags were saved",
+                    title: "Saved",
+                })
+            )
             .catch((err) => {
                 alert("Error happened! " + error);
                 console.error(err);
@@ -316,15 +348,15 @@ export default function PictureViewer({
                     <SectionTitle
                         text={"Tags"}
                         icon={<IconTags />}
-                        rightSection={
-                            <ActionIcon variant="subtle">
-                                {selectedTags.length === 0 ? (
-                                    <IconBan />
-                                ) : (
-                                    <IconDeviceFloppy onClick={saveTags} />
-                                )}
-                            </ActionIcon>
-                        }
+                        // rightSection={
+                        //     <ActionIcon variant="subtle">
+                        //         {selectedTags.length === 0 ? (
+                        //             <IconBan />
+                        //         ) : (
+                        //             <IconDeviceFloppy onClick={saveTags} />
+                        //         )}
+                        //     </ActionIcon>
+                        // }
                     />
                     <div className={sty.info_container}>
                         <Paper
@@ -380,7 +412,7 @@ export default function PictureViewer({
 
                 <div onClick={close} className={sty.picture} {...swipeHandlers}>
                     <LazyLoadImage
-                        placeholderSrc={image.thumb}
+                        placeholderSrc={route("get.half.image", image.id)}
                         src={route("get.image", image.id)}
                         effect="blur"
                         onClick={(e) => {

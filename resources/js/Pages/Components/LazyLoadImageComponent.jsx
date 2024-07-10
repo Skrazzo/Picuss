@@ -11,7 +11,7 @@ const LazyLoadImageComponent = memo(function LazyLoadImageComponent({
         <div style={{ borderRadius: "0.25rem", overflow: "hidden" }}>
             <LazyLoadImage
                 placeholderSrc={img.thumb}
-                src={route("get.image", img.id)}
+                src={route("get.half.image", img.id)}
                 effect="blur"
                 onClick={() => setSelectedImage(img.id)}
             />

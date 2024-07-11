@@ -133,13 +133,15 @@ $iconSize: 25px;
             width: 100%;
             height: calc(100dvh - 90px - 8px - 8px);
 
+            @include mixins.center;
+
             @media (max-width: 1000px) {
                 height: 100dvh;
             }
 
             span {
+                // width: 100%;
                 height: 100%;
-                width: 100%;
 
                 @include mixins.center;
                 display: flex !important;

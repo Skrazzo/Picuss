@@ -177,6 +177,9 @@ class PictureController extends Controller
                         'shared' => ($pic->sharedImage()->count() >= 1) ? true : false,
                         'uploaded_ago' => str_replace('before', 'ago', $pic->created_at->diffForHumans(now()) ),
                         'thumb' => 'data:image/webp;base64,',
+                        'width' => $pic->width,
+                        'height' => $pic->height,
+                        'aspectRatio' => round($pic->width / $pic->height, 2),
                         
                     ];
 
@@ -199,7 +202,10 @@ class PictureController extends Controller
                 'shared' => ($pic->sharedImage()->count() >= 1) ? true : false,
                 'uploaded' => $pic->created_at,
                 'uploaded_ago' => str_replace('before', 'ago', $pic->created_at->diffForHumans(now()) ),
-                'thumb' => 'data:image/webp;base64,' . base64_encode($thumbDISK->get($pic->image))
+                'thumb' => 'data:image/webp;base64,' . base64_encode($thumbDISK->get($pic->image)),
+                'width' => $pic->width,
+                'height' => $pic->height,
+                'aspectRatio' => round($pic->width / $pic->height, 2) . "/1",
             ];
             
         }
@@ -283,10 +289,13 @@ class PictureController extends Controller
                 continue;
             }
 
+            $pictureSize = getimagesize(Storage::disk($SERVER_IMAGE_DISK)->path($file));
             $id = $req->user()->picture()->create([
                 'image' => $file,
                 'tags' => json_decode($data['tags']), // tag ids
-                'size' => Storage::disk($SERVER_IMAGE_DISK)->size($file) / 1048576 // convert to MB
+                'size' => Storage::disk($SERVER_IMAGE_DISK)->size($file) / 1048576, // convert to MB
+                'width' => $pictureSize[0],
+                'height' => $pictureSize[1],
             ]);
 
             if (!$id) { // check if database record was created successfully

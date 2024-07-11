@@ -47,6 +47,7 @@ class GenerateAllPictures extends Command
         
         $createdCount = 0;
         $deletedCount = 0;
+        $delLocalCount = 0; // Deleted locally
         $pictures = Picture::all();
         
         
@@ -108,8 +109,25 @@ class GenerateAllPictures extends Command
         
         }
         
-        if($ouputConsole) echo $createdCount . " Images were created \n";
+        // Check images locally
+        $allImages = $imageDisk->allfiles();
+        foreach($allImages as $img){
+            $pic = Picture::where('image', $img)->first();
+            if(!$pic) { // Picture is not found in database
+                
+                // Delete pictures from image, half, and thumbnails
+                $imageDisk->delete($img);
+                $halfDisk->delete($img);
+                $thumbDisk->delete($img);
+
+                $delLocalCount++;
+            }
+        }
+        
+
+        if($ouputConsole) echo $createdCount . " Images were created, aka for ". $createdCount / 2 ." records\n";
         if($ouputConsole) echo $deletedCount . " Images were deleted, because existed only in database \n";
+        if($ouputConsole) echo $delLocalCount . " Images were deleted, because existed only locally \n";
 
     }
 }

@@ -16,7 +16,9 @@ class Picture extends Model
         'image',
         'tags',
         'size',
-        'name'
+        'name',
+        'width',
+        'height',
     ];
 
     protected $casts = [

@@ -86,6 +86,7 @@ export default function PictureViewer({
         ["Size", `${image.size} MB`],
         ["Upload Date", formatedDate],
         ["Uploaded", image.uploaded_ago],
+        ["Dimensions", `${image.width} x ${image.height}`],
     ];
 
     const fileInfoRows = fileInfo.map((row, idx) => (
@@ -417,8 +418,8 @@ export default function PictureViewer({
                         effect="blur"
                         onClick={(e) => {
                             e.stopPropagation();
-                            console.log("asd");
                         }}
+                        style={{ aspectRatio: image.aspectRatio }}
                     />
                 </div>
 

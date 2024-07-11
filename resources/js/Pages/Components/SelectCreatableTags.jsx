@@ -132,7 +132,7 @@ export default function SelectCreatableTags({ select, addTag }) {
                 />
             </Combobox.Target>
 
-            <Combobox.Dropdown>
+            <Combobox.Dropdown mah={400} style={{ overflowY: "auto" }}>
                 <Combobox.Options>
                     {options.length === 0 && formData.name === "" && (
                         <Combobox.Empty>

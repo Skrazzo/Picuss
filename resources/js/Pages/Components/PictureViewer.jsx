@@ -415,7 +415,6 @@ export default function PictureViewer({
                     <LazyLoadImage
                         placeholderSrc={route("get.half.image", image.id)}
                         src={route("get.image", image.id)}
-                        effect="blur"
                         onClick={(e) => {
                             e.stopPropagation();
                         }}

@@ -5,6 +5,7 @@ import TitleWithIcon from "./Components/TitleWithIcon";
 import { IconPhoto, IconShare2, IconTags } from "@tabler/icons-react";
 import LinkList from "./Components/LinkList/LinkList";
 import Title from "./Components/Title";
+import TagLinkList from "./Components/LinkList/TagLinkList";
 
 export default function ManageLinks({ auth, links: dbLinks, title = "" }) {
     const [links, setLinks] = useState(dbLinks);
@@ -40,6 +41,10 @@ export default function ManageLinks({ auth, links: dbLinks, title = "" }) {
 
                         <Tabs.Panel value="pictures">
                             <LinkList links={links} />
+                        </Tabs.Panel>
+
+                        <Tabs.Panel value="tags">
+                            <TagLinkList links={links} />
                         </Tabs.Panel>
                     </Tabs>
                 </Paper>

@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
         
         Route::controller(ShareTagsController::class)->group(function () {
             Route::post('/share', 'shareTags')->name('tags.share'); // Sharing tags
+            Route::delete('/share', 'unshareTags')->name('tags.share.remove');
         });
     });
 

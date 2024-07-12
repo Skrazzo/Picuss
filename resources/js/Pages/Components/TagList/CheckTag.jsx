@@ -19,6 +19,7 @@ import {
     IconError404,
     IconShareOff,
 } from "@tabler/icons-react";
+import errorNotification from "../../Functions/errorNotification";
 
 export default function CheckTag({
     id,
@@ -35,6 +36,7 @@ export default function CheckTag({
     const [nameEdit, setNameEdit] = useState(false);
     const [nameValue, setNameValue] = useState(name);
     const [processing, setProcessing] = useState(false);
+    // const [shareRemoved, setShareRemoved] = useState(false); // useOptimistic for remove share
 
     // functions
     function editName(newName) {
@@ -72,6 +74,26 @@ export default function CheckTag({
             });
     }
 
+    function unShare() {
+        // setShareRemoved(true);
+        axios
+            .delete(route("tags.share.remove"), { data: { tags: [id] } })
+            .then((res) => {
+                // Update tag list
+                axios
+                    .get(route("tags.get"))
+                    .then((res) => {
+                        // setShareRemoved(false);
+                        setTags(res.data);
+                    })
+                    .catch((err) => errorNotification(err));
+            })
+            .catch((err) => {
+                // setShareRemoved(false);
+                errorNotification(err);
+            });
+    }
+
     // useEffects
     // Use effect to detect for when user stops writing, so we can send a request to the backend
     useEffect(() => {
@@ -84,6 +106,10 @@ export default function CheckTag({
         }, 2000);
         return () => clearTimeout(timeoutID);
     }, [nameValue]);
+
+    // useEffect(() => {
+    //     setShareRemoved(false);
+    // }, [shared]);
 
     const iconProps = {
         strokeWidth: 1.25,
@@ -165,7 +191,7 @@ export default function CheckTag({
                             )}
                         </CopyButton>
                         <Tooltip label={"Remove share"} withArrow>
-                            <IconShareOff {...iconProps} />
+                            <IconShareOff {...iconProps} onClick={unShare} />
                         </Tooltip>
                     </Flex>
                 )}

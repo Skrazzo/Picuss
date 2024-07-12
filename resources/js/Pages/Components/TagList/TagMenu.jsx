@@ -31,7 +31,12 @@ export default function TagMenu({ selectedTags, setTags }) {
 
         axios
             .post(route("tags.share"), { tags: selectedTags })
-            .then((res) => console.log(res.data))
+            .then((res) => {
+                axios
+                    .get(route("tags.get"))
+                    .then((res) => setTags(res.data))
+                    .catch((err) => errorNotification(err));
+            })
             .catch((err) => errorNotification(err));
     }
 

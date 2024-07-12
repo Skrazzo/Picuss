@@ -10,7 +10,7 @@ import Title from "./Components/Title";
 export default function ManageTags({ auth, tags, title = "" }) {
     const [useTags, setUseTags] = useState(sortTags(tags));
 
-    console.log(useTags);
+    //console.log(useTags);
 
     const form = useForm({
         name: "",

@@ -53,11 +53,15 @@ class TagsController extends Controller
             ->orderBy('name', 'ASC')
             ->get()
             ->map(function ($tag) {
-
+                // Search json for the tag id
+                // It shows an error, but trust me bro, it works
+                $pictureCount = auth()->user()->picture()->whereJsonContains('tags', $tag['id'])->count();
+                
                 $shared = $tag->share()->first();
                 return [
                     'name' => $tag['name'],
                     'id' => $tag['id'],
+                    'pictureCount' => $pictureCount,
                     'shared' => ($shared) ? true : false,
                     'public_id' => ($shared) ? $shared->tag_public_id : null,
                 ];

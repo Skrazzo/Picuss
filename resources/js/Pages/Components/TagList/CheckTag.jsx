@@ -22,6 +22,8 @@ import {
 
 export default function CheckTag({
     id,
+    shared,
+    public_id,
     name = "tag name",
     pictureCount = 0,
     checked = false,
@@ -138,33 +140,35 @@ export default function CheckTag({
             </Flex>
 
             <Flex align={"center"} gap={16}>
-                <Flex align={"center"} gap={8}>
-                    <CopyButton
-                        value={route("share.image.page", id)}
-                        timeout={2000}
-                    >
-                        {({ copied, copy }) => (
-                            <Tooltip
-                                label={copied ? "Copied" : "Copy"}
-                                withArrow
-                            >
-                                <ActionIcon
-                                    variant="transparent"
-                                    onClick={copy}
+                {shared && (
+                    <Flex align={"center"} gap={8}>
+                        <CopyButton
+                            value={route("share.tag.page", public_id)}
+                            timeout={2000}
+                        >
+                            {({ copied, copy }) => (
+                                <Tooltip
+                                    label={copied ? "Copied" : "Copy"}
+                                    withArrow
                                 >
-                                    {copied ? (
-                                        <IconCheck {...iconProps} />
-                                    ) : (
-                                        <IconCopy {...iconProps} />
-                                    )}
-                                </ActionIcon>
-                            </Tooltip>
-                        )}
-                    </CopyButton>
-                    <Tooltip label={"Remove share"} withArrow>
-                        <IconShareOff {...iconProps} />
-                    </Tooltip>
-                </Flex>
+                                    <ActionIcon
+                                        variant="transparent"
+                                        onClick={copy}
+                                    >
+                                        {copied ? (
+                                            <IconCheck {...iconProps} />
+                                        ) : (
+                                            <IconCopy {...iconProps} />
+                                        )}
+                                    </ActionIcon>
+                                </Tooltip>
+                            )}
+                        </CopyButton>
+                        <Tooltip label={"Remove share"} withArrow>
+                            <IconShareOff {...iconProps} />
+                        </Tooltip>
+                    </Flex>
+                )}
 
                 <Text c="dimmed" mt={3}>
                     {pictureCount}

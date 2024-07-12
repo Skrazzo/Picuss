@@ -51,7 +51,9 @@ Route::middleware('auth')->group(function () {
 
         });
         
-        Route::post('/share', [ShareTagsController::class, 'shareTags'])->name('tags.share'); // Sharing tags
+        Route::controller(ShareTagsController::class)->group(function () {
+            Route::post('/share', 'shareTags')->name('tags.share'); // Sharing tags
+        });
     });
 
     
@@ -75,5 +77,9 @@ Route::prefix('/s')->group(function () {
 
             Route::post('/create', 'create')->name('share.image.create');
         });
+    });
+
+    Route::controller(ShareTagsController::class)->group(function () {
+        Route::get('/t/{sharetags:tag_public_id}', 'view')->name('share.tag.page');
     });
 });

@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ShareTags;
 use App\Models\Tags;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class ShareTagsController extends Controller
 {
+    public function view(ShareTags $tag) {
+        dd($tag);
+    }
+
     
     public function shareTags(Request $req) {
         $validator = Validator::make($req->all(), [
@@ -35,4 +40,6 @@ class ShareTagsController extends Controller
         }
 
     }
+
+
 }

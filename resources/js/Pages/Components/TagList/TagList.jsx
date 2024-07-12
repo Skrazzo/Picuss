@@ -129,6 +129,8 @@ export default function TagList({ tags, search, setTags }) {
                                         onChange={checkboxCheckHandler}
                                         checked={selectedTags.includes(tag.id)}
                                         setTags={setTags}
+                                        shared={tag.shared}
+                                        public_id={tag.public_id}
                                     />
                                 );
                             }

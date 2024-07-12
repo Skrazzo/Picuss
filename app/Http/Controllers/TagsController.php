@@ -25,8 +25,15 @@ class TagsController extends Controller
                 // Search json for the tag id
                 // It shows an error, but trust me bro, it works
                 $pictureCount = auth()->user()->picture()->whereJsonContains('tags', $tag['id'])->count();
-                     
-                return ['name' => $tag['name'], 'id' => $tag['id'], 'pictureCount' => $pictureCount];
+                
+                $shared = $tag->share()->first();
+                return [
+                    'name' => $tag['name'],
+                    'id' => $tag['id'],
+                    'pictureCount' => $pictureCount,
+                    'shared' => ($shared) ? true : false,
+                    'public_id' => ($shared) ? $shared->tag_public_id : null,
+                ];
             });
 
                 
@@ -46,7 +53,14 @@ class TagsController extends Controller
             ->orderBy('name', 'ASC')
             ->get()
             ->map(function ($tag) {
-                return ['name' => $tag['name'], 'id' => $tag['id']];
+
+                $shared = $tag->share()->first();
+                return [
+                    'name' => $tag['name'],
+                    'id' => $tag['id'],
+                    'shared' => ($shared) ? true : false,
+                    'public_id' => ($shared) ? $shared->tag_public_id : null,
+                ];
             });
 
         return response()->json($tags);
@@ -84,8 +98,15 @@ class TagsController extends Controller
                 // Search json for the tag id
                 // It shows an error, but trust me bro, it works
                 $pictureCount = auth()->user()->picture()->whereJsonContains('tags', $tag['id'])->count();
-                     
-                return ['name' => $tag['name'], 'id' => $tag['id'], 'pictureCount' => $pictureCount];
+                
+                $shared = $tag->share()->first();
+                return [
+                    'name' => $tag['name'],
+                    'id' => $tag['id'],
+                    'pictureCount' => $pictureCount,
+                    'shared' => ($shared) ? true : false,
+                    'public_id' => ($shared) ? $shared->tag_public_id : null,
+                ];
             });
         return back()->with('tags', $tags);
     }
@@ -110,7 +131,14 @@ class TagsController extends Controller
                     // It shows an error, but trust me bro, it works
                     $pictureCount = auth()->user()->picture()->whereJsonContains('tags', $tag['id'])->count();
                          
-                    return ['name' => $tag['name'], 'id' => $tag['id'], 'pictureCount' => $pictureCount];
+                    $shared = $tag->share()->first();
+                    return [
+                        'name' => $tag['name'],
+                        'id' => $tag['id'],
+                        'pictureCount' => $pictureCount,
+                        'shared' => ($shared) ? true : false,
+                        'public_id' => ($shared) ? $shared->tag_public_id : null,
+                    ];
                 });
 
             return response()->json([ 'message' => 'Successfully changed tag name', 'tags' => $tags ]);
@@ -173,8 +201,15 @@ class TagsController extends Controller
                 // Search json for the tag id
                 // It shows an error, but trust me bro, it works
                 $pictureCount = auth()->user()->picture()->whereJsonContains('tags', $tag['id'])->count();
-                    
-                return ['name' => $tag['name'], 'id' => $tag['id'], 'pictureCount' => $pictureCount];
+                
+                $shared = $tag->share()->first();
+                return [
+                    'name' => $tag['name'],
+                    'id' => $tag['id'],
+                    'pictureCount' => $pictureCount,
+                    'shared' => ($shared) ? true : false,
+                    'public_id' => ($shared) ? $shared->tag_public_id : null,
+                ];
             });
 
         return response()->json([ 'message' => 'Successfully deleted tags', 'tags' => $tags ]);

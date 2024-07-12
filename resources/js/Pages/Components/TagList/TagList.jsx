@@ -25,7 +25,7 @@ export default function TagList({ tags, search, setTags }) {
         </>
     );
 
-    const defaultHeaderIconProps = {
+    const iconProps = {
         color: "var(--mantine-color-placeholder)",
         size: 20,
         strokeWidth: 1.25,
@@ -73,13 +73,13 @@ export default function TagList({ tags, search, setTags }) {
                         checked={selectedTags.length === tags.length}
                     />
                     <Flex align={"center"} gap={4}>
-                        <IconTag {...defaultHeaderIconProps} />
+                        <IconTag {...iconProps} />
                         <Text fw={"bold"}>Tag name</Text>
                     </Flex>
                 </Flex>
 
                 <Flex align={"center"} gap={4}>
-                    <IconPhoto {...defaultHeaderIconProps} />
+                    <IconPhoto {...iconProps} />
                     <Text fw={"bold"}>Pictures</Text>
                 </Flex>
             </div>

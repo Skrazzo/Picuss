@@ -58,7 +58,10 @@ export default function CheckTag({ id, views, downloads, onChange, checked }) {
                                 withArrow
                                 position="right"
                             >
-                                <ActionIcon variant="subtle" onClick={copy}>
+                                <ActionIcon
+                                    variant="transparent"
+                                    onClick={copy}
+                                >
                                     {copied ? (
                                         <IconCheck {...defaultIconProps} />
                                     ) : (

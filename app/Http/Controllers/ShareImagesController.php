@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Picture;
 use App\Models\ShareImages;
+use App\Models\ShareTags;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -129,9 +130,14 @@ class ShareImagesController extends Controller
 
     public function manage_index() {
         $userId = auth()->id();
-        $links = ShareImages::where('user_id', $userId)->get();
+        $pictures = ShareImages::where('user_id', $userId)->get();
+        $tags = ShareTags::where('user_id', $userId)->get();
 
-        return Inertia::render('ManageLinks', ['links' => $links, 'title' => 'Manage links']);
+        return Inertia::render('ManageLinks', [
+            'tags' => $tags,
+            'pictures' => $pictures,
+            'title' => 'Manage links',
+        ]);
     }
 
     public function delete(Request $req) {

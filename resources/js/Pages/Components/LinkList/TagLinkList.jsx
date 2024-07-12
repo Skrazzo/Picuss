@@ -25,7 +25,7 @@ export default function TagLinkList({ links: propLink }) {
                 color="var(--mantine-primary-color-filled-hover)"
                 stroke={1.25}
             />
-            <Text className={"main"}>NO PICTURES SHARED</Text>
+            <Text className={"main"}>NO TAGS SHARED</Text>
             <Text className={"desc"}>
                 Cmon show the world how beautiful you are
             </Text>

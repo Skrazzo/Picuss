@@ -19,6 +19,8 @@ export default function LinkList({ links: propLink }) {
     const [links, setLinks] = useState(propLink);
     const [deleteModal, setDeleteModal] = useDisclosure(false);
 
+    console.log(links);
+
     const empty_list_children = (
         <div className="no-links">
             <IconSparkles

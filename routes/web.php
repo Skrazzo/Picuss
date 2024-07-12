@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\ShareImagesController;
+use App\Http\Controllers\ShareTagsController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -47,7 +48,10 @@ Route::middleware('auth')->group(function () {
             Route::post('/', 'create')->name('tags.create'); // Api POST call to create a new tag
             Route::put('/name/{tag:id}', 'editName')->name('tags.editName'); // Edit tag name
             Route::delete('/', 'deleteTags')->name('tags.delete'); // Route for deleting tags
+
         });
+        
+        Route::post('/share', [ShareTagsController::class, 'shareTags'])->name('tags.share'); // Sharing tags
     });
 
     

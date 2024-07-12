@@ -18,6 +18,10 @@ export default function ManageTags({ auth, tags, title = "" }) {
         return tags.sort((a, b) => b.pictureCount - a.pictureCount);
     }
 
+    function sortAndSetTags(tags) {
+        setUseTags(sortTags(tags));
+    }
+
     function formSubmitHandler(e) {
         e.preventDefault();
         if (form.data.name === "") return;
@@ -66,7 +70,7 @@ export default function ManageTags({ auth, tags, title = "" }) {
                 <TagList
                     tags={useTags}
                     search={form.data.name}
-                    setTags={(tags) => setUseTags(tags)}
+                    setTags={(tags) => sortAndSetTags(tags)}
                 />
             </Container>
         </AuthLayout>

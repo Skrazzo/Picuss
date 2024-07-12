@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\Tags;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
 class TagsController extends Controller

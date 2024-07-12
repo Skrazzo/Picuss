@@ -29,9 +29,9 @@ class ShareTagsController extends Controller
             // Check if tag exists and belongs to a user
             if (!$tag) continue;
             if ($tag->user_id !== auth()->id()) continue;
-
-            $tag->share()->create(['user_id' => auth()->id()]);
+            if ($tag->share()->first()) continue ; // Share already exists
             
+            $tag->share()->create(['user_id' => auth()->id()]);
         }
 
     }

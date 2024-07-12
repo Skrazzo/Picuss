@@ -56,12 +56,12 @@ class ShareTagsController extends Controller
         
         // $id => tag id
         foreach ($data['tags'] as $id) { 
-            $tag = Tags::find($id);
+            $tag = ShareTags::where('tag_public_id', $id)->first();
 
             // Check if tag exists and belongs to a user
             if (!$tag) continue;
             if ($tag->user_id !== auth()->id()) continue;
-            $tag->share()->delete();
+            $tag->delete();
         }
     }
 }

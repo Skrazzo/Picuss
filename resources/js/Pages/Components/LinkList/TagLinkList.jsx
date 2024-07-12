@@ -44,13 +44,13 @@ export default function TagLinkList({ links: propLink }) {
         if (selected.length === links.length) {
             setSelected([]);
         } else {
-            setSelected([...links.map((x) => x.picture_id)]);
+            setSelected([...links.map((x) => x.tag_public_id)]);
         }
     }
 
-    // useEffect(() => {
-    //     console.log(selected);
-    // }, [selected]);
+    useEffect(() => {
+        console.log(selected);
+    }, [selected]);
 
     function setLinksAndClose() {
         setDeleteModal.close();
@@ -59,13 +59,13 @@ export default function TagLinkList({ links: propLink }) {
         // And set new links
         const oldLinks = links;
         setLinks([
-            ...links.filter((link) => !selected.includes(link.picture_id)),
+            ...links.filter((link) => !selected.includes(link.tag_public_id)),
         ]);
         setSelected([]);
 
         axios
-            .delete(route("share.links.delete"), {
-                data: { images: selected },
+            .delete(route("tags.share.remove"), {
+                data: { tags: selected },
             })
             .then((res) => {
                 showNotification({
@@ -122,14 +122,16 @@ export default function TagLinkList({ links: propLink }) {
             {links.length === 0 && empty_list_children}
 
             {links.map((link) => {
+                console.log(link);
                 return (
                     <CheckTag
                         key={link.id}
-                        id={link.picture_id}
+                        id={link.tag_public_id}
+                        name={link.tag.name}
                         views={link.views}
                         downloads={link.downloads}
                         onChange={checkHander}
-                        checked={selected.includes(link.picture_id)}
+                        checked={selected.includes(link.tag_public_id)}
                     />
                 );
             })}

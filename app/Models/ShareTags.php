@@ -15,7 +15,7 @@ class ShareTags extends Model
     ];
 
     public function tag() {
-        return $this->belongsTo(\App\Models\Tags::class);
+        return $this->belongsTo(\App\Models\Tags::class, 'tags_id');
     }
 
     use HasFactory;

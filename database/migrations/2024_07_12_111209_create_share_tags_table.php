@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('tag_public_id')->nullable(); // Added by observer
             $table->integer('user_id');
             $table->foreignId('tags_id')->constrained()->onDelete('cascade');
+            $table->integer('views')->unsigned()->default(0);
+            $table->integer('downloads')->unsigned()->default(0);
             $table->timestamps();
         });
     }

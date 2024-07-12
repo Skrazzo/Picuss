@@ -77,7 +77,7 @@ export default function CheckTag({
     function unShare() {
         // setShareRemoved(true);
         axios
-            .delete(route("tags.share.remove"), { data: { tags: [id] } })
+            .delete(route("tags.share.remove"), { data: { tags: [public_id] } })
             .then((res) => {
                 // Update tag list
                 axios

@@ -8,7 +8,7 @@ import {
     IconUnlink,
 } from "@tabler/icons-react";
 import { ActionIcon, Checkbox, Text } from "@mantine/core";
-import CheckTag from "./CheckTag";
+import CheckLink from "./CheckLink";
 import { useDisclosure } from "@mantine/hooks";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import axios from "axios";
@@ -126,7 +126,7 @@ export default function LinkList({ links: propLink }) {
 
             {links.map((link) => {
                 return (
-                    <CheckTag
+                    <CheckLink
                         key={link.id}
                         id={link.picture_id}
                         views={link.views}

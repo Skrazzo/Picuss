@@ -131,11 +131,15 @@ class ShareImagesController extends Controller
     public function manage_index() {
         $userId = auth()->id();
         $pictures = ShareImages::where('user_id', $userId)->get();
-        $tags = ShareTags::where('user_id', $userId)->get();
+        $tags = ShareTags::with('tag:id,name')
+            ->where('user_id', $userId)
+            ->get();
 
         return Inertia::render('ManageLinks', [
-            'tags' => $tags,
-            'pictures' => $pictures,
+            'links' => [
+                'pictures' => $pictures,
+                'tags' => $tags,
+            ],
             'title' => 'Manage links',
         ]);
     }

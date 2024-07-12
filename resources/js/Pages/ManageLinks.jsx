@@ -7,15 +7,11 @@ import LinkList from "./Components/LinkList/LinkList";
 import Title from "./Components/Title";
 import TagLinkList from "./Components/LinkList/TagLinkList";
 
-export default function ManageLinks({
-    auth,
-    pictures: dbPictures,
-    tags: dbTags,
-    title = "",
-}) {
-    const [pictures, setPictures] = useState(dbPictures);
-    const [tags, setTags] = useState(dbTags);
+export default function ManageLinks({ auth, links: dbLinks, title = "" }) {
+    const [links, setLinks] = useState(dbLinks);
     const iconProps = { size: 16 };
+
+    console.log(links);
 
     return (
         <AuthLayout auth={auth}>
@@ -46,11 +42,11 @@ export default function ManageLinks({
                         </Tabs.List>
 
                         <Tabs.Panel value="pictures">
-                            <LinkList links={pictures} />
+                            <LinkList links={links.pictures} />
                         </Tabs.Panel>
 
                         <Tabs.Panel value="tags">
-                            <TagLinkList links={tags} />
+                            <TagLinkList links={links.tags} />
                         </Tabs.Panel>
                     </Tabs>
                 </Paper>

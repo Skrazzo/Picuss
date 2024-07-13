@@ -52,3 +52,7 @@ $border: var(--mantine-color-default-border);
         }
     }
 }
+
+.center {
+    @include mixins.center;
+}

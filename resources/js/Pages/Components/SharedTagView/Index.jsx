@@ -4,7 +4,14 @@ import GuestLayout from "../../Layouts/GuestLayout";
 import axios from "axios";
 import { IconDownload, IconHash } from "@tabler/icons-react";
 import capitalizeFirstLetter from "../../Functions/capitalizeFirstLetter";
-import { ActionIcon, Text, Tooltip } from "@mantine/core";
+import {
+    ActionIcon,
+    Container,
+    Pagination,
+    Text,
+    Tooltip,
+} from "@mantine/core";
+import useElementSize from "../../Functions/useElementSize";
 
 export default function Index({ id }) {
     const [page, setPage] = useState(1);
@@ -15,13 +22,28 @@ export default function Index({ id }) {
         pictures: [],
         info: { owner: "unknown", tag_name: "unknown" },
     });
+    const [processing, setProcessing] = useState(true);
 
-    useEffect(() => {
+    const [containerSize, containerRef] = useElementSize();
+
+    function getData() {
         axios
             .get(route("share.tags.api", [id, page]))
-            .then((res) => setData(res.data))
+            .then((res) => {
+                setData(res.data);
+                setProcessing(false);
+            })
             .catch((err) => console.error(err));
-    }, []);
+    }
+
+    useEffect(() => {
+        getData();
+        const element = document.getElementById("top-section");
+        if (element) {
+            // 👇 Will scroll smoothly to the top of the next section
+            element.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [page]);
 
     useEffect(() => console.log(data), [data]);
 
@@ -32,6 +54,7 @@ export default function Index({ id }) {
 
     return (
         <GuestLayout>
+            <section id="top-section"></section>
             <div className="share-tag-header">
                 <div className="info">
                     <div className="tag">
@@ -55,8 +78,24 @@ export default function Index({ id }) {
             </div>
             <div className="container">
                 {data.pictures.map((pic) => (
-                    <img src={route("share.get.half", pic.id)} />
+                    <img
+                        key={pic.id}
+                        src={route("share.get.half", pic.id)}
+                        style={{ aspectRatio: `1/${pic.height / pic.width}` }}
+                    />
                 ))}
+            </div>
+
+            <div className="center" ref={containerRef}>
+                <Pagination
+                    siblings={2}
+                    disabled={processing}
+                    value={page}
+                    my={32}
+                    total={data.maxPages}
+                    onChange={setPage}
+                    size={containerSize.width < 600 ? "sm" : "md"}
+                />
             </div>
         </GuestLayout>
     );

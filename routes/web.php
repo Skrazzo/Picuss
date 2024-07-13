@@ -81,6 +81,10 @@ Route::prefix('/s')->group(function () {
     });
 
     Route::controller(ShareTagsController::class)->group(function () {
-        Route::get('/t/{sharetags:tag_public_id}', 'view')->name('share.tag.page');
+        Route::prefix('/t')->group(function () {
+            Route::get('/{tag:tag_public_id}', 'view')->name('share.tag.page'); // Index view
+            Route::get('/{tag:tag_public_id}/{page}', 'get')->name('share.tags.api'); // Get shared tag pictures in api format
+        });
+
     });
 });

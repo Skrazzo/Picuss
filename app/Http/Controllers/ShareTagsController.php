@@ -6,11 +6,15 @@ use App\Models\ShareTags;
 use App\Models\Tags;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Inertia\Inertia;
 
 class ShareTagsController extends Controller
 {
     public function view(ShareTags $tag) {
-        dd($tag);
+        return Inertia::render('Components/SharedTagView/Index', [
+            'title' => 'Shared images',
+            'id' => $tag->tag_public_id,
+        ]);
     }
 
     

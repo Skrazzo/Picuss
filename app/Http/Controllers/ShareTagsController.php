@@ -37,6 +37,7 @@ class ShareTagsController extends Controller
 
         // Get pages
         $DBpictures = Picture::whereJsonContains('tags', $tag->tags_id)
+            ->orderBy('created_at', 'DESC')
             ->skip($perPage * ($page - 1))
             ->take($perPage)
             ->get();
@@ -49,6 +50,7 @@ class ShareTagsController extends Controller
                 'size' => round($pic->size, 3),
                 'width' => $pic->width,
                 'height' => $pic->height,
+                'name' => $pic->image,
             ];
         }
 

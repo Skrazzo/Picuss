@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Picture;
 use App\Models\ShareTags;
 use App\Models\Tags;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -57,8 +58,12 @@ class ShareTagsController extends Controller
             'allowed' => ($size > $maxZipSize) ? false : true,
             'size' => $size
         ];
+        $info = [
+            'owner' => User::find($tag->user_id)->first()['username'],
+            'tag_name' => $tag->tag()->first('name')->name,
+        ];
 
-        return compact('pictureCount', 'maxPages', 'pictures', 'download');
+        return compact('pictureCount', 'maxPages', 'pictures', 'download', 'info');
     }
 
     

@@ -1,0 +1,54 @@
+@use "mixins";
+$border: var(--mantine-color-default-border);
+
+@mixin br-columns($px: 400px, $columns: 2) {
+    @media (max-width: $px) {
+        column-count: $columns;
+    }
+}
+
+.container {
+    padding: 1rem;
+    column-count: 7;
+    column-gap: 10px;
+
+    img {
+        border: 1px solid $border;
+        border-radius: 0.25rem;
+
+        width: 100%;
+    }
+
+    @for $i from 0 through 4 {
+        @include br-columns(calc(1400px - 200px * #{$i}), calc(6 - #{$i}));
+    }
+}
+
+.share-tag-header {
+    margin: 0 1rem;
+    margin-top: 1rem;
+
+    .info {
+        @include mixins.d-flex($justify: space-between);
+
+        border: 1px solid $border;
+        border-radius: 0.5rem;
+
+        width: fit-content;
+
+        padding: 0.5rem;
+        padding-right: 1rem;
+
+        @media (max-width: 600px) {
+            width: 100%;
+        }
+
+        .tag {
+            @include mixins.d-flex($gap: 0.5rem);
+        }
+
+        .name {
+            @include mixins.d-flex($gap: 0.25rem, $dir: column, $align: left);
+        }
+    }
+}

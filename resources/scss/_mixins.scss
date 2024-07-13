@@ -13,6 +13,14 @@
     align-items: center;
 }
 
+@mixin d-flex($gap: 0.5rem, $justify: left, $align: center, $dir: row) {
+    display: flex;
+    justify-content: $justify;
+    align-items: $align;
+    gap: $gap;
+    flex-direction: $dir;
+}
+
 @mixin overlay($opacity: 0.2, $color: black, $blur: 2px, $center: true) {
     top: 0;
     left: 0;

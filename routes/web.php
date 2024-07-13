@@ -68,6 +68,7 @@ Route::prefix('/s')->group(function () {
     Route::controller(ShareImagesController::class)->group(function () {
         Route::get('/{picture:public_id}', 'view')->name('share.image.page');
         Route::get('/{picture:public_id}/get', 'get')->name('share.get.image');
+        Route::get('/half/{picture:public_id}', 'get_half')->name('share.get.half');
         Route::get('/{picture:public_id}/download', 'download')->name('share.download.image');
 
 

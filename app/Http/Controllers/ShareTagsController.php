@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Picture;
 use App\Models\ShareTags;
 use App\Models\Tags;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
@@ -15,6 +17,48 @@ class ShareTagsController extends Controller
             'title' => 'Shared images',
             'id' => $tag->tag_public_id,
         ]);
+    }
+
+    public function get(ShareTags $tag, $page) {
+        $allDBPictures = Picture::whereJsonContains('tags', $tag->tags_id)->get();
+        
+        $pictureCount = $allDBPictures->count();
+        $size = round($allDBPictures->sum('size'), 3); // All image size
+        
+
+        $perPage = env('perPage', 40);
+        $maxPages = ceil($pictureCount / $perPage);
+
+        // Check for pages
+        if ($page < 1 || $page > $maxPages) {
+            return response('Too many pages requsted', 404);
+        }
+
+        // Get pages
+        $DBpictures = Picture::whereJsonContains('tags', $tag->tags_id)
+            ->skip($perPage * ($page - 1))
+            ->take($perPage)
+            ->get();
+
+        // Filter pictures, and return only needed information
+        $pictures = [];
+        foreach($DBpictures as $pic) {
+            $pictures[] = [
+                'id' => $pic->public_id,
+                'size' => round($pic->size, 3),
+                'width' => $pic->width,
+                'height' => $pic->height,
+            ];
+        }
+
+        // Download settings
+        $maxZipSize = env('maxZipSize', 25);
+        $download = [
+            'allowed' => ($size > $maxZipSize) ? false : true,
+            'size' => $size
+        ];
+
+        return compact('pictureCount', 'maxPages', 'pictures', 'download');
     }
 
     

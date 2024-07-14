@@ -148,3 +148,12 @@ a {
         }
     }
 }
+
+.drawer-section-title {
+    margin-top: 2rem;
+    @include mixins.d-flex($justify: space-between);
+
+    div {
+        @include mixins.d-flex($gap: 0.5rem);
+    }
+}

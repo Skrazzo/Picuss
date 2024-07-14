@@ -13,6 +13,8 @@ import {
 } from "@mantine/core";
 import useElementSize from "../../Functions/useElementSize";
 import LazyLoadImage from "../LazyLoadImage";
+import { useDisclosure } from "@mantine/hooks";
+import SinglePictureViewer from "./SinglePictureViewer";
 
 export default function Index({ id }) {
     const [page, setPage] = useState(1);
@@ -24,6 +26,9 @@ export default function Index({ id }) {
         info: { owner: "unknown", tag_name: "unknown" },
     });
     const [processing, setProcessing] = useState(true);
+
+    // For picture viewer
+    const [selectedId, setSelectedId] = useState(null);
 
     const [containerSize, containerRef] = useElementSize();
 
@@ -47,6 +52,7 @@ export default function Index({ id }) {
     }, [page]);
 
     useEffect(() => console.log(data), [data]);
+    useEffect(() => console.log(selectedId), [selectedId]);
 
     const iconProps = {
         strokeWidth: 1.25,
@@ -56,6 +62,16 @@ export default function Index({ id }) {
     return (
         <GuestLayout>
             <section id="top-section"></section>
+
+            {selectedId && (
+                <SinglePictureViewer
+                    opened={selectedId === null ? false : true}
+                    close={() => setSelectedId(null)}
+                    pictures={data.pictures}
+                    selected={selectedId}
+                />
+            )}
+
             <div className="share-tag-header">
                 <div className="info">
                     <div className="tag">
@@ -81,10 +97,12 @@ export default function Index({ id }) {
                 {data.pictures.map((pic) => (
                     <LazyLoadImage
                         key={pic.id}
+                        id={pic.id}
                         src={route("share.get.half", pic.id)}
                         style={{ aspectRatio: `1/${pic.height / pic.width}` }}
                         thumbnail={pic.thumb}
                         rounded
+                        onClick={(id, url) => setSelectedId([id, url])}
                     />
                 ))}
             </div>

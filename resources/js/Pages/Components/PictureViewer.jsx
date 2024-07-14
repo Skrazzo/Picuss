@@ -69,16 +69,6 @@ export default function PictureViewer({
         setShared(image.shared);
     }, [image]);
 
-    const SectionTitle = ({ text, icon, rightSection = <></> }) => (
-        <div className={sty.section_title}>
-            <div>
-                {icon}
-                <Text>{text}</Text>
-            </div>
-            {rightSection}
-        </div>
-    );
-
     let d = new Date(image.uploaded);
     let formatedDate = d.toDateString();
 
@@ -197,6 +187,16 @@ export default function PictureViewer({
         onSwipedRight: () => previousImage(),
         onSwipedDown: () => close(),
     });
+
+    const SectionTitle = ({ text, icon, rightSection = <></> }) => (
+        <div className={sty.section_title}>
+            <div>
+                {icon}
+                <Text>{text}</Text>
+            </div>
+            {rightSection}
+        </div>
+    );
 
     // register keyboard shortcuts
     const handleKeyDown = (event) => {
@@ -346,19 +346,7 @@ export default function PictureViewer({
                         </Table>
                     </div>
 
-                    <SectionTitle
-                        text={"Tags"}
-                        icon={<IconTags />}
-                        // rightSection={
-                        //     <ActionIcon variant="subtle">
-                        //         {selectedTags.length === 0 ? (
-                        //             <IconBan />
-                        //         ) : (
-                        //             <IconDeviceFloppy onClick={saveTags} />
-                        //         )}
-                        //     </ActionIcon>
-                        // }
-                    />
+                    <SectionTitle text={"Tags"} icon={<IconTags />} />
                     <div className={sty.info_container}>
                         <Paper
                             p={"0.5rem"}

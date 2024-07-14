@@ -131,4 +131,32 @@ class ShareTagsController extends Controller
             $tag->delete();
         }
     }
+
+    public function get_full_image(Picture $picture) {
+        // Check if pictures tags are shared
+        $tags = $picture->tags;
+        $shared = false;
+        
+        // Go through every tag that image owns, and check if any of them are shared
+        foreach($tags as $tag) {
+            if( ShareTags::where('tags_id', $tag)->first() ){
+                $shared = true;
+                break;
+            }
+        }
+
+        if (!$shared) {
+            return abort(404);
+        }
+
+
+
+        $imageEnv = env('SERVER_IMAGE_DISK', 'images');
+        $disk = Storage::disk($imageEnv);
+
+        // Check if half size already exists, show it
+        if ($disk->exists($picture->image)) { // if exists return
+            return $disk->response($picture->image);
+        }
+    }
 }

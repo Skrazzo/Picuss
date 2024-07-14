@@ -129,7 +129,6 @@ export default function SinglePictureViewer({
                         blur={false}
                         className="picture"
                         style={{
-                            // aspectRatio: `1/${image.height / image.width}`,
                             width: imageSize[0],
                             height: imageSize[1],
                         }}

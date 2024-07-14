@@ -29,6 +29,7 @@ export default function Index({ id }) {
 
     // For picture viewer
     const [selectedId, setSelectedId] = useState(null);
+    const [onTopId, setOnTopId] = useState(null);
 
     const [containerSize, containerRef] = useElementSize();
 
@@ -52,7 +53,12 @@ export default function Index({ id }) {
     }, [page]);
 
     useEffect(() => console.log(data), [data]);
-    useEffect(() => console.log(selectedId), [selectedId]);
+
+    // So images do not render under other images
+    useEffect(() => {
+        if (!selectedId) return;
+        setOnTopId(selectedId[0]);
+    }, [selectedId]);
 
     const iconProps = {
         strokeWidth: 1.25,
@@ -103,6 +109,7 @@ export default function Index({ id }) {
                         thumbnail={pic.thumb}
                         rounded
                         onClick={(id, url) => setSelectedId([id, url])}
+                        className={onTopId === pic.id ? "onTop" : ""}
                     />
                 ))}
             </div>

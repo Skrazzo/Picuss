@@ -8,6 +8,7 @@ use App\Models\Tags;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
@@ -42,15 +43,26 @@ class ShareTagsController extends Controller
             ->take($perPage)
             ->get();
 
+        // Get thumbnail disk
+        $thumbEnv = env('SERVER_THUMBNAILS_DISK', 'thumbnails');
+        $thumbDisk = Storage::disk($thumbEnv);
+
         // Filter pictures, and return only needed information
         $pictures = [];
         foreach($DBpictures as $pic) {
+            // Get thumbnail for the picture
+            $thumb = 'data:image/webp;base64';
+            if ($thumbDisk->exists($pic->image)) {
+                $thumb = 'data:image/webp;base64,' . base64_encode($thumbDisk->get($pic->image));
+            }
+
             $pictures[] = [
                 'id' => $pic->public_id,
                 'size' => round($pic->size, 3),
                 'width' => $pic->width,
                 'height' => $pic->height,
                 'name' => $pic->image,
+                'thumb' => $thumb,
             ];
         }
 

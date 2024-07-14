@@ -130,3 +130,21 @@ a {
         }
     }
 }
+
+.lazy-load-image {
+    overflow: hidden;
+
+    img {
+        transition: 500ms;
+
+        filter: blur(0px);
+    }
+
+    &-blur {
+        @extend .lazy-load-image;
+
+        img {
+            filter: blur(2px);
+        }
+    }
+}

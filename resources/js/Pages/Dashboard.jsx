@@ -2,7 +2,7 @@ import React, { memo, useEffect, useRef, useState } from "react";
 import AuthLayout from "./Layouts/AuthLayout";
 import sty from "../../scss/Dashboard.module.scss";
 import generateRandomBetween from "./Functions/randomNumberBetween";
-import { Center, Pagination, Skeleton, Text } from "@mantine/core";
+import { AspectRatio, Center, Pagination, Skeleton, Text } from "@mantine/core";
 import axios from "axios";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import { IconPhotoOff } from "@tabler/icons-react";

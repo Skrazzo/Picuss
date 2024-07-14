@@ -12,6 +12,7 @@ import {
     Tooltip,
 } from "@mantine/core";
 import useElementSize from "../../Functions/useElementSize";
+import LazyLoadImage from "../LazyLoadImage";
 
 export default function Index({ id }) {
     const [page, setPage] = useState(1);
@@ -78,10 +79,12 @@ export default function Index({ id }) {
             </div>
             <div className="container">
                 {data.pictures.map((pic) => (
-                    <img
+                    <LazyLoadImage
                         key={pic.id}
                         src={route("share.get.half", pic.id)}
                         style={{ aspectRatio: `1/${pic.height / pic.width}` }}
+                        thumbnail={pic.thumb}
+                        rounded
                     />
                 ))}
             </div>

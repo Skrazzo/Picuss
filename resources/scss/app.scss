@@ -130,3 +130,30 @@ a {
         }
     }
 }
+
+.lazy-load-image {
+    overflow: hidden;
+
+    img {
+        transition: 500ms;
+
+        filter: blur(0px);
+    }
+
+    &-blur {
+        @extend .lazy-load-image;
+
+        img {
+            filter: blur(2px);
+        }
+    }
+}
+
+.drawer-section-title {
+    margin-top: 2rem;
+    @include mixins.d-flex($justify: space-between);
+
+    div {
+        @include mixins.d-flex($gap: 0.5rem);
+    }
+}

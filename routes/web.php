@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\ShareImagesController;
+use App\Http\Controllers\ShareTagsController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,12 @@ Route::middleware('auth')->group(function () {
             Route::post('/', 'create')->name('tags.create'); // Api POST call to create a new tag
             Route::put('/name/{tag:id}', 'editName')->name('tags.editName'); // Edit tag name
             Route::delete('/', 'deleteTags')->name('tags.delete'); // Route for deleting tags
+
+        });
+        
+        Route::controller(ShareTagsController::class)->group(function () {
+            Route::post('/share', 'shareTags')->name('tags.share'); // Sharing tags
+            Route::delete('/share', 'unshareTags')->name('tags.share.remove');
         });
     });
 
@@ -61,6 +68,7 @@ Route::prefix('/s')->group(function () {
     Route::controller(ShareImagesController::class)->group(function () {
         Route::get('/{picture:public_id}', 'view')->name('share.image.page');
         Route::get('/{picture:public_id}/get', 'get')->name('share.get.image');
+        Route::get('/half/{picture:public_id}', 'get_half')->name('share.get.half');
         Route::get('/{picture:public_id}/download', 'download')->name('share.download.image');
 
 
@@ -71,5 +79,15 @@ Route::prefix('/s')->group(function () {
 
             Route::post('/create', 'create')->name('share.image.create');
         });
+    });
+
+    Route::controller(ShareTagsController::class)->group(function () {
+        Route::prefix('/t')->group(function () {
+            Route::get('/{tag:tag_public_id}', 'view')->name('share.tag.page'); // Index view
+            Route::get('/full/{picture:public_id}', 'get_full_image')->name('share.tags.get.picture'); // get full size image
+            Route::get('/download/{tag}', 'download')->name('share.tag.download'); // Download all images belonging to a tag
+            Route::get('/{tag:tag_public_id}/{page}', 'get')->name('share.tags.api'); // Get shared tag pictures in api format
+        });
+
     });
 });

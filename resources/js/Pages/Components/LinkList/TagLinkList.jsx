@@ -3,23 +3,20 @@ import "../../../../scss/LinkList.scss";
 import {
     IconSparkles,
     IconTrash,
-    IconTrashFilled,
     IconTrashX,
     IconUnlink,
 } from "@tabler/icons-react";
 import { ActionIcon, Checkbox, Text } from "@mantine/core";
-import CheckLink from "./CheckLink";
+import CheckTag from "./CheckTag";
 import { useDisclosure } from "@mantine/hooks";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import axios from "axios";
 import showNotification from "../../Functions/showNotification";
 
-export default function LinkList({ links: propLink }) {
+export default function TagLinkList({ links: propLink }) {
     const [selected, setSelected] = useState([]);
     const [links, setLinks] = useState(propLink);
     const [deleteModal, setDeleteModal] = useDisclosure(false);
-
-    console.log(links);
 
     const empty_list_children = (
         <div className="no-links">
@@ -28,7 +25,7 @@ export default function LinkList({ links: propLink }) {
                 color="var(--mantine-primary-color-filled-hover)"
                 stroke={1.25}
             />
-            <Text className={"main"}>NO PICTURES SHARED</Text>
+            <Text className={"main"}>NO TAGS SHARED</Text>
             <Text className={"desc"}>
                 Cmon show the world how beautiful you are
             </Text>
@@ -47,13 +44,13 @@ export default function LinkList({ links: propLink }) {
         if (selected.length === links.length) {
             setSelected([]);
         } else {
-            setSelected([...links.map((x) => x.picture_id)]);
+            setSelected([...links.map((x) => x.tag_public_id)]);
         }
     }
 
-    // useEffect(() => {
-    //     console.log(selected);
-    // }, [selected]);
+    useEffect(() => {
+        console.log(selected);
+    }, [selected]);
 
     function setLinksAndClose() {
         setDeleteModal.close();
@@ -62,13 +59,13 @@ export default function LinkList({ links: propLink }) {
         // And set new links
         const oldLinks = links;
         setLinks([
-            ...links.filter((link) => !selected.includes(link.picture_id)),
+            ...links.filter((link) => !selected.includes(link.tag_public_id)),
         ]);
         setSelected([]);
 
         axios
-            .delete(route("share.links.delete"), {
-                data: { images: selected },
+            .delete(route("tags.share.remove"), {
+                data: { tags: selected },
             })
             .then((res) => {
                 showNotification({
@@ -125,14 +122,16 @@ export default function LinkList({ links: propLink }) {
             {links.length === 0 && empty_list_children}
 
             {links.map((link) => {
+                console.log(link);
                 return (
-                    <CheckLink
+                    <CheckTag
                         key={link.id}
-                        id={link.picture_id}
+                        id={link.tag_public_id}
+                        name={link.tag.name}
                         views={link.views}
                         downloads={link.downloads}
                         onChange={checkHander}
-                        checked={selected.includes(link.picture_id)}
+                        checked={selected.includes(link.tag_public_id)}
                     />
                 );
             })}

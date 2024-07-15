@@ -1,0 +1,134 @@
+@use "mixins";
+@import "./variables.scss";
+
+// $border: var(--mantine-color-default-border);
+
+@mixin br-columns($px: 400px, $columns: 2) {
+    @media (max-width: $px) {
+        column-count: $columns;
+    }
+}
+
+.picture-main-container {
+    padding: 1rem;
+    column-count: 7;
+    column-gap: 10px;
+
+    img {
+        border: 1px solid $border;
+        border-radius: 0.25rem;
+
+        width: 100%;
+        cursor: pointer;
+    }
+
+    @for $i from 0 through 4 {
+        @include br-columns(calc(1400px - 200px * #{$i}), calc(6 - #{$i}));
+    }
+}
+
+.share-tag-header {
+    margin: 0 1rem;
+    margin-top: 1rem;
+
+    .info {
+        @include mixins.d-flex($justify: space-between);
+
+        border: 1px solid $border;
+        border-radius: 0.5rem;
+
+        width: fit-content;
+
+        padding: 0.5rem;
+        padding-right: 1rem;
+
+        @media (max-width: 600px) {
+            width: 100%;
+        }
+
+        .tag {
+            @include mixins.d-flex($gap: 0.5rem);
+        }
+
+        .name {
+            @include mixins.d-flex($gap: 0.25rem, $dir: column, $align: left);
+        }
+    }
+}
+
+.share-tag-viewer {
+    @include mixins.overlay($center: true);
+    overflow: hidden;
+
+    .side {
+        padding: 1rem;
+
+        background-color: var(--mantine-color-body);
+        width: 460px;
+        height: 100%;
+
+        display: flex;
+        flex-direction: column;
+    }
+
+    .option-card {
+        display: flex;
+        gap: 0.5rem;
+
+        position: fixed;
+        z-index: 101;
+
+        top: 0.5rem;
+        right: 0.5rem;
+
+        background-color: $body;
+        border-radius: 0.5rem;
+
+        padding: 0.5rem;
+
+        .file-info {
+            display: flex;
+            flex-direction: column;
+
+            .info {
+                position: absolute;
+
+                right: 0;
+                bottom: 0;
+                transform: translateY(100%);
+
+                .container {
+                    opacity: 0;
+                    background-color: $body;
+
+                    border-radius: 0.5rem;
+
+                    padding: 1rem;
+                    padding-bottom: 0.5rem;
+
+                    transition: 250ms ease-in-out;
+
+                    p {
+                        max-width: 300px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                }
+            }
+
+            svg:hover + .info .container {
+                opacity: 1;
+                transform: translateY(0.5rem);
+            }
+        }
+    }
+}
+
+.onTop {
+    position: relative;
+    z-index: 100;
+}
+
+.center {
+    @include mixins.center;
+}

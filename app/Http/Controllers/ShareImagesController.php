@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Picture;
 use App\Models\ShareImages;
+use App\Models\ShareTags;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
+use Intervention\Image\Drivers\Imagick\Driver;
+use Intervention\Image\ImageManager;
 
 class ShareImagesController extends Controller
 {
@@ -108,17 +111,86 @@ class ShareImagesController extends Controller
         return $imageDisk->response($picture->image);
     }
 
+    // This is being used by shared tags index view
+    public function get_half(Picture $picture) {
+        // Check if pictures tags are shared
+        $tags = $picture->tags;
+        $shared = false;
+        
+        // Go through every tag that image owns, and check if any of them are shared
+        foreach($tags as $tag) {
+            if( ShareTags::where('tags_id', $tag)->first() ){
+                $shared = true;
+                break;
+            }
+        }
+
+        if (!$shared) {
+            return abort(404);
+        }
+
+
+
+        $halfEnv = env('SERVER_IMAGE_HALF_DISK', 'half_images');
+        $disk = Storage::disk($halfEnv);
+
+        // Check if half size already exists, show it
+        if ($disk->exists($picture->image)) { // if exists return
+            return $disk->response($picture->image);
+        }
+
+        // ----- Create half sized image --------
+
+        // Get storage
+        $SERVER_IMAGE_DISK = env('SERVER_IMAGE_DISK', 'images');
+        $imageDisk = Storage::disk($SERVER_IMAGE_DISK);
+        
+        // Check if image exists
+        if (!$imageDisk->exists($picture->image)) return response('Original Image does not exist!!!', 500);
+
+        // Scale down original image
+        $path = $imageDisk->path($picture->image);
+        $imageSize = getimagesize($path);
+        $scalePercentage = env('scaledDownImages', 20); // Image is going to be n% from all the width pixels
+        $resultPixels = $scalePercentage * $imageSize[0] / 100;
+
+        // Initiate scaling down, and save the image
+        $manager = new ImageManager(new Driver());
+        $image = $manager->read($path);
+        $image->scaleDown(width: $resultPixels);
+        $image->save($disk->path($picture->image)); 
+
+        return $disk->response($picture->image);
+    }
+
     public function download(Picture $picture) {
         $share = $picture->sharedImage()->first();
         if(!$share) {
-            return abort(404);
+            // Check if pictures tags are shared or not
+            $tags = $picture->tags;
+            $shared = false;
+
+            foreach($tags as $tag) {
+                if (ShareTags::where('tags_id', $tag)->first()) {
+                    $shared = true;
+                    break;
+                }
+            }
+
+            if (!$shared) {
+                return abort(404);
+            }
         }
+
+        
 
         $SERVER_IMAGE_DISK = env('SERVER_IMAGE_DISK', 'images');
         $imageDisk = Storage::disk($SERVER_IMAGE_DISK);
 
-        $share->downloads = $share->downloads + 1;
-        $share->save();
+        if ($share) {
+            $share->downloads = $share->downloads + 1;
+            $share->save();
+        }
 
         if($imageDisk->exists($picture->image)) {
             return response()->download($imageDisk->path($picture->image));
@@ -129,9 +201,18 @@ class ShareImagesController extends Controller
 
     public function manage_index() {
         $userId = auth()->id();
-        $links = ShareImages::where('user_id', $userId)->get();
+        $pictures = ShareImages::where('user_id', $userId)->get();
+        $tags = ShareTags::with('tag:id,name')
+            ->where('user_id', $userId)
+            ->get();
 
-        return Inertia::render('ManageLinks', ['links' => $links, 'title' => 'Manage links']);
+        return Inertia::render('ManageLinks', [
+            'links' => [
+                'pictures' => $pictures,
+                'tags' => $tags,
+            ],
+            'title' => 'Manage links',
+        ]);
     }
 
     public function delete(Request $req) {

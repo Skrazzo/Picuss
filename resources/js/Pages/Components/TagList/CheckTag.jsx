@@ -1,12 +1,30 @@
 import React, { useEffect, useState } from "react";
 import sty from "../../../../scss/TagList.module.scss";
-import { Checkbox, Flex, Input, Loader, Text } from "@mantine/core";
+import {
+    ActionIcon,
+    Checkbox,
+    CopyButton,
+    Flex,
+    Input,
+    Loader,
+    Text,
+    Tooltip,
+} from "@mantine/core";
 import axios from "axios";
 import showNotification from "../../Functions/showNotification";
-import { IconDeviceFloppy, IconError404 } from "@tabler/icons-react";
+import {
+    IconCheck,
+    IconCopy,
+    IconDeviceFloppy,
+    IconError404,
+    IconShareOff,
+} from "@tabler/icons-react";
+import errorNotification from "../../Functions/errorNotification";
 
 export default function CheckTag({
     id,
+    shared,
+    public_id,
     name = "tag name",
     pictureCount = 0,
     checked = false,
@@ -18,6 +36,7 @@ export default function CheckTag({
     const [nameEdit, setNameEdit] = useState(false);
     const [nameValue, setNameValue] = useState(name);
     const [processing, setProcessing] = useState(false);
+    // const [shareRemoved, setShareRemoved] = useState(false); // useOptimistic for remove share
 
     // functions
     function editName(newName) {
@@ -55,6 +74,26 @@ export default function CheckTag({
             });
     }
 
+    function unShare() {
+        // setShareRemoved(true);
+        axios
+            .delete(route("tags.share.remove"), { data: { tags: [public_id] } })
+            .then((res) => {
+                // Update tag list
+                axios
+                    .get(route("tags.get"))
+                    .then((res) => {
+                        // setShareRemoved(false);
+                        setTags(res.data);
+                    })
+                    .catch((err) => errorNotification(err));
+            })
+            .catch((err) => {
+                // setShareRemoved(false);
+                errorNotification(err);
+            });
+    }
+
     // useEffects
     // Use effect to detect for when user stops writing, so we can send a request to the backend
     useEffect(() => {
@@ -67,6 +106,17 @@ export default function CheckTag({
         }, 2000);
         return () => clearTimeout(timeoutID);
     }, [nameValue]);
+
+    // useEffect(() => {
+    //     setShareRemoved(false);
+    // }, [shared]);
+
+    const iconProps = {
+        strokeWidth: 1.25,
+        size: 20,
+        color: "var(--mantine-color-placeholder)",
+        style: { cursor: "pointer" },
+    };
 
     return (
         <div className={checked ? sty.tag_selected : sty.tag}>
@@ -115,9 +165,41 @@ export default function CheckTag({
                 )}
             </Flex>
 
-            <Text c="dimmed" mt={3}>
-                {pictureCount}
-            </Text>
+            <Flex align={"center"} gap={16}>
+                {shared && (
+                    <Flex align={"center"} gap={8}>
+                        <CopyButton
+                            value={route("share.tag.page", public_id)}
+                            timeout={2000}
+                        >
+                            {({ copied, copy }) => (
+                                <Tooltip
+                                    label={copied ? "Copied" : "Copy"}
+                                    withArrow
+                                >
+                                    <ActionIcon
+                                        variant="transparent"
+                                        onClick={copy}
+                                    >
+                                        {copied ? (
+                                            <IconCheck {...iconProps} />
+                                        ) : (
+                                            <IconCopy {...iconProps} />
+                                        )}
+                                    </ActionIcon>
+                                </Tooltip>
+                            )}
+                        </CopyButton>
+                        <Tooltip label={"Remove share"} withArrow>
+                            <IconShareOff {...iconProps} onClick={unShare} />
+                        </Tooltip>
+                    </Flex>
+                )}
+
+                <Text c="dimmed" mt={3}>
+                    {pictureCount}
+                </Text>
+            </Flex>
         </div>
     );
 }

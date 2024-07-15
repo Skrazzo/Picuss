@@ -15,6 +15,9 @@ class Tags extends Model
     public function user(){
         return $this->belongsTo(\App\Models\User::class);
     }
+    public function share() {
+        return $this->hasOne(\App\Models\ShareTags::class);
+    }
 
     protected $casts = [
         'tags' => 'array'

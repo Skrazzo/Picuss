@@ -145,27 +145,6 @@ export default function SinglePictureViewer({
                         />
                         <IconX {...optionIconProps} onClick={close} />
                     </motion.div>
-                    {/* <motion.div
-                        initial={{ x: -500 }}
-                        animate={{ x: 0 }}
-                        exit={{ x: -500 }}
-                        transition={{ ease: "easeOut" }}
-                        className="side"
-                    >
-                        <Text size={"20px"} fw={600} className="green_text">
-                            {image.name}
-                        </Text>
-
-                        <SectionTitle
-                            text={"File"}
-                            iconSize={24}
-                            icon={<IconFileInfo />}
-                        />
-
-                        <Table ml={24 + 8} mt={8}>
-                            <Table.Tbody>{fileInfoRows}</Table.Tbody>
-                        </Table>
-                    </motion.div> */}
 
                     <LazyLoadImage
                         id={image.id}

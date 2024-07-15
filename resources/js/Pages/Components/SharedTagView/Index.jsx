@@ -106,7 +106,16 @@ export default function Index({ id, db_id }) {
                             }
                         >
                             {data.download.allowed ? (
-                                <IconDownload {...iconProps} color="green" />
+                                <IconDownload
+                                    {...iconProps}
+                                    color="green"
+                                    onClick={() =>
+                                        window.open(
+                                            route("share.tag.download", db_id),
+                                            "_blank"
+                                        )
+                                    }
+                                />
                             ) : (
                                 <IconDownloadOff {...iconProps} />
                             )}

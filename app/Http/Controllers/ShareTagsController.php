@@ -18,6 +18,7 @@ class ShareTagsController extends Controller
         return Inertia::render('Components/SharedTagView/Index', [
             'title' => 'Shared images',
             'id' => $tag->tag_public_id,
+            'db_id' => $tag->tag()->first()->id,
         ]);
     }
 
@@ -70,7 +71,8 @@ class ShareTagsController extends Controller
         $maxZipSize = env('maxZipSize', 25);
         $download = [
             'allowed' => ($size > $maxZipSize) ? false : true,
-            'size' => $size
+            'size' => $size,
+            'limit' => $maxZipSize,
         ];
         $info = [
             'owner' => User::find($tag->user_id)->first()['username'],
@@ -158,5 +160,64 @@ class ShareTagsController extends Controller
         if ($disk->exists($picture->image)) { // if exists return
             return $disk->response($picture->image);
         }
+    }
+
+    public function download(Tags $tag) {
+        
+        if(auth()->check()) { // User is logged in
+            if ($tag->user_id !== auth()->id()) { // User does not own the tag
+                return abort(404);
+            }
+
+            // Proceed to download
+        } else { // User is not logged in
+            // Check if tag is shared
+            if (!$tag->share()->first()) {
+                return abort(404);
+            }
+
+            // Proceed to download
+        }
+
+        
+
+
+        // Get picture names and check server limit
+        $pictures = Picture::whereJsonContains('tags', $tag->id)->get();
+        if ($pictures->count() === 0) {
+            return response('No images found', 404);
+        }
+
+        $sizeLimit = env('maxZipSize', 25);
+        
+        if($pictures->sum('size') > $sizeLimit) {
+            return response('Files exceed server zip limit of '. $sizeLimit .' MB, and cannot be downloaded', 403);
+        }
+        
+        
+        // Get storage
+        $tmpEnv = env('SERVER_TMP_ZIP_DISK', 'tmp');
+        $tmpDisk = Storage::disk($tmpEnv);
+
+        $imageEnv = env('SERVER_IMAGE_DISK', 'images');
+        $imageDisk = Storage::disk($imageEnv);
+
+        // Create zip
+        $zip = new \ZipArchive();
+        $fileName = $tmpDisk->path($tag->name . '_' . time() . '.zip');
+
+        if ($zip->open($fileName, \ZipArchive::CREATE) === TRUE) {
+            // Add files to the zip
+            foreach ($pictures as $pic) {
+                if ($imageDisk->exists($pic->image)) {
+                    $file = $imageDisk->path($pic->image);
+                    $zip->addFile($file, basename($file));
+                }
+            }
+            
+            $zip->close();
+        }
+        
+        return response()->download($fileName)->deleteFileAfterSend(true);
     }
 }

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "../../../../scss/SharedTagView.scss";
 import GuestLayout from "../../Layouts/GuestLayout";
 import axios from "axios";
-import { IconDownload, IconHash } from "@tabler/icons-react";
+import { IconDownload, IconDownloadOff, IconHash } from "@tabler/icons-react";
 import capitalizeFirstLetter from "../../Functions/capitalizeFirstLetter";
 import {
     ActionIcon,
@@ -16,10 +16,10 @@ import LazyLoadImage from "../LazyLoadImage";
 import { useDisclosure } from "@mantine/hooks";
 import SinglePictureViewer from "./SinglePictureViewer";
 
-export default function Index({ id }) {
+export default function Index({ id, db_id }) {
     const [page, setPage] = useState(1);
     const [data, setData] = useState({
-        download: { allowed: false, size: 0.0 },
+        download: { allowed: false, size: 0.0, limit: 0 },
         maxPages: 1,
         pictureCount: 0,
         pictures: [],
@@ -92,14 +92,29 @@ export default function Index({ id }) {
                         </div>
                     </div>
 
-                    <ActionIcon ml={16} variant="transparent">
-                        <Tooltip withArrow label={"Download pictures"}>
-                            <IconDownload {...iconProps} color="green" />
+                    <ActionIcon
+                        ml={16}
+                        variant="transparent"
+                        disabled={!data.download.allowed}
+                    >
+                        <Tooltip
+                            withArrow
+                            label={
+                                data.download.allowed
+                                    ? "Download pictures"
+                                    : `Download is not allowed, becuase zip file exceeds server limit of ${data.download.limit} MB`
+                            }
+                        >
+                            {data.download.allowed ? (
+                                <IconDownload {...iconProps} color="green" />
+                            ) : (
+                                <IconDownloadOff {...iconProps} />
+                            )}
                         </Tooltip>
                     </ActionIcon>
                 </div>
             </div>
-            <div className="container">
+            <div className="picture-main-container">
                 {data.pictures.map((pic) => (
                     <LazyLoadImage
                         key={pic.id}

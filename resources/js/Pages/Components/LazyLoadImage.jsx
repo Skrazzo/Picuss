@@ -18,10 +18,32 @@ const LazyLoadImage = React.memo(
         const [image, setImage] = useState(null);
 
         useEffect(() => {
+            // Checking if image has already been downloaded
+            if (typeof window.lazyLoadBlobs === "object") {
+                if (src in window.lazyLoadBlobs) {
+                    setImage(window.lazyLoadBlobs[src]);
+                    return;
+                }
+            }
+
             axios
                 .get(src, { responseType: "blob" })
                 .then((res) => {
-                    setImage(URL.createObjectURL(res.data));
+                    const url = URL.createObjectURL(res.data);
+
+                    // Caching
+                    if (typeof window.lazyLoadBlobs === "undefined") {
+                        window.lazyLoadBlobs = {
+                            [src]: url,
+                        };
+                    } else if (typeof window.lazyLoadBlobs === "object") {
+                        window.lazyLoadBlobs = {
+                            ...window.lazyLoadBlobs,
+                            [src]: url,
+                        };
+                    }
+
+                    setImage(url);
                 })
                 .catch((err) => errorNotification(err));
         }, []);

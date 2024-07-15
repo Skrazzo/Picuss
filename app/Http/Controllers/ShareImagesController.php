@@ -166,14 +166,31 @@ class ShareImagesController extends Controller
     public function download(Picture $picture) {
         $share = $picture->sharedImage()->first();
         if(!$share) {
-            return abort(404);
+            // Check if pictures tags are shared or not
+            $tags = $picture->tags;
+            $shared = false;
+
+            foreach($tags as $tag) {
+                if (ShareTags::where('tags_id', $tag)->first()) {
+                    $shared = true;
+                    break;
+                }
+            }
+
+            if (!$shared) {
+                return abort(404);
+            }
         }
+
+        
 
         $SERVER_IMAGE_DISK = env('SERVER_IMAGE_DISK', 'images');
         $imageDisk = Storage::disk($SERVER_IMAGE_DISK);
 
-        $share->downloads = $share->downloads + 1;
-        $share->save();
+        if ($share) {
+            $share->downloads = $share->downloads + 1;
+            $share->save();
+        }
 
         if($imageDisk->exists($picture->image)) {
             return response()->download($imageDisk->path($picture->image));

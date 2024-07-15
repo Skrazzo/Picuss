@@ -2,7 +2,7 @@ import { Table, Text } from "@mantine/core";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import SectionTitle from "../SectionTitle";
-import { IconFileInfo } from "@tabler/icons-react";
+import { IconDownload, IconFileInfo, IconX } from "@tabler/icons-react";
 import LazyLoadImage from "../LazyLoadImage";
 
 export default function SinglePictureViewer({
@@ -90,6 +90,13 @@ export default function SinglePictureViewer({
 
     // useEffect(() => console.log(image), [image]);
 
+    const optionIconProps = {
+        strokeWidth: 1.25,
+        size: "24px",
+        color: "green",
+        style: { cursor: "pointer" },
+    };
+
     return (
         <AnimatePresence>
             {opened && (
@@ -100,6 +107,44 @@ export default function SinglePictureViewer({
                     className="share-tag-viewer"
                     onClick={close}
                 >
+                    <motion.div
+                        className="option-card"
+                        onClick={(e) => e.stopPropagation()}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0 }}
+                    >
+                        <div className="file-info">
+                            <IconFileInfo {...optionIconProps} />
+                            <div className="info">
+                                <div className="container">
+                                    <Text
+                                        size={"16px"}
+                                        fw={600}
+                                        className="green_text"
+                                    >
+                                        {image.name}
+                                    </Text>
+
+                                    <Table mt={8}>
+                                        <Table.Tbody>
+                                            {fileInfoRows}
+                                        </Table.Tbody>
+                                    </Table>
+                                </div>
+                            </div>
+                        </div>
+                        <IconDownload
+                            {...optionIconProps}
+                            onClick={() =>
+                                window.open(
+                                    route("share.download.image", image.id),
+                                    "_blank"
+                                )
+                            }
+                        />
+                        <IconX {...optionIconProps} onClick={close} />
+                    </motion.div>
                     {/* <motion.div
                         initial={{ x: -500 }}
                         animate={{ x: 0 }}

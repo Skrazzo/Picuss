@@ -15,6 +15,9 @@ use Inertia\Inertia;
 class ShareTagsController extends Controller
 {
     public function view(ShareTags $tag) {
+        $tag->views = $tag->views + 1;
+        $tag->save();
+
         return Inertia::render('Components/SharedTagView/Index', [
             'title' => 'Shared images',
             'id' => $tag->tag_public_id,
@@ -218,6 +221,13 @@ class ShareTagsController extends Controller
             $zip->close();
         }
         
+        // Add download count
+        $shared = $tag->share()->first();
+        if ($shared) {
+            $shared->downloads = $shared->downloads + 1;
+            $shared->save();
+        }
+
         return response()->download($fileName)->deleteFileAfterSend(true);
     }
 }

@@ -30,6 +30,7 @@ export default function SinglePictureViewer({
         window.innerWidth,
         window.innerHeight,
     ]);
+    const [infoHover, setInfoHover] = useState(false);
 
     // Calculates image size responsively
     function calculateImageSize(screenSize, imageSize) {
@@ -115,24 +116,40 @@ export default function SinglePictureViewer({
                         exit={{ opacity: 0, scale: 0 }}
                     >
                         <div className="file-info">
-                            <IconFileInfo {...optionIconProps} />
-                            <div className="info">
-                                <div className="container">
-                                    <Text
-                                        size={"16px"}
-                                        fw={600}
-                                        className="green_text"
-                                    >
-                                        {image.name}
-                                    </Text>
+                            <motion.div
+                                onHoverStart={() => setInfoHover(true)}
+                                onHoverEnd={() => setInfoHover(false)}
+                                onClick={() => setInfoHover(true)}
+                                className="d-flex"
+                            >
+                                <IconFileInfo {...optionIconProps} />
+                            </motion.div>
 
-                                    <Table mt={8}>
-                                        <Table.Tbody>
-                                            {fileInfoRows}
-                                        </Table.Tbody>
-                                    </Table>
-                                </div>
-                            </div>
+                            <AnimatePresence>
+                                {infoHover && (
+                                    <motion.div
+                                        initial={{ y: 32, opacity: 0 }}
+                                        animate={{ y: 40, opacity: 1 }}
+                                        exit={{ y: 32, opacity: 0 }}
+                                        onClick={() => setInfoHover(false)}
+                                        className="container"
+                                    >
+                                        <Text
+                                            size={"16px"}
+                                            fw={600}
+                                            className="green_text"
+                                        >
+                                            {image.name}
+                                        </Text>
+
+                                        <Table mt={8}>
+                                            <Table.Tbody>
+                                                {fileInfoRows}
+                                            </Table.Tbody>
+                                        </Table>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
                         <IconDownload
                             {...optionIconProps}

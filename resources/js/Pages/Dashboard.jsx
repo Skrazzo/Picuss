@@ -296,14 +296,14 @@ export default function Dashboard({ auth, title = "" }) {
 
             <Center ref={containerRef}>
                 <Pagination
-                    siblings={2}
+                    siblings={containerSize.width < 600 ? 1 : 3}
                     disabled={processing}
                     value={page}
                     mx={"auto"}
                     my={32}
                     total={totalPages}
                     onChange={setPage}
-                    size={containerSize.width < 600 ? "xs" : "md"}
+                    size={containerSize.width < 600 ? "sm" : "md"}
                 />
             </Center>
             <section id="bottom-section"></section>

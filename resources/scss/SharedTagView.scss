@@ -90,35 +90,28 @@
             display: flex;
             flex-direction: column;
 
-            .info {
+            .d-flex {
+                display: flex;
+            }
+
+            .container {
                 position: absolute;
 
                 right: 0;
-                bottom: 0;
-                transform: translateY(100%);
+                user-select: none;
 
-                .container {
-                    opacity: 0;
-                    background-color: $body;
+                background-color: $body;
 
-                    border-radius: 0.5rem;
+                border-radius: 0.5rem;
 
-                    padding: 1rem;
-                    padding-bottom: 0.5rem;
+                padding: 1rem;
+                padding-bottom: 0.5rem;
 
-                    transition: 250ms ease-in-out;
-
-                    p {
-                        max-width: 300px;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                    }
+                p {
+                    max-width: 320px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
-            }
-
-            svg:hover + .info .container {
-                opacity: 1;
-                transform: translateY(0.5rem);
             }
         }
     }

@@ -140,7 +140,7 @@ export default function Index({ id, db_id }) {
 
             <div className="center" ref={containerRef}>
                 <Pagination
-                    siblings={2}
+                    siblings={containerSize.width < 600 ? 1 : 3}
                     disabled={processing}
                     value={page}
                     my={32}

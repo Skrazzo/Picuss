@@ -78,7 +78,7 @@ export default function PictureViewer({
                 calculateImageSize(
                     [
                         containerSize.width,
-                        containerSize.height - 90, // 90 - thumbnail height, u can see in in the scss file
+                        containerSize.height - 106, // 106 - thumbnail height, u can see in in the scss file
                     ],
                     [image.width, image.height]
                 )
@@ -429,14 +429,14 @@ export default function PictureViewer({
                         style={{ aspectRatio: image.aspectRatio }}
                     /> */}
 
-                    {/* <LazyLoadImage
+                    <LazyLoadImage
                         blur={false}
                         thumbnail={selected[1]}
                         style={{
                             width: imageSize[0],
                             height: imageSize[1],
                         }}
-                    /> */}
+                    />
                 </div>
 
                 <ThumbnailScroll

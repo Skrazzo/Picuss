@@ -60,6 +60,13 @@
     @include mixins.overlay($center: true);
     overflow: hidden;
 
+    .picture {
+        img {
+            position: relative;
+            z-index: 100;
+        }
+    }
+
     .side {
         padding: 1rem;
 
@@ -119,7 +126,7 @@
 
 .onTop {
     position: relative;
-    z-index: 100;
+    z-index: 99;
 }
 
 .center {

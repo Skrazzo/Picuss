@@ -134,6 +134,7 @@ export default function Index({ id, db_id }) {
                         rounded
                         onClick={(id, url) => setSelectedId([id, url])}
                         className={onTopId === pic.id ? "onTop" : ""}
+                        useLayoutId={true}
                     />
                 ))}
             </div>

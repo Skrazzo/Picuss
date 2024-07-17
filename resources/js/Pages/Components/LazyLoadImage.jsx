@@ -14,6 +14,7 @@ const LazyLoadImage = React.memo(
         rounded = false,
         blur = true,
         onClick = (id, image) => console.log(`Clicked on ${id} - ${image}`),
+        useLayoutId = true,
     }) => {
         const [image, setImage] = useState(null);
 
@@ -52,7 +53,8 @@ const LazyLoadImage = React.memo(
 
         return (
             <motion.div
-                layoutId={id}
+                layoutId={useLayoutId ? id : null}
+                // layoutId={id}
                 className={`lazy-load-image${
                     blur ? (image ? "" : "-blur") : ""
                 } ${className}`}

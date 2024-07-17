@@ -83,7 +83,7 @@ export default function PictureViewer({
                     [image.width, image.height]
                 )
             ),
-        [containerSize]
+        [containerSize, image]
     );
 
     let d = new Date(image.uploaded);
@@ -180,8 +180,10 @@ export default function PictureViewer({
             return;
         }
 
-        // TODO
-        setSelected(images[imageIndex - 1].id);
+        setSelected([
+            images[imageIndex - 1].id,
+            route("get.half.image", images[imageIndex - 1].id),
+        ]);
     }
 
     function nextImage() {
@@ -197,8 +199,10 @@ export default function PictureViewer({
             return;
         }
 
-        // TODO
-        setSelected(images[imageIndex + 1].id);
+        setSelected([
+            images[imageIndex + 1].id,
+            route("get.half.image", images[imageIndex + 1].id),
+        ]);
     }
 
     const swipeHandlers = useSwipeable({
@@ -266,6 +270,10 @@ export default function PictureViewer({
                 }
             })
             .catch((err) => console.error(err));
+    }
+
+    function selectFromScroll(idx) {
+        setSelected([images[idx].id, route("get.half.image", images[idx].id)]);
     }
 
     const iconProps = {
@@ -419,31 +427,27 @@ export default function PictureViewer({
                 </ActionIcon>
 
                 <div onClick={close} className={sty.picture} {...swipeHandlers}>
-                    {/* // TODO */}
-                    {/* <LazyLoadImage
-                        placeholderSrc={route("get.half.image", image.id)}
-                        src={route("get.image", image.id)}
+                    <div
                         onClick={(e) => {
                             e.stopPropagation();
                         }}
-                        style={{ aspectRatio: image.aspectRatio }}
-                    /> */}
-
-                    <LazyLoadImage
-                        blur={false}
-                        thumbnail={selected[1]}
-                        style={{
-                            width: imageSize[0],
-                            height: imageSize[1],
-                        }}
-                    />
+                    >
+                        <LazyLoadImage
+                            blur={false}
+                            src={route("get.image", image.id)}
+                            thumbnail={selected[1]}
+                            style={{
+                                width: imageSize[0],
+                                height: imageSize[1],
+                            }}
+                        />
+                    </div>
                 </div>
 
                 <ThumbnailScroll
                     images={images}
                     currentIndex={imageIndex}
-                    // TODO
-                    onClick={(idx) => setSelected(images[idx].id)}
+                    onClick={(idx) => selectFromScroll(idx)}
                     pictureContainerSize={containerSize}
                 />
             </div>

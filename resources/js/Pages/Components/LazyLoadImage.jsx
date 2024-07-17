@@ -27,6 +27,9 @@ const LazyLoadImage = React.memo(
                 }
             }
 
+            // Discard previous image, and display thumbnail instead
+            setImage(null);
+
             axios
                 .get(src, { responseType: "blob" })
                 .then((res) => {
@@ -47,7 +50,7 @@ const LazyLoadImage = React.memo(
                     setImage(url);
                 })
                 .catch((err) => errorNotification(err));
-        }, []);
+        }, [src]);
 
         // useEffect(() => console.log(image), [image]);
 

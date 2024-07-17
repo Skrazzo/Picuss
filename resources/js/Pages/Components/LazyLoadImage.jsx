@@ -14,6 +14,7 @@ const LazyLoadImage = React.memo(
         rounded = false,
         blur = true,
         onClick = (id, image) => console.log(`Clicked on ${id} - ${image}`),
+        useLayoutId = true,
     }) => {
         const [image, setImage] = useState(null);
 
@@ -25,6 +26,9 @@ const LazyLoadImage = React.memo(
                     return;
                 }
             }
+
+            // Discard previous image, and display thumbnail instead
+            setImage(null);
 
             axios
                 .get(src, { responseType: "blob" })
@@ -46,13 +50,14 @@ const LazyLoadImage = React.memo(
                     setImage(url);
                 })
                 .catch((err) => errorNotification(err));
-        }, []);
+        }, [src]);
 
         // useEffect(() => console.log(image), [image]);
 
         return (
             <motion.div
-                layoutId={id}
+                layoutId={useLayoutId ? id : null}
+                // layoutId={id}
                 className={`lazy-load-image${
                     blur ? (image ? "" : "-blur") : ""
                 } ${className}`}

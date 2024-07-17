@@ -1,5 +1,8 @@
 // Calculates image size responsively
 function calculateImageSize(screenSize, imageSize) {
+    if (screenSize[0] === 0 || screenSize[1] === 0) {
+        return [0, 0];
+    }
     // console.log(`screen: ${screenSize}, image: ${imageSize}`);
 
     // Calc aspect ratio for images

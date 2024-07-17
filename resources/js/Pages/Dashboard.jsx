@@ -11,6 +11,7 @@ import PictureDivider from "./Components/PictureDivider";
 import useElementSize from "./Functions/useElementSize";
 import LazyLoadImageComponent from "./Components/LazyLoadImageComponent";
 import Title from "./Components/Title";
+import LazyLoadImage from "./Components/LazyLoadImage";
 
 export default function Dashboard({ auth, title = "" }) {
     const [page, setPage] = useState(1);
@@ -280,13 +281,33 @@ export default function Dashboard({ auth, title = "" }) {
                             <PictureDivider title={segment[0]} />
                             <div className={`${sty.container}`}>
                                 <>
-                                    {segImages.map((img, i) => (
-                                        <LazyLoadImageComponent
-                                            setSelectedImage={setSelectedImage}
-                                            img={img}
-                                            key={i}
-                                        />
-                                    ))}
+                                    {segImages.map((img, i) => {
+                                        return (
+                                            <div
+                                                className={sty.picture}
+                                                key={i}
+                                            >
+                                                <LazyLoadImage
+                                                    thumbnail={img.thumb}
+                                                    id={img.id}
+                                                    src={route(
+                                                        "get.half.image",
+                                                        img.id
+                                                    )}
+                                                    onClick={(id, thumb) =>
+                                                        setSelectedImage([
+                                                            id,
+                                                            thumb,
+                                                        ])
+                                                    }
+                                                    style={{
+                                                        aspectRatio:
+                                                            img.aspectRatio,
+                                                    }}
+                                                />
+                                            </div>
+                                        );
+                                    })}
                                 </>
                             </div>
                         </>

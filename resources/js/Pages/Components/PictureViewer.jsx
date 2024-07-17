@@ -27,13 +27,14 @@ import {
 import capitalizeFirstLetter from "../Functions/capitalizeFirstLetter";
 import axios from "axios";
 import showNotification from "../Functions/showNotification";
-import { LazyLoadImage } from "react-lazy-load-image-component";
+import LazyLoadImage from "./LazyLoadImage";
 import { useSwipeable } from "react-swipeable";
 import ThumbnailScroll from "./ThumbnailScroll";
 import useElementSize from "../Functions/useElementSize";
 import { useDisclosure } from "@mantine/hooks";
 import ConfirmationModal from "./ConfirmationModal";
 import copyToClipboard from "../Functions/copyToClipboard";
+import calculateImageSize from "../Functions/calculateImageSize";
 
 export default function PictureViewer({
     selected,
@@ -44,7 +45,7 @@ export default function PictureViewer({
     close,
 }) {
     // Find image and recheck if it exists
-    const image = images.filter((x) => x.id === selected)[0] || {};
+    const image = images.filter((x) => x.id === selected[0])[0] || {};
     if (!("id" in image)) return <></>;
 
     // current images index
@@ -54,6 +55,7 @@ export default function PictureViewer({
     const [selectedTags, setSelectedTags] = useState(image.tags);
     const [shared, setShared] = useState(image.shared);
     const [confirmDelete, setConfirmDelete] = useDisclosure(false);
+    const [imageSize, setImageSize] = useState([0, 0]);
 
     // use refs
     const [containerSize, containerRef] = useElementSize();
@@ -68,6 +70,21 @@ export default function PictureViewer({
 
         setShared(image.shared);
     }, [image]);
+
+    // When window is resized, we need to change image size
+    useEffect(
+        () =>
+            setImageSize(
+                calculateImageSize(
+                    [
+                        containerSize.width,
+                        containerSize.height - 90, // 90 - thumbnail height, u can see in in the scss file
+                    ],
+                    [image.width, image.height]
+                )
+            ),
+        [containerSize]
+    );
 
     let d = new Date(image.uploaded);
     let formatedDate = d.toDateString();
@@ -163,6 +180,7 @@ export default function PictureViewer({
             return;
         }
 
+        // TODO
         setSelected(images[imageIndex - 1].id);
     }
 
@@ -179,6 +197,7 @@ export default function PictureViewer({
             return;
         }
 
+        // TODO
         setSelected(images[imageIndex + 1].id);
     }
 
@@ -400,19 +419,30 @@ export default function PictureViewer({
                 </ActionIcon>
 
                 <div onClick={close} className={sty.picture} {...swipeHandlers}>
-                    <LazyLoadImage
+                    {/* // TODO */}
+                    {/* <LazyLoadImage
                         placeholderSrc={route("get.half.image", image.id)}
                         src={route("get.image", image.id)}
                         onClick={(e) => {
                             e.stopPropagation();
                         }}
                         style={{ aspectRatio: image.aspectRatio }}
-                    />
+                    /> */}
+
+                    {/* <LazyLoadImage
+                        blur={false}
+                        thumbnail={selected[1]}
+                        style={{
+                            width: imageSize[0],
+                            height: imageSize[1],
+                        }}
+                    /> */}
                 </div>
 
                 <ThumbnailScroll
                     images={images}
                     currentIndex={imageIndex}
+                    // TODO
                     onClick={(idx) => setSelected(images[idx].id)}
                     pictureContainerSize={containerSize}
                 />

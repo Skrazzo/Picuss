@@ -129,34 +129,38 @@ $iconSize: 25px;
         position: relative;
         flex: 1;
 
+        // .picture {
+        //     width: 100%;
+        //     height: calc(100dvh - 90px - 8px - 8px);
+
+        //     @include mixins.center;
+
+        //     @media (max-width: 1000px) {
+        //         height: 100dvh;
+        //     }
+
+        //     span {
+        //         // width: 100%;
+        //         height: 100%;
+
+        //         @include mixins.center;
+        //         display: flex !important;
+        //     }
+
+        //     img {
+        //         max-height: 100%;
+        //         max-width: 100%;
+
+        //         @media (max-width: 1000px) {
+        //             max-height: calc(100% - 90px - 8px - 8px);
+        //         }
+
+        //         object-fit: contain;
+        //     }
+        // }
+
+        @include mixins.center();
         .picture {
-            width: 100%;
-            height: calc(100dvh - 90px - 8px - 8px);
-
-            @include mixins.center;
-
-            @media (max-width: 1000px) {
-                height: 100dvh;
-            }
-
-            span {
-                // width: 100%;
-                height: 100%;
-
-                @include mixins.center;
-                display: flex !important;
-            }
-
-            img {
-                max-height: 100%;
-                max-width: 100%;
-
-                @media (max-width: 1000px) {
-                    max-height: calc(100% - 90px - 8px - 8px);
-                }
-
-                object-fit: contain;
-            }
         }
 
         .closeBtn {

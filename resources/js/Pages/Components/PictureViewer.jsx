@@ -261,7 +261,7 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
     }
 
     function selectFromScroll(idx) {
-        setSelected([images[idx].id, route("get.half.image", images[idx].id)]);
+        setSelected([images[idx].id, findBlobUrl(images[idx].id)]);
     }
 
     const iconProps = {

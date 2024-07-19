@@ -2,6 +2,7 @@
 @import "./variables.scss";
 
 $iconSize: 25px;
+$thumbnailScrollHeight: 106px;
 
 .container {
     position: absolute;
@@ -13,7 +14,7 @@ $iconSize: 25px;
 
     overflow: hidden;
 
-    background-color: rgba($color: #242424, $alpha: 0.5);
+    background-color: rgba(#242424, 0.5);
     backdrop-filter: blur(4px);
 
     z-index: 100;
@@ -111,10 +112,7 @@ $iconSize: 25px;
             background-color: $green;
             @for $i from 1 through 10 {
                 &_#{$i} {
-                    background-color: rgba(
-                        $color: $green,
-                        $alpha: calc(#{$i} / 10)
-                    );
+                    background-color: rgba($color: $green, $alpha: calc(#{$i} / 10));
                 }
             }
         }
@@ -127,15 +125,10 @@ $iconSize: 25px;
 
         @media (max-width: 1000px) {
             width: 100%;
-            min-height: 100dvh;
+            min-height: calc(100dvh - $thumbnailScrollHeight);
         }
 
-        @include mixins.d-flex(
-            $gap: 0,
-            $justify: left,
-            $align: center,
-            $dir: column
-        );
+        @include mixins.d-flex($gap: 0, $justify: left, $align: center, $dir: column);
 
         .picture {
             @include mixins.center();
@@ -143,7 +136,7 @@ $iconSize: 25px;
             width: 100%;
 
             // 100% - thumbnail scroll height
-            height: calc(100% - 106px);
+            height: calc(100% - $thumbnailScrollHeight);
         }
 
         .closeBtn {

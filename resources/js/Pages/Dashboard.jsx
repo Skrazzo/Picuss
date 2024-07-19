@@ -1,17 +1,16 @@
-import React, { memo, useEffect, useRef, useState } from "react";
-import AuthLayout from "./Layouts/AuthLayout";
-import sty from "../../scss/Dashboard.module.scss";
-import generateRandomBetween from "./Functions/randomNumberBetween";
-import { AspectRatio, Center, Pagination, Skeleton, Text } from "@mantine/core";
-import axios from "axios";
-import "react-lazy-load-image-component/src/effects/blur.css";
+import { Center, Pagination, Skeleton, Text } from "@mantine/core";
 import { IconPhotoOff } from "@tabler/icons-react";
-import PictureViewer from "./Components/PictureViewer";
-import PictureDivider from "./Components/PictureDivider";
-import useElementSize from "./Functions/useElementSize";
-import LazyLoadImageComponent from "./Components/LazyLoadImageComponent";
-import Title from "./Components/Title";
+import axios from "axios";
+import React, { useEffect, useRef, useState } from "react";
+import "react-lazy-load-image-component/src/effects/blur.css";
+import sty from "../../scss/Dashboard.module.scss";
 import LazyLoadImage from "./Components/LazyLoadImage";
+import PictureDivider from "./Components/PictureDivider";
+import PictureViewer from "./Components/PictureViewer";
+import Title from "./Components/Title";
+import generateRandomBetween from "./Functions/randomNumberBetween";
+import useElementSize from "./Functions/useElementSize";
+import AuthLayout from "./Layouts/AuthLayout";
 
 export default function Dashboard({ auth, title = "" }) {
     const [page, setPage] = useState(1);
@@ -81,7 +80,16 @@ export default function Dashboard({ auth, title = "" }) {
 
                 setTotalPages(res.data.totalPages);
                 setProcessing(false);
+                scrollUp();
             });
+    }
+
+    function scrollUp() {
+        const element = document.getElementById("top-section");
+        if (element) {
+            // 👇 Will scroll smoothly to the top of the next section
+            element.scrollIntoView({ behavior: "smooth" });
+        }
     }
 
     function segmentalSwitch(allImages = null) {
@@ -292,7 +300,7 @@ export default function Dashboard({ auth, title = "" }) {
                                                     id={img.id}
                                                     src={route(
                                                         "get.half.image",
-                                                        img.id
+                                                        img.id,
                                                     )}
                                                     onClick={(id, thumb) =>
                                                         setSelectedImage([

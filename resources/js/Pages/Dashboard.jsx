@@ -1,17 +1,17 @@
-import React, { memo, useEffect, useRef, useState } from "react";
-import AuthLayout from "./Layouts/AuthLayout";
-import sty from "../../scss/Dashboard.module.scss";
-import generateRandomBetween from "./Functions/randomNumberBetween";
-import { AspectRatio, Center, Pagination, Skeleton, Text } from "@mantine/core";
-import axios from "axios";
-import "react-lazy-load-image-component/src/effects/blur.css";
+import { Center, Pagination, Skeleton, Text } from "@mantine/core";
 import { IconPhotoOff } from "@tabler/icons-react";
-import PictureViewer from "./Components/PictureViewer";
-import PictureDivider from "./Components/PictureDivider";
-import useElementSize from "./Functions/useElementSize";
-import LazyLoadImageComponent from "./Components/LazyLoadImageComponent";
-import Title from "./Components/Title";
+import axios from "axios";
+import React, { useEffect, useRef, useState } from "react";
+import "react-lazy-load-image-component/src/effects/blur.css";
+import sty from "../../scss/Dashboard.module.scss";
 import LazyLoadImage from "./Components/LazyLoadImage";
+import PictureDivider from "./Components/PictureDivider";
+import PictureViewer from "./Components/PictureViewer";
+import Title from "./Components/Title";
+import generateRandomBetween from "./Functions/randomNumberBetween";
+import useElementSize from "./Functions/useElementSize";
+import AuthLayout from "./Layouts/AuthLayout";
+import scrollUp from "./Functions/scrollUp";
 
 export default function Dashboard({ auth, title = "" }) {
     const [page, setPage] = useState(1);
@@ -81,6 +81,7 @@ export default function Dashboard({ auth, title = "" }) {
 
                 setTotalPages(res.data.totalPages);
                 setProcessing(false);
+                scrollUp({ timeout: false });
             });
     }
 
@@ -221,8 +222,7 @@ export default function Dashboard({ auth, title = "" }) {
                 />
                 <Text className={sty.main}>NO PHOTOS FOUND</Text>
                 <Text className={sty.desc}>
-                    Looks like you’re so stunning that even the internet
-                    couldn’t handle your photos
+                    Looks like you’re so stunning that even the internet couldn’t handle your photos
                 </Text>
             </div>
         </>
@@ -283,26 +283,16 @@ export default function Dashboard({ auth, title = "" }) {
                                 <>
                                     {segImages.map((img, i) => {
                                         return (
-                                            <div
-                                                className={sty.picture}
-                                                key={i}
-                                            >
+                                            <div className={sty.picture} key={i}>
                                                 <LazyLoadImage
                                                     thumbnail={img.thumb}
                                                     id={img.id}
-                                                    src={route(
-                                                        "get.half.image",
-                                                        img.id
-                                                    )}
+                                                    src={route("get.half.image", img.id)}
                                                     onClick={(id, thumb) =>
-                                                        setSelectedImage([
-                                                            id,
-                                                            thumb,
-                                                        ])
+                                                        setSelectedImage([id, thumb])
                                                     }
                                                     style={{
-                                                        aspectRatio:
-                                                            img.aspectRatio,
+                                                        aspectRatio: img.aspectRatio,
                                                     }}
                                                 />
                                             </div>

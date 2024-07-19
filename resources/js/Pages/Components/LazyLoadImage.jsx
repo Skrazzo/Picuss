@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import errorNotification from "../Functions/errorNotification";
 import { motion } from "framer-motion";
 
@@ -16,6 +16,7 @@ const LazyLoadImage = React.memo(
         onClick = (id, image) => console.log(`Clicked on ${id} - ${image}`),
         useLayoutId = true,
     }) => {
+        // useStates
         const [image, setImage] = useState(null);
 
         useEffect(() => {
@@ -27,11 +28,11 @@ const LazyLoadImage = React.memo(
                 }
             }
 
-            // Discard previous image, and display thumbnail instead
-            setImage(null);
+            // Controller for axios request
+            const controller = new AbortController();
 
             axios
-                .get(src, { responseType: "blob" })
+                .get(src, { responseType: "blob", signal: controller.signal })
                 .then((res) => {
                     const url = URL.createObjectURL(res.data);
 
@@ -49,7 +50,19 @@ const LazyLoadImage = React.memo(
 
                     setImage(url);
                 })
-                .catch((err) => errorNotification(err));
+                .catch((err) => {
+                    if (err.code !== "ERR_CANCELED") {
+                        errorNotification(err);
+                    }
+                });
+
+            return () => {
+                // Discard previous image, and display thumbnail instead
+                setImage(null);
+
+                // Cancel previous axios request
+                controller.abort();
+            };
         }, [src]);
 
         // useEffect(() => console.log(image), [image]);
@@ -57,17 +70,14 @@ const LazyLoadImage = React.memo(
         return (
             <motion.div
                 layoutId={useLayoutId ? id : null}
-                // layoutId={id}
-                className={`lazy-load-image${
-                    blur ? (image ? "" : "-blur") : ""
-                } ${className}`}
+                className={`lazy-load-image${blur ? (image ? "" : "-blur") : ""} ${className}`}
                 style={{ borderRadius: rounded ? "0.25rem" : 0 }}
                 onClick={() => onClick(id, image)}
             >
                 <img style={style} src={image ? image : thumbnail} alt={alt} />
             </motion.div>
         );
-    }
+    },
 );
 
 export default LazyLoadImage;

@@ -1,14 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import sty from "../../../scss/PictureViewer.module.scss";
-import {
-    ActionIcon,
-    Button,
-    Checkbox,
-    Menu,
-    Paper,
-    Table,
-    Text,
-} from "@mantine/core";
+import { ActionIcon, Button, Checkbox, Menu, Paper, Table, Text } from "@mantine/core";
 import {
     IconBan,
     IconChevronLeft,
@@ -35,15 +27,9 @@ import { useDisclosure } from "@mantine/hooks";
 import ConfirmationModal from "./ConfirmationModal";
 import copyToClipboard from "../Functions/copyToClipboard";
 import calculateImageSize from "../Functions/calculateImageSize";
+import scrollDown from "../Functions/scrollDown";
 
-export default function PictureViewer({
-    selected,
-    setSelected,
-    images,
-    tags,
-    onDelete,
-    close,
-}) {
+export default function PictureViewer({ selected, setSelected, images, tags, onDelete, close }) {
     // Find image and recheck if it exists
     const image = images.filter((x) => x.id === selected[0])[0] || {};
     if (!("id" in image)) return <></>;
@@ -72,19 +58,14 @@ export default function PictureViewer({
     }, [image]);
 
     // When window is resized, we need to change image size
-    useEffect(
-        () =>
-            setImageSize(
-                calculateImageSize(
-                    [
-                        containerSize.width,
-                        containerSize.height - 106, // 106 - thumbnail height, u can see in in the scss file
-                    ],
-                    [image.width, image.height]
-                )
+    useEffect(() => {
+        setImageSize(
+            calculateImageSize(
+                [containerSize.width, containerSize.height - 106],
+                [image.width, image.height],
             ),
-        [containerSize, image]
-    );
+        );
+    }, [containerSize, image]);
 
     let d = new Date(image.uploaded);
     let formatedDate = d.toDateString();
@@ -147,7 +128,7 @@ export default function PictureViewer({
                 showNotification({
                     message: "Your edited tags were saved",
                     title: "Saved",
-                })
+                }),
             )
             .catch((err) => {
                 alert("Error happened! " + error);
@@ -180,29 +161,36 @@ export default function PictureViewer({
             return;
         }
 
-        setSelected([
-            images[imageIndex - 1].id,
-            route("get.half.image", images[imageIndex - 1].id),
-        ]);
+        // Find cached half image
+        let url = findBlobUrl(images[imageIndex - 1].id);
+
+        setSelected([images[imageIndex - 1].id, url]);
     }
 
     function nextImage() {
         if (imageIndex === images.length - 1) {
-            setTimeout(() => {
-                const element = document.getElementById("bottom-section");
-                if (element) {
-                    // 👇 Will scroll smoothly to the top of the next section
-                    element.scrollIntoView({ behavior: "smooth" });
-                }
-            }, 500);
+            scrollDown({});
             setSelected(null);
             return;
         }
 
-        setSelected([
-            images[imageIndex + 1].id,
-            route("get.half.image", images[imageIndex + 1].id),
-        ]);
+        // Check if url for half image hasn't been loaded yet and saved in cache
+        // If has, then use the cached image blob link
+        let url = findBlobUrl(images[imageIndex + 1].id);
+
+        setSelected([images[imageIndex + 1].id, url]);
+    }
+
+    // Function for searching blob link in cached variable
+    function findBlobUrl(imgId) {
+        // Check if url for half image hasn't been loaded yet and saved in cache
+        // If has, then use the cached image blob link
+        let url = route("get.half.image", imgId);
+        if (url in window.lazyLoadBlobs) {
+            url = window.lazyLoadBlobs[url];
+        }
+
+        return url;
     }
 
     const swipeHandlers = useSwipeable({
@@ -263,7 +251,7 @@ export default function PictureViewer({
                         res.data.link,
                         true,
                         "Sharable link was copied to your clipboard",
-                        "Copied"
+                        "Copied",
                     );
                 } else {
                     setShared(false);
@@ -273,7 +261,7 @@ export default function PictureViewer({
     }
 
     function selectFromScroll(idx) {
-        setSelected([images[idx].id, route("get.half.image", images[idx].id)]);
+        setSelected([images[idx].id, findBlobUrl(images[idx].id)]);
     }
 
     const iconProps = {
@@ -298,11 +286,7 @@ export default function PictureViewer({
             <div className={sty.side}>
                 <div>
                     <div className={sty.title}>
-                        <Text
-                            size={"20px"}
-                            fw={600}
-                            className={`${sty.green_text}`}
-                        >
+                        <Text size={"20px"} fw={600} className={`${sty.green_text}`}>
                             {image.name}
                         </Text>
 
@@ -317,26 +301,19 @@ export default function PictureViewer({
                                 {shared ? (
                                     <>
                                         <Menu.Item
-                                            leftSection={
-                                                <IconShareOff {...iconProps} />
-                                            }
+                                            leftSection={<IconShareOff {...iconProps} />}
                                             onClick={shareHandler}
                                         >
                                             <Text>Make private</Text>
                                         </Menu.Item>
                                         <Menu.Item
-                                            leftSection={
-                                                <IconCopy {...iconProps} />
-                                            }
+                                            leftSection={<IconCopy {...iconProps} />}
                                             onClick={() =>
                                                 copyToClipboard(
-                                                    route(
-                                                        "share.image.page",
-                                                        image.id
-                                                    ),
+                                                    route("share.image.page", image.id),
                                                     true,
                                                     "Sharable link was copied to your clipboard",
-                                                    "Copied"
+                                                    "Copied",
                                                 )
                                             }
                                         >
@@ -345,9 +322,7 @@ export default function PictureViewer({
                                     </>
                                 ) : (
                                     <Menu.Item
-                                        leftSection={
-                                            <IconShare {...iconProps} />
-                                        }
+                                        leftSection={<IconShare {...iconProps} />}
                                         onClick={shareHandler}
                                     >
                                         <Text>Make public</Text>
@@ -375,11 +350,7 @@ export default function PictureViewer({
 
                     <SectionTitle text={"Tags"} icon={<IconTags />} />
                     <div className={sty.info_container}>
-                        <Paper
-                            p={"0.5rem"}
-                            withBorder
-                            className={sty.checkboxes}
-                        >
+                        <Paper p={"0.5rem"} withBorder className={sty.checkboxes}>
                             {tags.map((tag, idx) => (
                                 <Checkbox
                                     size="18px"
@@ -418,11 +389,7 @@ export default function PictureViewer({
             </div>
 
             <div className={sty.picture_container} ref={containerRef}>
-                <ActionIcon
-                    onClick={close}
-                    variant="light"
-                    className={sty.closeBtn}
-                >
+                <ActionIcon onClick={close} variant="light" className={sty.closeBtn}>
                     <IconX />
                 </ActionIcon>
 

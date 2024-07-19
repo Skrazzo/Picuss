@@ -27,6 +27,7 @@ import { useDisclosure } from "@mantine/hooks";
 import ConfirmationModal from "./ConfirmationModal";
 import copyToClipboard from "../Functions/copyToClipboard";
 import calculateImageSize from "../Functions/calculateImageSize";
+import scrollDown from "../Functions/scrollDown";
 
 export default function PictureViewer({ selected, setSelected, images, tags, onDelete, close }) {
     // Find image and recheck if it exists
@@ -168,13 +169,7 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
 
     function nextImage() {
         if (imageIndex === images.length - 1) {
-            setTimeout(() => {
-                const element = document.getElementById("bottom-section");
-                if (element) {
-                    // 👇 Will scroll smoothly to the top of the next section
-                    element.scrollIntoView({ behavior: "smooth" });
-                }
-            }, 500);
+            scrollDown({});
             setSelected(null);
             return;
         }

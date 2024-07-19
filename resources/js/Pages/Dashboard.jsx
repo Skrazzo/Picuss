@@ -11,6 +11,7 @@ import Title from "./Components/Title";
 import generateRandomBetween from "./Functions/randomNumberBetween";
 import useElementSize from "./Functions/useElementSize";
 import AuthLayout from "./Layouts/AuthLayout";
+import scrollUp from "./Functions/scrollUp";
 
 export default function Dashboard({ auth, title = "" }) {
     const [page, setPage] = useState(1);
@@ -80,16 +81,8 @@ export default function Dashboard({ auth, title = "" }) {
 
                 setTotalPages(res.data.totalPages);
                 setProcessing(false);
-                scrollUp();
+                scrollUp({ timeout: false });
             });
-    }
-
-    function scrollUp() {
-        const element = document.getElementById("top-section");
-        if (element) {
-            // 👇 Will scroll smoothly to the top of the next section
-            element.scrollIntoView({ behavior: "smooth" });
-        }
     }
 
     function segmentalSwitch(allImages = null) {
@@ -229,8 +222,7 @@ export default function Dashboard({ auth, title = "" }) {
                 />
                 <Text className={sty.main}>NO PHOTOS FOUND</Text>
                 <Text className={sty.desc}>
-                    Looks like you’re so stunning that even the internet
-                    couldn’t handle your photos
+                    Looks like you’re so stunning that even the internet couldn’t handle your photos
                 </Text>
             </div>
         </>
@@ -291,26 +283,16 @@ export default function Dashboard({ auth, title = "" }) {
                                 <>
                                     {segImages.map((img, i) => {
                                         return (
-                                            <div
-                                                className={sty.picture}
-                                                key={i}
-                                            >
+                                            <div className={sty.picture} key={i}>
                                                 <LazyLoadImage
                                                     thumbnail={img.thumb}
                                                     id={img.id}
-                                                    src={route(
-                                                        "get.half.image",
-                                                        img.id,
-                                                    )}
+                                                    src={route("get.half.image", img.id)}
                                                     onClick={(id, thumb) =>
-                                                        setSelectedImage([
-                                                            id,
-                                                            thumb,
-                                                        ])
+                                                        setSelectedImage([id, thumb])
                                                     }
                                                     style={{
-                                                        aspectRatio:
-                                                            img.aspectRatio,
+                                                        aspectRatio: img.aspectRatio,
                                                     }}
                                                 />
                                             </div>

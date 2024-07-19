@@ -4,17 +4,12 @@ import GuestLayout from "../../Layouts/GuestLayout";
 import axios from "axios";
 import { IconDownload, IconDownloadOff, IconHash } from "@tabler/icons-react";
 import capitalizeFirstLetter from "../../Functions/capitalizeFirstLetter";
-import {
-    ActionIcon,
-    Container,
-    Pagination,
-    Text,
-    Tooltip,
-} from "@mantine/core";
+import { ActionIcon, Container, Pagination, Text, Tooltip } from "@mantine/core";
 import useElementSize from "../../Functions/useElementSize";
 import LazyLoadImage from "../LazyLoadImage";
 import { useDisclosure } from "@mantine/hooks";
 import SinglePictureViewer from "./SinglePictureViewer";
+import scrollUp from "../../Functions/scrollUp";
 
 export default function Index({ id, db_id }) {
     const [page, setPage] = useState(1);
@@ -45,11 +40,7 @@ export default function Index({ id, db_id }) {
 
     useEffect(() => {
         getData();
-        const element = document.getElementById("top-section");
-        if (element) {
-            // 👇 Will scroll smoothly to the top of the next section
-            element.scrollIntoView({ behavior: "smooth" });
-        }
+        scrollUp({ timeout: false });
     }, [page]);
 
     useEffect(() => console.log(data), [data]);
@@ -83,20 +74,12 @@ export default function Index({ id, db_id }) {
                     <div className="tag">
                         <IconHash {...iconProps} color="green" />
                         <div className="name">
-                            <Text size={"28px"}>
-                                {capitalizeFirstLetter(data.info.tag_name)}
-                            </Text>
-                            <Text c={"dimmed"}>
-                                Shared by {data.info.owner}
-                            </Text>
+                            <Text size={"28px"}>{capitalizeFirstLetter(data.info.tag_name)}</Text>
+                            <Text c={"dimmed"}>Shared by {data.info.owner}</Text>
                         </div>
                     </div>
 
-                    <ActionIcon
-                        ml={16}
-                        variant="transparent"
-                        disabled={!data.download.allowed}
-                    >
+                    <ActionIcon ml={16} variant="transparent" disabled={!data.download.allowed}>
                         <Tooltip
                             withArrow
                             label={
@@ -110,10 +93,7 @@ export default function Index({ id, db_id }) {
                                     {...iconProps}
                                     color="green"
                                     onClick={() =>
-                                        window.open(
-                                            route("share.tag.download", db_id),
-                                            "_blank"
-                                        )
+                                        window.open(route("share.tag.download", db_id), "_blank")
                                     }
                                 />
                             ) : (

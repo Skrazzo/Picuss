@@ -161,10 +161,10 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
             return;
         }
 
-        setSelected([
-            images[imageIndex - 1].id,
-            route("get.half.image", images[imageIndex - 1].id),
-        ]);
+        // Find cached half image
+        let url = findBlobUrl(images[imageIndex - 1].id);
+
+        setSelected([images[imageIndex - 1].id, url]);
     }
 
     function nextImage() {
@@ -174,10 +174,23 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
             return;
         }
 
-        setSelected([
-            images[imageIndex + 1].id,
-            route("get.half.image", images[imageIndex + 1].id),
-        ]);
+        // Check if url for half image hasn't been loaded yet and saved in cache
+        // If has, then use the cached image blob link
+        let url = findBlobUrl(images[imageIndex + 1].id);
+
+        setSelected([images[imageIndex + 1].id, url]);
+    }
+
+    // Function for searching blob link in cached variable
+    function findBlobUrl(imgId) {
+        // Check if url for half image hasn't been loaded yet and saved in cache
+        // If has, then use the cached image blob link
+        let url = route("get.half.image", imgId);
+        if (url in window.lazyLoadBlobs) {
+            url = window.lazyLoadBlobs[url];
+        }
+
+        return url;
     }
 
     const swipeHandlers = useSwipeable({

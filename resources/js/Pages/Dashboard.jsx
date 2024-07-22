@@ -247,6 +247,9 @@ export default function Dashboard({ auth, title = "" }) {
             segmentControl={segmentControl}
             userTags={userTags}
             auth={auth}
+            page={page}
+            setPage={setPage}
+            maxPage={totalPages}
             className={selectedImage ? sty.no_scroll : ""}
         >
             <Title title={title} />

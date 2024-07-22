@@ -1,13 +1,5 @@
-import { useEffect, useState } from "react";
-import {
-    ActionIcon,
-    Button,
-    Combobox,
-    Flex,
-    InputBase,
-    Loader,
-    useCombobox,
-} from "@mantine/core";
+import { useEffect, useRef, useState } from "react";
+import { ActionIcon, Button, Combobox, Flex, InputBase, Loader, useCombobox } from "@mantine/core";
 import { useForm } from "@inertiajs/inertia-react";
 import axios from "axios";
 import { IconHash } from "@tabler/icons-react";
@@ -32,14 +24,13 @@ export default function SelectCreatableTags({ select, addTag }) {
     const [tags, setTags] = useState([]);
     const [loading, setLoading] = useState(false);
     // const [search, setSearch] = useState('');
+    const autoTags = useRef([]); // This is for tracking which tags were already automatically added
 
     const exactOptionMatch = tags.some((item) => item === formData.name);
     const filteredOptions = exactOptionMatch
         ? tags
         : tags.filter((item) =>
-              item["name"]
-                  .toLowerCase()
-                  .includes(formData.name.toLowerCase().trim())
+              item["name"].toLowerCase().includes(formData.name.toLowerCase().trim()),
           );
 
     const options = filteredOptions.map((item) => (
@@ -86,6 +77,23 @@ export default function SelectCreatableTags({ select, addTag }) {
         fetchTags({});
     }, []);
 
+    useEffect(() => {
+        // When tags are changed or added
+        // we want to create automatic tagging system, for now it is going to be year
+        // if user has a tag named after this year, then add it whenever tag fetch is complete
+
+        tags.forEach((tag) => {
+            // Check if we already added this tag or not
+            if (!autoTags.current.includes(tag.id)) {
+                autoTags.current.push(tag.id);
+                // Check if tag name is this year
+                if (tag.name === new Date().getFullYear().toString()) {
+                    select(tag);
+                }
+            }
+        });
+    }, [tags]);
+
     return (
         <Combobox
             disabled={processing}
@@ -120,11 +128,7 @@ export default function SelectCreatableTags({ select, addTag }) {
                     }}
                     placeholder="Search value"
                     rightSection={
-                        processing || loading ? (
-                            <Loader size={18} />
-                        ) : (
-                            <Combobox.Chevron />
-                        )
+                        processing || loading ? <Loader size={18} /> : <Combobox.Chevron />
                     }
                     disabled={processing || loading}
                     rightSectionPointerEvents="none"
@@ -135,9 +139,7 @@ export default function SelectCreatableTags({ select, addTag }) {
             <Combobox.Dropdown mah={400} style={{ overflowY: "auto" }}>
                 <Combobox.Options>
                     {options.length === 0 && formData.name === "" && (
-                        <Combobox.Empty>
-                            You haven't created any tags yet
-                        </Combobox.Empty>
+                        <Combobox.Empty>You haven't created any tags yet</Combobox.Empty>
                     )}
 
                     {options}

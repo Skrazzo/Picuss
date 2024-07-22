@@ -26,10 +26,7 @@ import { Dropzone } from "@mantine/dropzone";
 // -------------------------------
 
 import sty from "../../scss/upload.module.scss";
-import {
-    compressAndAppendImage,
-    imageCompressor,
-} from "@mbs-dev/react-image-compressor";
+import { compressAndAppendImage, imageCompressor } from "@mbs-dev/react-image-compressor";
 import SelectCreatableTags from "./Components/SelectCreatableTags";
 import TagPill from "./Components/TagPill";
 import { handleZip } from "./Functions/handleZip";
@@ -70,8 +67,7 @@ export default function Upload({ auth, title = "" }) {
         setUploadSize({
             ...uploadSize,
             unCompressedSize:
-                uploadSize.unCompressedSize +
-                Math.round((oldSize / 1024 ** 2) * 100) / 100,
+                uploadSize.unCompressedSize + Math.round((oldSize / 1024 ** 2) * 100) / 100,
         });
 
         if (compress) {
@@ -88,14 +84,9 @@ export default function Upload({ auth, title = "" }) {
         for (const x of compressArr) {
             // console.log('compressing',x.name);
 
-            const compressedImage = await imageCompressor(
-                x,
-                imageQuality / 100
-            );
+            const compressedImage = await imageCompressor(x, imageQuality / 100);
             tmp.push(compressedImage);
-            setCompressingProgress(
-                Math.round(((tmp.length * 10) / compressArr.length) * 100) / 10
-            );
+            setCompressingProgress(Math.round(((tmp.length * 10) / compressArr.length) * 100) / 10);
         }
 
         setUploadArr([...uploadArr, ...tmp]);
@@ -127,7 +118,7 @@ export default function Upload({ auth, title = "" }) {
     }
 
     function uploadHandler() {
-        /*  
+        /*
             We need to create zip file with all compressed pictures
             put tags into form data
             put zip file into form data
@@ -158,9 +149,7 @@ export default function Upload({ auth, title = "" }) {
                     },
                     onUploadProgress: (data) => {
                         //Set the progress value to show the progress bar
-                        setUploadProgress(
-                            Math.round((100 * data.loaded) / data.total)
-                        );
+                        setUploadProgress(Math.round((100 * data.loaded) / data.total));
                     },
                 })
                 .then((res) => {
@@ -253,12 +242,7 @@ export default function Upload({ auth, title = "" }) {
                         "image/*": [], // All images
                     }}
                 >
-                    <Group
-                        justify="center"
-                        gap="xl"
-                        mih={220}
-                        style={{ pointerEvents: "none" }}
-                    >
+                    <Group justify="center" gap="xl" mih={220} style={{ pointerEvents: "none" }}>
                         <Dropzone.Accept>
                             <IconUpload
                                 style={{
@@ -295,8 +279,7 @@ export default function Upload({ auth, title = "" }) {
                                 Drag images here or click to select files
                             </Text>
                             <Text size="sm" c="dimmed" inline mt={7}>
-                                Attach as many files as you like, each file
-                                should not exceed 20mb
+                                Attach as many files as you like, each file should not exceed 20mb
                             </Text>
                         </div>
                     </Group>
@@ -329,18 +312,9 @@ export default function Upload({ auth, title = "" }) {
                         timingFunction="ease"
                     >
                         {(styles) => (
-                            <Flex
-                                style={styles}
-                                mt={8}
-                                gap={16}
-                                align={"center"}
-                            >
+                            <Flex style={styles} mt={8} gap={16} align={"center"}>
                                 <Text>{compressingProgress}%</Text>
-                                <Progress
-                                    w={"100%"}
-                                    value={compressingProgress}
-                                    animated
-                                />
+                                <Progress w={"100%"} value={compressingProgress} animated />
                             </Flex>
                         )}
                     </Transition>
@@ -348,12 +322,7 @@ export default function Upload({ auth, title = "" }) {
 
                 {uploadArr.length !== 0 && (
                     <Paper mt={16} withBorder p={"xs"}>
-                        <Flex
-                            gap={8}
-                            align={"center"}
-                            justify={"space-between"}
-                            my={8}
-                        >
+                        <Flex gap={8} align={"center"} justify={"space-between"} my={8}>
                             <Text>
                                 {uploadArr.length} pictures with the size of{" "}
                                 <b
@@ -371,9 +340,8 @@ export default function Upload({ auth, title = "" }) {
                                 >
                                     {" "}
                                     {Math.round(
-                                        (uploadSize.unCompressedSize -
-                                            uploadSize.compressedSize) *
-                                            100
+                                        (uploadSize.unCompressedSize - uploadSize.compressedSize) *
+                                            100,
                                     ) / 100}{" "}
                                     MB
                                 </b>
@@ -405,16 +373,11 @@ export default function Upload({ auth, title = "" }) {
                 {uploadArr.length !== 0 && (
                     <Paper withBorder mt={16} p={"xs"} mb={16}>
                         <Flex align={"center"} gap={8} mb={16}>
-                            <IconTags
-                                size={28}
-                                color="var(--mantine-primary-color-8)"
-                            />
+                            <IconTags size={28} color="var(--mantine-primary-color-8)" />
                             <Text mt={4}>Select picture tags</Text>
                         </Flex>
 
-                        <SelectCreatableTags
-                            select={(tag_array) => addTagHandler(tag_array)}
-                        />
+                        <SelectCreatableTags select={(tag_array) => addTagHandler(tag_array)} />
 
                         {selectedTags.length !== 0 && (
                             <Paper withBorder mt={8} p={"sm"}>

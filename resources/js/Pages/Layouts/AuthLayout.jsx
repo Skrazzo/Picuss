@@ -9,6 +9,7 @@ import {
     Divider,
     Drawer,
     Modal,
+    NumberInput,
     SegmentedControl,
     SimpleGrid,
     Skeleton,
@@ -22,13 +23,14 @@ import {
     IconLogout2,
     IconPhoto,
     IconSeparatorVertical,
+    IconSignLeft,
     IconTag,
     IconTags,
     IconUpload,
     IconUser,
 } from "@tabler/icons-react";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import sty from "../../../scss/authLayout.module.scss";
 import DisabledInputInfo from "../Components/DisabledInputInfo";
 import Logo from "../Components/Logo";
@@ -41,12 +43,20 @@ export default function AuthLayout({
     className = "",
     queryTags = null, // [0] - value [1] - set new value
     segmentControl = null,
+    page = null,
+    setPage = (page) => console.log(`Page set to ${page}`),
+    maxPage = 0,
     userTags = [],
 }) {
     const [openedDrawer, drawer] = useDisclosure();
     const [openedUserModal, userModal] = useDisclosure();
     const [userInfo, setUserInfo] = useState(null);
     const [scroll, scrollTo] = useWindowScroll();
+
+    // For page selection
+    const firstLoad = useRef(true);
+    const [pageError, setPageError] = useState(null);
+    const [selectedPage, setSelectedPage] = useState(page);
 
     useEffect(() => {
         if (openedUserModal) {
@@ -68,6 +78,43 @@ export default function AuthLayout({
         size: 24,
     };
 
+    function onPageChangeHandler(page) {
+        if (page < 1) {
+            setPageError("Page number cannot be less than 1");
+            return;
+        }
+
+        if (page > maxPage) {
+            setPageError(`Page number cannot be over ${maxPage}`);
+            return;
+        }
+
+        // Uses decimal
+        if (page % 1 !== 0) {
+            setPageError("Page number cannot be decimal");
+            return;
+        }
+
+        setPageError(null);
+        setSelectedPage(page); // Trigger use effect
+    }
+
+    // React to page selection
+    useEffect(() => {
+        if (firstLoad.current) {
+            firstLoad.current = false;
+            return;
+        }
+
+        const timeoutID = setTimeout(() => {
+            setPage(selectedPage);
+            drawer.close();
+        }, 1000);
+        return () => clearTimeout(timeoutID);
+    }, [selectedPage]);
+
+    useEffect(() => setSelectedPage(page), [page]);
+
     return (
         <div className={className} style={{ height: "100dvh", overflow: "auto" }}>
             <section id="top-section"></section>
@@ -75,15 +122,31 @@ export default function AuthLayout({
                 <SimpleGrid cols={2} spacing={"sm"} verticalSpacing={"sm"}>
                     {userInfo ? (
                         <>
-                            <DisabledInputInfo tooltip={"Total pictures uploaded"} icon={<IconPhoto />} value={userInfo.pictures} />
-                            <DisabledInputInfo tooltip={"Total tags made"} icon={<IconTags />} value={userInfo.tags} />
+                            <DisabledInputInfo
+                                tooltip={"Total pictures uploaded"}
+                                icon={<IconPhoto />}
+                                value={userInfo.pictures}
+                            />
+                            <DisabledInputInfo
+                                tooltip={"Total tags made"}
+                                icon={<IconTags />}
+                                value={userInfo.tags}
+                            />
                             <DisabledInputInfo
                                 tooltip={"Last picture was uploaded"}
                                 icon={<IconUpload />}
                                 value={userInfo.last_picture_uploaded}
                             />
-                            <DisabledInputInfo tooltip={"Last tag was made"} icon={<IconTag />} value={userInfo.last_tag_created} />
-                            <DisabledInputInfo tooltip={"You created your account"} icon={<IconUser />} value={userInfo.user_created} />
+                            <DisabledInputInfo
+                                tooltip={"Last tag was made"}
+                                icon={<IconTag />}
+                                value={userInfo.last_tag_created}
+                            />
+                            <DisabledInputInfo
+                                tooltip={"You created your account"}
+                                icon={<IconUser />}
+                                value={userInfo.user_created}
+                            />
                         </>
                     ) : (
                         <>
@@ -110,7 +173,13 @@ export default function AuthLayout({
                 </Link>
             </Modal>
 
-            <Drawer padding={0} opened={openedDrawer} withCloseButton={false} onClose={drawer.close} size={"sm"}>
+            <Drawer
+                padding={0}
+                opened={openedDrawer}
+                withCloseButton={false}
+                onClose={drawer.close}
+                size={"sm"}
+            >
                 <div className={sty.menu_header}>
                     <span
                         onClick={() => {
@@ -160,7 +229,11 @@ export default function AuthLayout({
                                 </>
                             }
                         />
-                        <SearchTags queryTags={queryTags} userTags={userTags} closeDrawer={() => drawer.close()} />
+                        <SearchTags
+                            queryTags={queryTags}
+                            userTags={userTags}
+                            closeDrawer={() => drawer.close()}
+                        />
 
                         <Divider
                             my={16}
@@ -183,6 +256,27 @@ export default function AuthLayout({
                                 { label: "Day", value: "day" },
                             ]}
                         />
+
+                        <Divider
+                            my={16}
+                            label={
+                                <>
+                                    <IconSignLeft size={16} />
+                                    <Box ml={4}>Jump to page</Box>
+                                </>
+                            }
+                        />
+
+                        <NumberInput
+                            onChange={onPageChangeHandler}
+                            value={selectedPage}
+                            placeholder="Enter page number"
+                            mx={8}
+                            mb={16}
+                            min={1}
+                            max={maxPage}
+                            error={pageError}
+                        />
                     </>
                 )}
             </Drawer>
@@ -193,13 +287,21 @@ export default function AuthLayout({
                     <Text fw={500}>Picuss</Text>
                 </div>
 
-                <Burger opened={openedDrawer} onClick={drawer.toggle} aria-label="Toggle navigation" />
+                <Burger
+                    opened={openedDrawer}
+                    onClick={drawer.toggle}
+                    aria-label="Toggle navigation"
+                />
             </nav>
 
             <Affix position={{ bottom: 20, right: 20 }}>
                 <Transition transition="slide-up" mounted={scroll.y > 0}>
                     {(transitionStyles) => (
-                        <ActionIcon variant="subtle" style={transitionStyles} onClick={() => scrollTo({ y: 0 })}>
+                        <ActionIcon
+                            variant="subtle"
+                            style={transitionStyles}
+                            onClick={() => scrollTo({ y: 0 })}
+                        >
                             <IconArrowUp strokeWidth={1.5} />
                         </ActionIcon>
                     )}

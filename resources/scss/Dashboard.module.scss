@@ -10,11 +10,22 @@
         /* border: 1px solid $border inset; */
 
         // Moved border to the inside
-        border: 1px solid transparent;
+        border: 1px solid $border;
         box-shadow: 0 0 0 1px $border inset;
         padding: 1px;
 
         margin-bottom: 10px;
+
+        &_selected {
+            @extend .picture;
+
+            border-color: $primary;
+            box-shadow: 0 0 0 1px $primary inset;
+
+            img {
+                border-radius: 0.1rem;
+            }
+        }
     }
 
     img {

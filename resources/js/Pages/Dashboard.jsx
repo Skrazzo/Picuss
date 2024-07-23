@@ -32,7 +32,7 @@ export default function Dashboard({ auth, title = "" }) {
     const segmentControl = useState("month");
 
     // For multi select
-    const [holding, setHolding] = useState(false); // currently holding on image
+    const [holding, setHolding] = useState([false, null]); // currently holding on image [if holding, image_id]
     const [multiSelect, setMultiSelect] = useState(null); // null -> no selected images [image_id] -> selected images
 
     const [containerSize, containerRef] = useElementSize();
@@ -247,37 +247,67 @@ export default function Dashboard({ auth, title = "" }) {
     }
 
     // --------------- Multi select functions --------------
-    function onPcEnter() {
+    // id -> picture_id
+    function onPcEnter(id) {
         if (checkIfMobile()) return;
-        setHolding(true);
+        if (multiSelect !== null) return; // If already in selection mode
+        setHolding([true, id]);
     }
 
     function onPcLeave() {
         if (checkIfMobile()) return;
-        setHolding(false);
+        if (multiSelect !== null) return; // If already in selection mode
+        setHolding([false, null]);
     }
 
-    function onMobileEnter() {
+    function onMobileEnter(id) {
         if (!checkIfMobile()) return;
-        setHolding(true);
+        if (multiSelect !== null) return; // If already in selection mode
+        setHolding([true, id]);
     }
 
     function onMobileLeave() {
         if (!checkIfMobile()) return;
-        setHolding(false);
+        if (multiSelect !== null) return; // If already in selection mode
+        setHolding([false, null]);
+    }
+
+    function onSelectHandler(id) {
+        if (multiSelect.includes(id)) {
+            setMultiSelect([...multiSelect.filter((x) => x !== id)]);
+        } else {
+            setMultiSelect([...multiSelect, id]);
+        }
+    }
+
+    function selectCancel() {
+        setMultiSelect(null);
     }
 
     useEffect(() => {
         const timeoutID = setTimeout(() => {
-            if (holding) {
+            if (holding[0]) {
                 // User pressed and held image for 500ms
                 // Enter multi select mode
 
-                setHolding(false);
+                console.log("Entering select mode ", holding[1]);
+
+                if (!checkIfMobile()) {
+                    // We are creating empty array, because when pc clicks, it will add the image into the select array
+                    setMultiSelect([]);
+                } else {
+                    // But when on phone, after holding an image, it does not trigger onClick function
+                    // Thats why we are adding image id to the array
+                    setMultiSelect([holding[1]]);
+                }
+                setHolding([false, null]);
             }
-        }, 500);
+        }, 1000);
         return () => clearTimeout(timeoutID);
     }, [holding]);
+
+    // For testing purposes
+    useEffect(() => console.log(multiSelect), [multiSelect]);
 
     // --------------- Multi select end functions ----------
 
@@ -304,15 +334,6 @@ export default function Dashboard({ auth, title = "" }) {
                 />
             )}
 
-            {/* <button
-                onMouseDown={() => console.log("entered")}
-                onMouseUp={() => console.log("left")}
-                onTouchStart={() => console.log("phone entered")}
-                onTouchEnd={() => console.log("Phone left")}
-            >
-                hold me
-            </button> */}
-
             {!images ? ( // getting a list of pictures to load
                 <div className={`${sty.container}`}>
                     {skelets.map((x, i) => (
@@ -336,11 +357,16 @@ export default function Dashboard({ auth, title = "" }) {
                                     {segImages.map((img, i) => {
                                         return (
                                             <div
-                                                className={sty.picture}
+                                                className={
+                                                    multiSelect !== null &&
+                                                    multiSelect.includes(img.id)
+                                                        ? sty.picture_selected
+                                                        : sty.picture
+                                                }
                                                 key={i}
-                                                onMouseDown={() => onPcEnter()}
+                                                onMouseDown={() => onPcEnter(img.id)}
                                                 onMouseUp={() => onPcLeave()}
-                                                onTouchStart={() => onMobileEnter()}
+                                                onTouchStart={() => onMobileEnter(img.id)}
                                                 onTouchEnd={() => onMobileLeave()}
                                             >
                                                 <LazyLoadImage
@@ -348,7 +374,9 @@ export default function Dashboard({ auth, title = "" }) {
                                                     id={img.id}
                                                     src={route("get.half.image", img.id)}
                                                     onClick={(id, thumb) =>
-                                                        setSelectedImage([id, thumb])
+                                                        multiSelect !== null
+                                                            ? onSelectHandler(id)
+                                                            : setSelectedImage([id, thumb])
                                                     }
                                                     style={{
                                                         aspectRatio: img.aspectRatio,

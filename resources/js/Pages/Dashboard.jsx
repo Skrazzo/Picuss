@@ -12,6 +12,7 @@ import generateRandomBetween from "./Functions/randomNumberBetween";
 import useElementSize from "./Functions/useElementSize";
 import AuthLayout from "./Layouts/AuthLayout";
 import scrollUp from "./Functions/scrollUp";
+import checkIfMobile from "./Functions/checkIfMobile";
 
 export default function Dashboard({ auth, title = "" }) {
     const [page, setPage] = useState(1);
@@ -29,6 +30,10 @@ export default function Dashboard({ auth, title = "" }) {
 
     // Divide by months year etc
     const segmentControl = useState("month");
+
+    // For multi select
+    const [holding, setHolding] = useState(false); // currently holding on image
+    const [multiSelect, setMultiSelect] = useState(null); // null -> no selected images [image_id] -> selected images
 
     const [containerSize, containerRef] = useElementSize();
 
@@ -241,6 +246,41 @@ export default function Dashboard({ auth, title = "" }) {
         setImages(newImages);
     }
 
+    // --------------- Multi select functions --------------
+    function onPcEnter() {
+        if (checkIfMobile()) return;
+        setHolding(true);
+    }
+
+    function onPcLeave() {
+        if (checkIfMobile()) return;
+        setHolding(false);
+    }
+
+    function onMobileEnter() {
+        if (!checkIfMobile()) return;
+        setHolding(true);
+    }
+
+    function onMobileLeave() {
+        if (!checkIfMobile()) return;
+        setHolding(false);
+    }
+
+    useEffect(() => {
+        const timeoutID = setTimeout(() => {
+            if (holding) {
+                // User pressed and held image for 500ms
+                // Enter multi select mode
+
+                setHolding(false);
+            }
+        }, 500);
+        return () => clearTimeout(timeoutID);
+    }, [holding]);
+
+    // --------------- Multi select end functions ----------
+
     return (
         <AuthLayout
             queryTags={queryTags}
@@ -264,6 +304,15 @@ export default function Dashboard({ auth, title = "" }) {
                 />
             )}
 
+            {/* <button
+                onMouseDown={() => console.log("entered")}
+                onMouseUp={() => console.log("left")}
+                onTouchStart={() => console.log("phone entered")}
+                onTouchEnd={() => console.log("Phone left")}
+            >
+                hold me
+            </button> */}
+
             {!images ? ( // getting a list of pictures to load
                 <div className={`${sty.container}`}>
                     {skelets.map((x, i) => (
@@ -286,7 +335,14 @@ export default function Dashboard({ auth, title = "" }) {
                                 <>
                                     {segImages.map((img, i) => {
                                         return (
-                                            <div className={sty.picture} key={i}>
+                                            <div
+                                                className={sty.picture}
+                                                key={i}
+                                                onMouseDown={() => onPcEnter()}
+                                                onMouseUp={() => onPcLeave()}
+                                                onTouchStart={() => onMobileEnter()}
+                                                onTouchEnd={() => onMobileLeave()}
+                                            >
                                                 <LazyLoadImage
                                                     thumbnail={img.thumb}
                                                     id={img.id}

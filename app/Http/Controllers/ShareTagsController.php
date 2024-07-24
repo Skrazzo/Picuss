@@ -21,8 +21,6 @@ class ShareTagsController extends Controller
         $tagName = $tag->tag()->value("name");
         $username = User::find($tag->tag()->value("user_id"))->first()["username"];
 
-        dd($username);
-
         $pictureCount = Picture::whereJsonContains("tags", $tag->tags_id)->count();
 
         return Inertia::render("Components/SharedTagView/Index", [

@@ -1,3 +1,4 @@
+@use "mixins";
 @import "./variables.scss";
 
 .container {
@@ -7,6 +8,7 @@
 
     .picture {
         border-radius: 0.3rem;
+        position: relative;
         /* border: 1px solid $border inset; */
 
         // Moved border to the inside
@@ -25,6 +27,27 @@
             img {
                 border-radius: 0.1rem;
             }
+
+            .picture_check {
+                @include mixins.center();
+
+                background-color: $primary;
+
+                position: absolute;
+                z-index: 10;
+
+                right: 0;
+                padding: 0.25rem;
+                border-bottom-left-radius: 0.5rem;
+
+                svg {
+                    color: $body;
+                }
+            }
+        }
+
+        &_check {
+            display: none;
         }
     }
 
@@ -40,6 +63,22 @@
 
         border-radius: 0.25rem;
         cursor: pointer;
+    }
+}
+
+.multiSelect_nav {
+    padding: 0.5rem 1rem;
+    background-color: $body;
+    box-shadow: 0 4px 10px -5px rgba(#000000, 0.25);
+
+    @include mixins.d-flex($justify: space-between);
+
+    .actions {
+        @include mixins.d-flex();
+    }
+
+    p {
+        font-size: 20px;
     }
 }
 

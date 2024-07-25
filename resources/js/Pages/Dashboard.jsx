@@ -1,5 +1,5 @@
-import { Center, Pagination, Skeleton, Text } from "@mantine/core";
-import { IconPhotoOff } from "@tabler/icons-react";
+import { ActionIcon, Button, Center, Pagination, Skeleton, Text } from "@mantine/core";
+import { IconCheck, IconDotsVertical, IconPhotoOff, IconSelectAll } from "@tabler/icons-react";
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import "react-lazy-load-image-component/src/effects/blur.css";
@@ -311,6 +311,16 @@ export default function Dashboard({ auth, title = "" }) {
 
     // --------------- Multi select end functions ----------
 
+    const iconProps = {
+        strokeWidth: 1.25,
+        size: 20,
+    };
+
+    const multiSelectIcons = {
+        ...iconProps,
+        size: 24,
+    };
+
     return (
         <AuthLayout
             queryTags={queryTags}
@@ -332,6 +342,25 @@ export default function Dashboard({ auth, title = "" }) {
                     setSelected={setSelectedImage}
                     tags={userTags}
                 />
+            )}
+
+            {multiSelect !== null && (
+                <div className={sty.multiSelect_nav}>
+                    <Text fs={"italic"} c={"dimmed"}>
+                        <span className="important-span">{multiSelect.length}</span>{" "}
+                        {multiSelect.length === 1 ? "Picture" : "Pictures"} are selected
+                    </Text>
+
+                    <div className={sty.actions}>
+                        <ActionIcon variant="light" size={"lg"}>
+                            <IconSelectAll {...multiSelectIcons} />
+                        </ActionIcon>
+
+                        <ActionIcon variant="light" size={"lg"}>
+                            <IconDotsVertical {...multiSelectIcons} />
+                        </ActionIcon>
+                    </div>
+                </div>
             )}
 
             {!images ? ( // getting a list of pictures to load
@@ -369,6 +398,11 @@ export default function Dashboard({ auth, title = "" }) {
                                                 onTouchStart={() => onMobileEnter(img.id)}
                                                 onTouchEnd={() => onMobileLeave()}
                                             >
+                                                {img.height > 100 && (
+                                                    <div className={sty.picture_check}>
+                                                        <IconCheck size={20} />
+                                                    </div>
+                                                )}
                                                 <LazyLoadImage
                                                     thumbnail={img.thumb}
                                                     id={img.id}

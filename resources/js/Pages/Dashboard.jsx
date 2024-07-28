@@ -274,7 +274,13 @@ export default function Dashboard({ auth, title = "" }) {
 
     function onSelectHandler(id) {
         if (multiSelect.includes(id)) {
-            setMultiSelect([...multiSelect.filter((x) => x !== id)]);
+            if (multiSelect.length === 1) {
+                // cancel multiple select, when last one was deselected
+                selectCancel();
+            } else {
+                // Remove one selecteed image from selected array
+                setMultiSelect([...multiSelect.filter((x) => x !== id)]);
+            }
         } else {
             setMultiSelect([...multiSelect, id]);
         }
@@ -284,6 +290,13 @@ export default function Dashboard({ auth, title = "" }) {
         setMultiSelect(null);
     }
 
+    /*
+        Use effect for detecting that image was held for a second long press
+        holding useState array [
+            true or false, -> holding or not
+            image.id
+        ]
+    */
     useEffect(() => {
         const timeoutID = setTimeout(() => {
             if (holding[0]) {
@@ -307,7 +320,41 @@ export default function Dashboard({ auth, title = "" }) {
     }, [holding]);
 
     // For testing purposes
-    useEffect(() => console.log(multiSelect), [multiSelect]);
+    // useEffect(() => console.log(multiSelect), [multiSelect]);
+
+    // sticky behaviour for multi select header
+    const multiSelectRef = useRef(null);
+
+    useEffect(() => {
+        if (multiSelect === null) {
+            return;
+        }
+
+        const scrollHandler = (e) => {
+            const fixedClassName = "fixed-position";
+
+            if (e.target.scrollTop >= e.target.querySelector("nav").offsetHeight) {
+                if (!multiSelectRef.current.classList.contains(fixedClassName)) {
+                    multiSelectRef.current.classList.add(fixedClassName);
+                    console.log("class added");
+                }
+            } else {
+                if (multiSelectRef.current.classList.contains(fixedClassName)) {
+                    multiSelectRef.current.classList.remove(fixedClassName);
+                    console.log("class removed");
+                }
+            }
+        };
+
+        // auth container, is the main container for all content, needed to create sticky behaviour for nav bar
+        const authContainer = document.getElementById("auth-container");
+        authContainer.addEventListener("scroll", scrollHandler);
+
+        // Removes the listener whenever the multiselect value changes
+        return () => {
+            authContainer.removeEventListener("scroll", scrollHandler);
+        };
+    }, [multiSelect]);
 
     // --------------- Multi select end functions ----------
 
@@ -345,22 +392,32 @@ export default function Dashboard({ auth, title = "" }) {
             )}
 
             {multiSelect !== null && (
-                <div className={sty.multiSelect_nav}>
-                    <Text fs={"italic"} c={"dimmed"}>
-                        <span className="important-span">{multiSelect.length}</span>{" "}
-                        {multiSelect.length === 1 ? "Picture" : "Pictures"} are selected
-                    </Text>
+                <>
+                    <div className={sty.multiSelect_nav} ref={multiSelectRef}>
+                        <Text fs={"italic"} c={"dimmed"}>
+                            <span className="important-span">{multiSelect.length}</span>{" "}
+                            {multiSelect.length === 1 ? "Picture" : "Pictures"} are selected
+                        </Text>
 
-                    <div className={sty.actions}>
-                        <ActionIcon variant="light" size={"lg"}>
-                            <IconSelectAll {...multiSelectIcons} />
-                        </ActionIcon>
+                        <div className={sty.actions}>
+                            <ActionIcon variant="light" size={"lg"}>
+                                <IconSelectAll {...multiSelectIcons} />
+                            </ActionIcon>
 
-                        <ActionIcon variant="light" size={"lg"}>
-                            <IconDotsVertical {...multiSelectIcons} />
-                        </ActionIcon>
+                            <ActionIcon variant="light" size={"lg"}>
+                                <IconDotsVertical {...multiSelectIcons} />
+                            </ActionIcon>
+                        </div>
                     </div>
-                </div>
+                    {/* <div
+                        style={{
+                            height:
+                                multiSelectRef.current !== null
+                                    ? multiSelectRef.current.offsetHeight
+                                    : 0,
+                        }}
+                    ></div> */}
+                </>
             )}
 
             {!images ? ( // getting a list of pictures to load

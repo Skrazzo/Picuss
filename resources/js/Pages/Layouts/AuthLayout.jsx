@@ -47,7 +47,6 @@ export default function AuthLayout({
     setPage = (page) => console.log(`Page set to ${page}`),
     maxPage = 0,
     userTags = [],
-    passRef = null,
 }) {
     const [openedDrawer, drawer] = useDisclosure();
     const [openedUserModal, userModal] = useDisclosure();
@@ -117,7 +116,11 @@ export default function AuthLayout({
     useEffect(() => setSelectedPage(page), [page]);
 
     return (
-        <div className={className} style={{ height: "100dvh", overflow: "auto" }} ref={passRef}>
+        <div
+            className={className}
+            style={{ height: "100dvh", overflow: "auto" }}
+            id="auth-container"
+        >
             <section id="top-section"></section>
             <Modal opened={openedUserModal} onClose={userModal.close} title={auth.user.username}>
                 <SimpleGrid cols={2} spacing={"sm"} verticalSpacing={"sm"}>

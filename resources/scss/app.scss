@@ -156,3 +156,12 @@ a {
         @include mixins.d-flex($gap: 0.5rem);
     }
 }
+
+.fixed-position {
+    // 7px = scrollbar width
+    width: calc(100% - 7px);
+
+    top: 0;
+    position: fixed;
+    z-index: 20;
+}

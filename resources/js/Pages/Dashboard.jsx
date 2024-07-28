@@ -1,5 +1,14 @@
-import { ActionIcon, Center, Pagination, Skeleton, Text } from "@mantine/core";
-import { IconCheck, IconDotsVertical, IconPhotoOff, IconSelectAll } from "@tabler/icons-react";
+import { ActionIcon, Center, Menu, Pagination, Skeleton, Text } from "@mantine/core";
+import {
+    IconCheck,
+    IconDotsVertical,
+    IconPhotoOff,
+    IconSelectAll,
+    IconShare,
+    IconTags,
+    IconTagsOff,
+    IconTrash,
+} from "@tabler/icons-react";
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import "react-lazy-load-image-component/src/effects/blur.css";
@@ -418,9 +427,28 @@ export default function Dashboard({ auth, title = "" }) {
                             <IconSelectAll {...multiSelectIcons} />
                         </ActionIcon>
 
-                        <ActionIcon variant="light" size={"lg"}>
-                            <IconDotsVertical {...multiSelectIcons} />
-                        </ActionIcon>
+                        <Menu>
+                            <Menu.Target>
+                                <ActionIcon variant="light" size={"lg"}>
+                                    <IconDotsVertical {...multiSelectIcons} />
+                                </ActionIcon>
+                            </Menu.Target>
+                            <Menu.Dropdown>
+                                <Menu.Label>Picture actions</Menu.Label>
+                                <Menu.Item leftSection={<IconTags {...iconProps} />}>
+                                    Add tags
+                                </Menu.Item>
+                                <Menu.Item leftSection={<IconTagsOff {...iconProps} />}>
+                                    Remove tags
+                                </Menu.Item>
+                                <Menu.Item leftSection={<IconShare {...iconProps} />}>
+                                    Share pictures
+                                </Menu.Item>
+                                <Menu.Item color="red" leftSection={<IconTrash {...iconProps} />}>
+                                    Delete pictures
+                                </Menu.Item>
+                            </Menu.Dropdown>
+                        </Menu>
                     </div>
                 </div>
             )}

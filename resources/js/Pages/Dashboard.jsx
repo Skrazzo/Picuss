@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Center, Pagination, Skeleton, Text } from "@mantine/core";
+import { ActionIcon, Center, Pagination, Skeleton, Text } from "@mantine/core";
 import { IconCheck, IconDotsVertical, IconPhotoOff, IconSelectAll } from "@tabler/icons-react";
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
@@ -8,11 +8,11 @@ import LazyLoadImage from "./Components/LazyLoadImage";
 import PictureDivider from "./Components/PictureDivider";
 import PictureViewer from "./Components/PictureViewer";
 import Title from "./Components/Title";
+import checkIfMobile from "./Functions/checkIfMobile";
 import generateRandomBetween from "./Functions/randomNumberBetween";
+import scrollUp from "./Functions/scrollUp";
 import useElementSize from "./Functions/useElementSize";
 import AuthLayout from "./Layouts/AuthLayout";
-import scrollUp from "./Functions/scrollUp";
-import checkIfMobile from "./Functions/checkIfMobile";
 
 export default function Dashboard({ auth, title = "" }) {
     const [page, setPage] = useState(1);
@@ -356,6 +356,21 @@ export default function Dashboard({ auth, title = "" }) {
         };
     }, [multiSelect]);
 
+    function selectAll() {
+        const allImages = images.map((img) => img[1]).flat();
+        let allImageId = allImages.map((x) => x.id);
+
+        // We need to filter images out, so there are no dublicates in the array
+        let filteredIds = allImageId.filter((id) => !multiSelect.includes(id));
+
+        if (filteredIds.length === 0) {
+            // All images have been selected, now we need to deselect them
+            setMultiSelect([...multiSelect.filter((id) => !allImageId.includes(id))]);
+        } else {
+            setMultiSelect([...multiSelect, ...filteredIds]);
+        }
+    }
+
     // --------------- Multi select end functions ----------
 
     const iconProps = {
@@ -392,32 +407,22 @@ export default function Dashboard({ auth, title = "" }) {
             )}
 
             {multiSelect !== null && (
-                <>
-                    <div className={sty.multiSelect_nav} ref={multiSelectRef}>
-                        <Text fs={"italic"} c={"dimmed"}>
-                            <span className="important-span">{multiSelect.length}</span>{" "}
-                            {multiSelect.length === 1 ? "Picture" : "Pictures"} are selected
-                        </Text>
+                <div className={sty.multiSelect_nav} ref={multiSelectRef}>
+                    <Text fs={"italic"} c={"dimmed"}>
+                        <span className="important-span">{multiSelect.length}</span>{" "}
+                        {multiSelect.length === 1 ? "Picture" : "Pictures"} are selected
+                    </Text>
 
-                        <div className={sty.actions}>
-                            <ActionIcon variant="light" size={"lg"}>
-                                <IconSelectAll {...multiSelectIcons} />
-                            </ActionIcon>
+                    <div className={sty.actions}>
+                        <ActionIcon variant="light" size={"lg"} onClick={selectAll}>
+                            <IconSelectAll {...multiSelectIcons} />
+                        </ActionIcon>
 
-                            <ActionIcon variant="light" size={"lg"}>
-                                <IconDotsVertical {...multiSelectIcons} />
-                            </ActionIcon>
-                        </div>
+                        <ActionIcon variant="light" size={"lg"}>
+                            <IconDotsVertical {...multiSelectIcons} />
+                        </ActionIcon>
                     </div>
-                    {/* <div
-                        style={{
-                            height:
-                                multiSelectRef.current !== null
-                                    ? multiSelectRef.current.offsetHeight
-                                    : 0,
-                        }}
-                    ></div> */}
-                </>
+                </div>
             )}
 
             {!images ? ( // getting a list of pictures to load

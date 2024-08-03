@@ -298,33 +298,34 @@ class TagsController extends Controller
             ->whereIn("public_id", $data["imageIds"])
             ->get();
 
-        if (intval($option) == 1) {
-            // $option 1 means get tags that selected picture do not have
-            $rtnIds = [];
+        // $option 1 means get tags that selected picture do not have
+        // $option 2 meas get tags, that are in the selected pictures
+        $rtnIds = [];
 
-            // Go through every image, and check what tags they do not have
-            /*
+        // Go through every image, and check what tags they do not have
+        /*
                 1. Loop through tags array on each image
                 2. Check if tag is in the image
                     2.1 If tag isnt in the image
                         Check if tag isn't in $rtnIds -> if not in array add it to array
             */
 
-            foreach ($images as $img) {
-                foreach ($tags as $tag) {
-                    // Check if tag is in the image
-                    // If tag isn't in the image, check if tag isn't in $rtnIds
-                    if (!in_array($tag, $img->tags) && !in_array($tag, $rtnIds)) {
-                        // If not in array, add it to array
-                        $rtnIds[] = $tag;
-                    }
+        foreach ($images as $img) {
+            foreach ($tags as $tag) {
+                // Check if tag is in the image
+                // If tag isn't in the image, check if tag isn't in $rtnIds
+                if (
+                    in_array($tag, $img->tags) == (intval($option) == 1)
+                        ? false
+                        : true && !in_array($tag, $rtnIds)
+                ) {
+                    // If not in array, add it to array
+                    $rtnIds[] = $tag;
                 }
             }
-
-            $rtnTags = $user->tag()->select("id", "name")->whereIn("id", $rtnIds)->get();
-            dd($rtnTags);
-        } elseif (intval($option) == 2) {
-            // TODO: Similar logic as option 1, return only tags that are in the images
         }
+
+        $rtnTags = $user->tag()->select("id", "name")->whereIn("id", $rtnIds)->get();
+        return $rtnTags;
     }
 }

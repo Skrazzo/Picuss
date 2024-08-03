@@ -1,4 +1,4 @@
-import { ActionIcon, Center, Menu, Pagination, Skeleton, Text } from "@mantine/core";
+import { ActionIcon, Center, Menu, Modal, Pagination, Skeleton, Text } from "@mantine/core";
 import {
     IconCheck,
     IconDotsVertical,
@@ -22,6 +22,7 @@ import generateRandomBetween from "./Functions/randomNumberBetween";
 import scrollUp from "./Functions/scrollUp";
 import useElementSize from "./Functions/useElementSize";
 import AuthLayout from "./Layouts/AuthLayout";
+import AddTags from "./Components/MultiSelect/AddTags";
 
 export default function Dashboard({ auth, title = "" }) {
     const [page, setPage] = useState(1);
@@ -381,6 +382,11 @@ export default function Dashboard({ auth, title = "" }) {
     }
 
     // --------------- Multi select end functions ----------
+    // --------------- Multi select menu functions ---------
+
+    const [addTagsConfirm, setAddTagsConfirm] = useState(false);
+
+    // ----------- Multi select menu functions end ---------
 
     const iconProps = {
         strokeWidth: 1.25,
@@ -403,6 +409,14 @@ export default function Dashboard({ auth, title = "" }) {
             maxPage={totalPages}
             className={selectedImage ? sty.no_scroll : ""}
         >
+            <Modal
+                opened={addTagsConfirm}
+                title={"Add tags to the pictures"}
+                onClose={() => setAddTagsConfirm(false)}
+            >
+                <AddTags selectedPictures={multiSelect} />
+            </Modal>
+
             <Title title={title} />
             {selectedImage && (
                 <PictureViewer
@@ -435,7 +449,10 @@ export default function Dashboard({ auth, title = "" }) {
                             </Menu.Target>
                             <Menu.Dropdown>
                                 <Menu.Label>Picture actions</Menu.Label>
-                                <Menu.Item leftSection={<IconTags {...iconProps} />}>
+                                <Menu.Item
+                                    leftSection={<IconTags {...iconProps} />}
+                                    onClick={() => setAddTagsConfirm(true)}
+                                >
                                     Add tags
                                 </Menu.Item>
                                 <Menu.Item leftSection={<IconTagsOff {...iconProps} />}>

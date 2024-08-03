@@ -48,6 +48,7 @@ Route::middleware("auth")->group(function () {
             Route::post("/", "create")->name("tags.create"); // Api POST call to create a new tag
             Route::put("/name/{tag:id}", "editName")->name("tags.editName"); // Edit tag name
             Route::delete("/", "deleteTags")->name("tags.delete"); // Route for deleting tags
+            Route::get("/images/get/{option}", "getImagesTags")->name("tags.images.get"); // Get tags of given images
         });
 
         Route::controller(ShareTagsController::class)->group(function () {

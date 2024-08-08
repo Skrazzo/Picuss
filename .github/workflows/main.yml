@@ -1,9 +1,9 @@
 name: Deploy
 
-#on:
-#  push:
-#    branches:
-#      - master  # or the branch you want to deploy from
+on:
+  push:
+    branches:
+      - master  # or the branch you want to deploy from
 jobs:
 
   build:

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Tags;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
@@ -327,5 +328,41 @@ class TagsController extends Controller
 
         $rtnTags = $user->tag()->select("id", "name")->whereIn("id", $rtnIds)->get();
         return $rtnTags;
+    }
+
+    public function setImagesTags(Request $req)
+    {
+        $validator = Validator::make($req->all(), [
+            "tags" => "required|array",
+            "pictures" => "required|array",
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 500);
+        }
+
+        //process the request
+        $data = $validator->valid(); // validated data
+        $user = auth()->user();
+
+        // Loop through all pictures, and add tags with id if they do not have it
+        foreach ($data["pictures"] as $picId) {
+            foreach ($data["tags"] as $tagId) {
+                $pic = $user->picture()->where("public_id", $picId)->first();
+                if (!$pic) {
+                    continue;
+                }
+
+                if (!in_array($tagId, $pic["tags"])) {
+                    $pic["tags"] = array_merge($pic["tags"], [$tagId]);
+                    if (!$pic->save()) {
+                        return response("Could not add tag to the picture", 500);
+                    }
+                    Log::info("Added tagId " . $tagId . " for " . $pic["image"]);
+                }
+            }
+        }
+
+        // TODO: Add multiple tags backend is done, now we need to return good response
     }
 }

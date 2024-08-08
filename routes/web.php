@@ -49,6 +49,7 @@ Route::middleware("auth")->group(function () {
             Route::put("/name/{tag:id}", "editName")->name("tags.editName"); // Edit tag name
             Route::delete("/", "deleteTags")->name("tags.delete"); // Route for deleting tags
             Route::get("/images/get/{option}", "getImagesTags")->name("tags.images.get"); // Get tags of given images
+            Route::post("/images/set", "setImagesTags")->name("tags.images.set"); // Set multiple tags for multiple images
         });
 
         Route::controller(ShareTagsController::class)->group(function () {

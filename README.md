@@ -1,5 +1,5 @@
 # Picuss
-Picuss is a tag based photo gallery, made with Laravel and React
+Picuss is a tag based photo gallery, made with **Laravel** and **React**
 
 ## Features
 - Loads fast with low bandwidth usage

@@ -17,5 +17,8 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          whoami
-          ls -lah
+          cd /var/www/Picuss
+          git fetch
+          git pull
+          bun i
+          bun run build

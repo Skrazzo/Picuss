@@ -347,18 +347,22 @@ class TagsController extends Controller
 
         // Loop through all pictures, and add tags with id if they do not have it
         foreach ($data["pictures"] as $picId) {
-            foreach ($data["tags"] as $tagId) {
-                $pic = $user->picture()->where("public_id", $picId)->first();
-                if (!$pic) {
-                    continue;
-                }
+            $pic = $user->picture()->where("public_id", $picId)->first();
+            if (!$pic) {
+                continue;
+            }
 
-                if (!in_array($tagId, $pic["tags"])) {
-                    $pic["tags"] = array_merge($pic["tags"], [$tagId]);
-                    if (!$pic->save()) {
-                        return response("Could not add tag to the picture", 500);
-                    }
+            $tmp = $pic["tags"];
+
+            foreach ($data["tags"] as $tagId) {
+                if (!in_array($tagId, $tmp)) {
+                    $tmp[] = $tagId;
                 }
+            }
+
+            $pic["tags"] = $tmp;
+            if (!$pic->save()) {
+                return response("Could not add tag to the picture", 500);
             }
         }
 

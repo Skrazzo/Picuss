@@ -363,6 +363,6 @@ class TagsController extends Controller
             }
         }
 
-        // TODO: Add multiple tags backend is done, now we need to return good response
+        return response()->json(["message" => "Successfully added tags to pictures"]);
     }
 }

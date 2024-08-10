@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import TagCheckBoxList from "../TagCheckBoxList";
 import { IconPlus } from "@tabler/icons-react";
 import errorNotification from "../../Functions/errorNotification";
+import showNotification from "../../Functions/showNotification";
 
 export default function AddTags({ selectedPictures, onUpdateGallery, onClose }) {
     const [tags, setTags] = useState(null);
@@ -21,17 +22,19 @@ export default function AddTags({ selectedPictures, onUpdateGallery, onClose }) 
     }, []);
 
     function submitTags() {
-        // TODO: Create axios request to create
         console.log(selectedPictures, selectedTags);
         axios
             .post(route("tags.images.set"), { pictures: selectedPictures, tags: selectedTags })
-            .then((res) => console.log(res.data))
+            .then((res) => {
+                showNotification({ title: "Success", message: res.data.message });
+                onUpdateGallery();
+                onClose();
+            })
             .catch((err) => errorNotification(err));
     }
 
     useEffect(() => console.log("selected", selectedTags), [selectedTags]);
 
-    // TODO: Create backend for it (Submiting selectedPictures, and selectedTags) when successful update gallery
     return (
         <>
             <TagCheckBoxList tags={tags} selectedTags={selectedTags} onChange={setSelectedTags} />

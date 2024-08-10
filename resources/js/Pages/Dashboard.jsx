@@ -64,7 +64,7 @@ export default function Dashboard({ auth, title = "" }) {
         return () => clearTimeout(timeoutID);
     }, [queryTags[0]]);
 
-    const skelets = Array(20).fill(null);
+    const skelets = Array(30).fill(null);
 
     function resetStates() {
         setImages(null);
@@ -329,6 +329,7 @@ export default function Dashboard({ auth, title = "" }) {
         return () => clearTimeout(timeoutID);
     }, [holding]);
 
+    // TODO: Remove useEffect that were created for testing purposes
     // For testing purposes
     // useEffect(() => console.log(multiSelect), [multiSelect]);
 
@@ -341,6 +342,7 @@ export default function Dashboard({ auth, title = "" }) {
         }
 
         const scrollHandler = (e) => {
+            // TODO: Remove console log
             const fixedClassName = "fixed-position";
 
             if (e.target.scrollTop >= e.target.querySelector("nav").offsetHeight) {
@@ -414,7 +416,14 @@ export default function Dashboard({ auth, title = "" }) {
                 title={"Add tags to the pictures"}
                 onClose={() => setAddTagsConfirm(false)}
             >
-                <AddTags selectedPictures={multiSelect} />
+                <AddTags
+                    selectedPictures={multiSelect}
+                    onUpdateGallery={imageSearch}
+                    onClose={() => {
+                        setAddTagsConfirm(false);
+                        setMultiSelect(null);
+                    }}
+                />
             </Modal>
 
             <Title title={title} />

@@ -1,9 +1,9 @@
 import { Checkbox, Flex, Input, Paper, Skeleton, Text } from "@mantine/core";
 import React, { useState } from "react";
 import capitalizeFirstLetter from "../Functions/capitalizeFirstLetter";
-import { IconTagOff, IconTagsOff } from "@tabler/icons-react";
+import { IconTagOff } from "@tabler/icons-react";
 
-const Layout = ({ children, style, className, search, onQuery, tags }) => {
+const Layout = ({ children, style, className, search, onQuery, tags, color = "" }) => {
     return (
         <>
             {search && (
@@ -12,6 +12,7 @@ const Layout = ({ children, style, className, search, onQuery, tags }) => {
                     disabled={tags === null}
                     placeholder="Search tags by their names"
                     mb={8}
+                    color={color}
                 />
             )}
             <Paper withBorder p={8} style={style} className={className}>
@@ -28,6 +29,7 @@ export default function TagCheckBoxList({
     search = true,
     className = "",
     style = {},
+    color = "",
 }) {
     const [query, setQuery] = useState("");
 
@@ -80,31 +82,31 @@ export default function TagCheckBoxList({
         onChange(tags);
     }
     return (
-        <>
-            <Layout
-                style={style}
-                className={`${className}`}
-                search={search}
-                onQuery={(e) => setQuery(e)}
-                tags={tags}
-            >
-                {tags.map((tag, idx) => {
-                    if (!tag.name.includes(query)) {
-                        return <></>;
-                    }
+        <Layout
+            style={style}
+            className={`${className}`}
+            search={search}
+            onQuery={(e) => setQuery(e)}
+            tags={tags}
+            color={color}
+        >
+            {tags.map((tag, idx) => {
+                if (!tag.name.includes(query)) {
+                    return <></>;
+                }
 
-                    return (
-                        <Checkbox
-                            label={capitalizeFirstLetter(tag.name)}
-                            size="md"
-                            mt={idx === 0 ? 0 : 8}
-                            key={idx}
-                            defaultChecked={selectedTags.includes(tag.id)}
-                            onChange={() => onChangeHandler(tag.id)}
-                        />
-                    );
-                })}
-            </Layout>
-        </>
+                return (
+                    <Checkbox
+                        label={capitalizeFirstLetter(tag.name)}
+                        size="md"
+                        color={color}
+                        mt={idx === 0 ? 0 : 8}
+                        key={idx}
+                        defaultChecked={selectedTags.includes(tag.id)}
+                        onChange={() => onChangeHandler(tag.id)}
+                    />
+                );
+            })}
+        </Layout>
     );
 }

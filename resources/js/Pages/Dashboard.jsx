@@ -23,6 +23,7 @@ import scrollUp from "./Functions/scrollUp";
 import useElementSize from "./Functions/useElementSize";
 import AuthLayout from "./Layouts/AuthLayout";
 import AddTags from "./Components/MultiSelect/AddTags";
+import RemoveTags from "./Components/MultiSelect/RemoveTags";
 
 export default function Dashboard({ auth, title = "" }) {
     const [page, setPage] = useState(1);
@@ -387,6 +388,7 @@ export default function Dashboard({ auth, title = "" }) {
     // --------------- Multi select menu functions ---------
 
     const [addTagsConfirm, setAddTagsConfirm] = useState(false);
+    const [removeTagsConfirm, setRemoveTagsConfirm] = useState(false);
 
     // ----------- Multi select menu functions end ---------
 
@@ -416,11 +418,28 @@ export default function Dashboard({ auth, title = "" }) {
                 title={"Add tags to the pictures"}
                 onClose={() => setAddTagsConfirm(false)}
             >
+                {/* ==== Add tags ==== */}
                 <AddTags
                     selectedPictures={multiSelect}
                     onUpdateGallery={imageSearch}
                     onClose={() => {
                         setAddTagsConfirm(false);
+                        setMultiSelect(null);
+                    }}
+                />
+            </Modal>
+
+            <Modal
+                opened={removeTagsConfirm}
+                title={"Remove tags from pictures"}
+                onClose={() => setRemoveTagsConfirm(false)}
+            >
+                {/* ==== Remove tags ==== */}
+                <RemoveTags
+                    selectedPictures={multiSelect}
+                    onUpdateGallery={imageSearch}
+                    onClose={() => {
+                        setRemoveTagsConfirm(false);
                         setMultiSelect(null);
                     }}
                 />
@@ -464,7 +483,10 @@ export default function Dashboard({ auth, title = "" }) {
                                 >
                                     Add tags
                                 </Menu.Item>
-                                <Menu.Item leftSection={<IconTagsOff {...iconProps} />}>
+                                <Menu.Item
+                                    leftSection={<IconTagsOff {...iconProps} />}
+                                    onClick={() => setRemoveTagsConfirm(true)}
+                                >
                                     Remove tags
                                 </Menu.Item>
                                 <Menu.Item leftSection={<IconShare {...iconProps} />}>

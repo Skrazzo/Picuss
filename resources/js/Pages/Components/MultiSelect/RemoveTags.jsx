@@ -2,11 +2,11 @@ import { Button } from "@mantine/core";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import TagCheckBoxList from "../TagCheckBoxList";
-import { IconPlus } from "@tabler/icons-react";
+import { IconPlus, IconTrash } from "@tabler/icons-react";
 import errorNotification from "../../Functions/errorNotification";
 import showNotification from "../../Functions/showNotification";
 
-export default function AddTags({ selectedPictures, onUpdateGallery, onClose }) {
+export default function RemoveTags({ selectedPictures, onUpdateGallery, onClose }) {
     const [tags, setTags] = useState(null);
     const [selectedTags, setSelectedTags] = useState([]);
 
@@ -17,15 +17,17 @@ export default function AddTags({ selectedPictures, onUpdateGallery, onClose }) 
 
     useEffect(() => {
         axios
-            .get(route("tags.images.get", 1), { params: { imageIds: selectedPictures } })
+            .get(route("tags.images.get", 2), { params: { imageIds: selectedPictures } })
             .then((res) => setTags(res.data));
     }, []);
 
+    // TODO: Remove console.log
     function submitTags() {
-        // TODO: Remove console.log
         console.log(selectedPictures, selectedTags);
         axios
-            .post(route("tags.images.set"), { pictures: selectedPictures, tags: selectedTags })
+            .delete(route("tags.images.remove"), {
+                params: { pictures: selectedPictures, tags: selectedTags },
+            })
             .then((res) => {
                 showNotification({ title: "Success", message: res.data.message });
                 onUpdateGallery();
@@ -39,15 +41,26 @@ export default function AddTags({ selectedPictures, onUpdateGallery, onClose }) 
 
     return (
         <>
-            <TagCheckBoxList tags={tags} selectedTags={selectedTags} onChange={setSelectedTags} />
+            <TagCheckBoxList
+                tags={tags}
+                selectedTags={selectedTags}
+                onChange={setSelectedTags}
+                color="red"
+            />
             <Button
                 mt={8}
-                leftSection={<IconPlus {...iconProps} />}
+                leftSection={<IconTrash {...iconProps} />}
                 variant="light"
+                color="red"
                 onClick={submitTags}
-                disabled={tags === null || tags.length === 0 || selectedTags.length === 0}
+                disabled={
+                    tags === null ||
+                    tags.length === 0 ||
+                    selectedTags.length === 0 ||
+                    selectedTags.length === tags.length
+                }
             >
-                Add tags
+                Remove tags
             </Button>
         </>
     );

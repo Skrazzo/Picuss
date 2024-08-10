@@ -358,11 +358,69 @@ class TagsController extends Controller
                     if (!$pic->save()) {
                         return response("Could not add tag to the picture", 500);
                     }
-                    Log::info("Added tagId " . $tagId . " for " . $pic["image"]);
                 }
             }
         }
 
         return response()->json(["message" => "Successfully added tags to pictures"]);
+    }
+
+    public function removeImagesTags(Request $req)
+    {
+        $validator = Validator::make($req->all(), [
+            "tags" => "required|array",
+            "pictures" => "required|array",
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 500);
+        }
+
+        //process the request
+        $data = $validator->valid(); // validated data
+        $user = auth()->user();
+
+        // Warning to the user, that picture cannot be removed, because it has only one tag
+        $onlyOneTag = false;
+
+        // Loop through all pictures, and add tags with id if they do not have it
+        foreach ($data["pictures"] as $picId) {
+            $pic = $user->picture()->where("public_id", $picId)->first();
+
+            if (!$pic) {
+                continue;
+            }
+
+            // $tmp -> picture tags that will get removed and saved later
+            $tmp = $pic["tags"];
+
+            foreach ($data["tags"] as $tagId) {
+                // If picture has only one tag, then skip the removal
+                if (count($pic["tags"]) == 1) {
+                    $onlyOneTag = true;
+                    continue;
+                }
+
+                // If picture has the tag, then it needs to be removed
+                $idx = array_search($tagId, $pic["tags"]);
+                if ($idx !== false) {
+                    array_splice($tmp, $idx, 1);
+                }
+            }
+
+            $pic["tags"] = $tmp;
+            if (!$pic->save()) {
+                return response("Could not remove tag to the picture", 500);
+            }
+        }
+
+        if ($onlyOneTag) {
+            return response()->json([
+                "message" =>
+                    "Some picture tags weren't removed, because picture had only 1 tag left",
+            ]);
+        } else {
+            return response()->json(["message" => "Successfully removed tags from pictures"]);
+        }
     }
 }

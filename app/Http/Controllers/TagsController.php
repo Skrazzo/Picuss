@@ -400,13 +400,13 @@ class TagsController extends Controller
 
             foreach ($data["tags"] as $tagId) {
                 // If picture has only one tag, then skip the removal
-                if (count($pic["tags"]) == 1) {
+                if (count($tmp) == 1) {
                     $onlyOneTag = true;
                     continue;
                 }
 
                 // If picture has the tag, then it needs to be removed
-                $idx = array_search($tagId, $pic["tags"]);
+                $idx = array_search($tagId, $tmp);
                 if ($idx !== false) {
                     array_splice($tmp, $idx, 1);
                 }

@@ -56,6 +56,7 @@ Route::middleware("auth")->group(function () {
         Route::controller(ShareTagsController::class)->group(function () {
             Route::post("/share", "shareTags")->name("tags.share"); // Sharing tags
             Route::delete("/share", "unshareTags")->name("tags.share.remove");
+            Route::post("/share/images", "shareImages")->name("tags.share.images"); // Create shared tag, add it to multiple images
         });
     });
 });

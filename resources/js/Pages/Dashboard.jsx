@@ -24,6 +24,8 @@ import useElementSize from "./Functions/useElementSize";
 import AuthLayout from "./Layouts/AuthLayout";
 import AddTags from "./Components/MultiSelect/AddTags";
 import RemoveTags from "./Components/MultiSelect/RemoveTags";
+import errorNotification from "./Functions/errorNotification";
+import showNotification from "./Functions/showNotification";
 
 export default function Dashboard({ auth, title = "" }) {
     const [page, setPage] = useState(1);
@@ -390,6 +392,21 @@ export default function Dashboard({ auth, title = "" }) {
     const [addTagsConfirm, setAddTagsConfirm] = useState(false);
     const [removeTagsConfirm, setRemoveTagsConfirm] = useState(false);
 
+    function sharePicturesHandler() {
+        axios
+            .post(route("tags.share.images"), { pictures: multiSelect })
+            .then((res) => {
+                showNotification({
+                    title: `Shared ${res.data.count} ${res.data.count === 1 ? "image" : "images"}`,
+                    message: `Created new shared tag with name ${res.data.tagName} containing selected images`,
+                    icon: <IconShare />,
+                });
+                setMultiSelect(null);
+                imageSearch();
+            })
+            .catch((err) => errorNotification(err));
+    }
+
     // ----------- Multi select menu functions end ---------
 
     const iconProps = {
@@ -489,7 +506,10 @@ export default function Dashboard({ auth, title = "" }) {
                                 >
                                     Remove tags
                                 </Menu.Item>
-                                <Menu.Item leftSection={<IconShare {...iconProps} />}>
+                                <Menu.Item
+                                    leftSection={<IconShare {...iconProps} />}
+                                    onClick={sharePicturesHandler}
+                                >
                                     Share pictures
                                 </Menu.Item>
                                 <Menu.Item color="red" leftSection={<IconTrash {...iconProps} />}>

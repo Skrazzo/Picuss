@@ -329,7 +329,7 @@ export default function Dashboard({ auth, title = "" }) {
                 }
                 setHolding([false, null]);
             }
-        }, 1000);
+        }, 750);
         return () => clearTimeout(timeoutID);
     }, [holding]);
 

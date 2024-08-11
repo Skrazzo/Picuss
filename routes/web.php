@@ -39,6 +39,7 @@ Route::middleware("auth")->group(function () {
 
             Route::put("/tags/{picture:public_id}", "edit_tags")->name("edit.tags");
         });
+        Route::delete("/delete/images", "delete_pictures")->name("delete.pictures"); // Delete multiple pictures
     });
 
     Route::prefix("/tags")->group(function () {

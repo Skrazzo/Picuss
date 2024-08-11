@@ -26,6 +26,7 @@ import AddTags from "./Components/MultiSelect/AddTags";
 import RemoveTags from "./Components/MultiSelect/RemoveTags";
 import errorNotification from "./Functions/errorNotification";
 import showNotification from "./Functions/showNotification";
+import ConfirmationModal from "./Components/ConfirmationModal";
 
 export default function Dashboard({ auth, title = "" }) {
     const [page, setPage] = useState(1);
@@ -391,6 +392,7 @@ export default function Dashboard({ auth, title = "" }) {
 
     const [addTagsConfirm, setAddTagsConfirm] = useState(false);
     const [removeTagsConfirm, setRemoveTagsConfirm] = useState(false);
+    const [deleteImagesConfirm, setDeleteImagesConfirm] = useState(false);
 
     function sharePicturesHandler() {
         axios
@@ -401,6 +403,16 @@ export default function Dashboard({ auth, title = "" }) {
                     message: `Created new shared tag with name ${res.data.tagName} containing selected images`,
                     icon: <IconShare />,
                 });
+                setMultiSelect(null);
+                imageSearch();
+            })
+            .catch((err) => errorNotification(err));
+    }
+
+    function onMultiDeleteConfirm() {
+        axios
+            .delete(route("delete.pictures"), { params: { pictures: multiSelect } })
+            .then((res) => {
                 setMultiSelect(null);
                 imageSearch();
             })
@@ -462,6 +474,18 @@ export default function Dashboard({ auth, title = "" }) {
                 />
             </Modal>
 
+            <ConfirmationModal
+                opened={deleteImagesConfirm}
+                title={`Delete pictures`}
+                color={"red"}
+                icon={<IconTrash />}
+                close={() => setDeleteImagesConfirm(false)}
+                onConfirm={onMultiDeleteConfirm}
+            >
+                Are you sure you want to delete{" "}
+                <b>{multiSelect === null ? 0 : multiSelect.length}</b> pictures from your gallery
+            </ConfirmationModal>
+
             <Title title={title} />
             {selectedImage && (
                 <PictureViewer
@@ -512,7 +536,11 @@ export default function Dashboard({ auth, title = "" }) {
                                 >
                                     Share pictures
                                 </Menu.Item>
-                                <Menu.Item color="red" leftSection={<IconTrash {...iconProps} />}>
+                                <Menu.Item
+                                    color="red"
+                                    leftSection={<IconTrash {...iconProps} />}
+                                    onClick={() => setDeleteImagesConfirm(true)}
+                                >
                                     Delete pictures
                                 </Menu.Item>
                             </Menu.Dropdown>

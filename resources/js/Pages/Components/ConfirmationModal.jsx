@@ -9,6 +9,7 @@ export default function ConfirmationModal({
     opened,
     title,
     onConfirm,
+    onCancel = () => {},
     childrenText = true, // specifies if children are text, or custom elements
     confirmBtnText = "Confirm",
 }) {
@@ -89,7 +90,10 @@ export default function ConfirmationModal({
                                     </Button>
 
                                     <Button
-                                        onClick={close}
+                                        onClick={() => {
+                                            onCancel();
+                                            close();
+                                        }}
                                         variant={confirm ? "light" : "outline"}
                                         color={colors[color]}
                                     >

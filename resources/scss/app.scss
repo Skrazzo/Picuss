@@ -14,7 +14,8 @@ a {
 
 .no-drag {
     -webkit-user-drag: none;
-    user-drag: none;
+    -webkit-touch-callout: none;
+    user-select: none;
 }
 
 .important-span {

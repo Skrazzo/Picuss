@@ -39,6 +39,7 @@ Route::middleware("auth")->group(function () {
 
             Route::put("/tags/{picture:public_id}", "edit_tags")->name("edit.tags");
         });
+        Route::delete("/delete/images", "delete_pictures")->name("delete.pictures"); // Delete multiple pictures
     });
 
     Route::prefix("/tags")->group(function () {
@@ -48,11 +49,15 @@ Route::middleware("auth")->group(function () {
             Route::post("/", "create")->name("tags.create"); // Api POST call to create a new tag
             Route::put("/name/{tag:id}", "editName")->name("tags.editName"); // Edit tag name
             Route::delete("/", "deleteTags")->name("tags.delete"); // Route for deleting tags
+            Route::get("/images/get/{option}", "getImagesTags")->name("tags.images.get"); // Get tags of given images
+            Route::post("/images/set", "setImagesTags")->name("tags.images.set"); // Set multiple tags for multiple images
+            Route::delete("/images/remove", "removeImagesTags")->name("tags.images.remove"); // Remove multiple tags for multiple pictures
         });
 
         Route::controller(ShareTagsController::class)->group(function () {
             Route::post("/share", "shareTags")->name("tags.share"); // Sharing tags
             Route::delete("/share", "unshareTags")->name("tags.share.remove");
+            Route::post("/share/images", "shareImages")->name("tags.share.images"); // Create shared tag, add it to multiple images
         });
     });
 });

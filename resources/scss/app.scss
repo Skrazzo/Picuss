@@ -12,6 +12,11 @@ a {
     }
 }
 
+.important-span {
+    font-weight: bold;
+    color: $primary;
+}
+
 /* width */
 ::-webkit-scrollbar {
     width: 7px;
@@ -34,10 +39,7 @@ a {
         color: $green !important;
         @for $i from 1 through 10 {
             &_#{$i} {
-                color: rgba(
-                    $color: $green,
-                    $alpha: calc(#{$i} / 10)
-                ) !important;
+                color: rgba($color: $green, $alpha: calc(#{$i} / 10)) !important;
             }
         }
     }
@@ -45,10 +47,7 @@ a {
         background-color: $green !important;
         @for $i from 1 through 10 {
             &_#{$i} {
-                background-color: rgba(
-                    $color: $green,
-                    $alpha: calc(#{$i} / 10)
-                ) !important;
+                background-color: rgba($color: $green, $alpha: calc(#{$i} / 10)) !important;
             }
         }
     }
@@ -156,4 +155,13 @@ a {
     div {
         @include mixins.d-flex($gap: 0.5rem);
     }
+}
+
+.fixed-position {
+    // 7px = scrollbar width
+    width: calc(100% - 7px);
+
+    top: 0;
+    position: fixed;
+    z-index: 20;
 }

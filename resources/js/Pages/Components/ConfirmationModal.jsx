@@ -9,6 +9,8 @@ export default function ConfirmationModal({
     opened,
     title,
     onConfirm,
+    onCancel = () => {},
+    childrenText = true, // specifies if children are text, or custom elements
     confirmBtnText = "Confirm",
 }) {
     const [modalOpened, setModalOpened] = useState(false);
@@ -47,11 +49,7 @@ export default function ConfirmationModal({
         <Transition mounted={opened} transition={"fade"} duration={400}>
             {(styles) => (
                 <div style={styles} className={"confirm-modal-overlay"}>
-                    <Transition
-                        mounted={modalOpened}
-                        transition={"pop"}
-                        duration={200}
-                    >
+                    <Transition mounted={modalOpened} transition={"pop"} duration={200}>
                         {(styles) => (
                             <div
                                 style={{
@@ -68,16 +66,17 @@ export default function ConfirmationModal({
                                                 backgroundColor: colors[color],
                                             }}
                                         >
-                                            {React.cloneElement(
-                                                icon,
-                                                iconProps
-                                            )}
+                                            {React.cloneElement(icon, iconProps)}
                                         </div>
                                     </div>
 
                                     <div className={"content"}>
                                         <p className={"label"}>{title}</p>
-                                        <p className={"description"}>{text}</p>
+                                        {childrenText ? (
+                                            <p className={"description"}>{text}</p>
+                                        ) : (
+                                            text
+                                        )}
                                     </div>
                                 </div>
 
@@ -87,13 +86,14 @@ export default function ConfirmationModal({
                                         variant={confirm ? "outline" : "light"}
                                         color={colors[color]}
                                     >
-                                        {confirm
-                                            ? "Are you sure?"
-                                            : confirmBtnText}
+                                        {confirm ? "Are you sure?" : confirmBtnText}
                                     </Button>
 
                                     <Button
-                                        onClick={close}
+                                        onClick={() => {
+                                            onCancel();
+                                            close();
+                                        }}
                                         variant={confirm ? "light" : "outline"}
                                         color={colors[color]}
                                     >

@@ -1,5 +1,14 @@
-import { Center, Pagination, Skeleton, Text } from "@mantine/core";
-import { IconPhotoOff } from "@tabler/icons-react";
+import { ActionIcon, Center, Menu, Modal, Pagination, Skeleton, Text } from "@mantine/core";
+import {
+    IconCheck,
+    IconDotsVertical,
+    IconPhotoOff,
+    IconSelectAll,
+    IconShare,
+    IconTags,
+    IconTagsOff,
+    IconTrash,
+} from "@tabler/icons-react";
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import "react-lazy-load-image-component/src/effects/blur.css";
@@ -8,10 +17,16 @@ import LazyLoadImage from "./Components/LazyLoadImage";
 import PictureDivider from "./Components/PictureDivider";
 import PictureViewer from "./Components/PictureViewer";
 import Title from "./Components/Title";
+import checkIfMobile from "./Functions/checkIfMobile";
 import generateRandomBetween from "./Functions/randomNumberBetween";
+import scrollUp from "./Functions/scrollUp";
 import useElementSize from "./Functions/useElementSize";
 import AuthLayout from "./Layouts/AuthLayout";
-import scrollUp from "./Functions/scrollUp";
+import AddTags from "./Components/MultiSelect/AddTags";
+import RemoveTags from "./Components/MultiSelect/RemoveTags";
+import errorNotification from "./Functions/errorNotification";
+import showNotification from "./Functions/showNotification";
+import ConfirmationModal from "./Components/ConfirmationModal";
 
 export default function Dashboard({ auth, title = "" }) {
     const [page, setPage] = useState(1);
@@ -29,6 +44,10 @@ export default function Dashboard({ auth, title = "" }) {
 
     // Divide by months year etc
     const segmentControl = useState("month");
+
+    // For multi select
+    const [holding, setHolding] = useState([false, null]); // currently holding on image [if holding, image_id]
+    const [multiSelect, setMultiSelect] = useState(null); // null -> no selected images [image_id] -> selected images
 
     const [containerSize, containerRef] = useElementSize();
 
@@ -49,7 +68,7 @@ export default function Dashboard({ auth, title = "" }) {
         return () => clearTimeout(timeoutID);
     }, [queryTags[0]]);
 
-    const skelets = Array(20).fill(null);
+    const skelets = Array(30).fill(null);
 
     function resetStates() {
         setImages(null);
@@ -241,6 +260,177 @@ export default function Dashboard({ auth, title = "" }) {
         setImages(newImages);
     }
 
+    // --------------- Multi select functions --------------
+    // id -> picture_id
+    function onPcEnter(id) {
+        if (checkIfMobile()) return;
+        if (multiSelect !== null) return; // If already in selection mode
+        setHolding([true, id]);
+    }
+
+    function onPcLeave() {
+        if (checkIfMobile()) return;
+        if (multiSelect !== null) return; // If already in selection mode
+        setHolding([false, null]);
+    }
+
+    function onMobileEnter(id) {
+        if (!checkIfMobile()) return;
+        if (multiSelect !== null) return; // If already in selection mode
+        setHolding([true, id]);
+    }
+
+    function onMobileLeave() {
+        if (!checkIfMobile()) return;
+        if (multiSelect !== null) return; // If already in selection mode
+        setHolding([false, null]);
+    }
+
+    function onSelectHandler(id) {
+        if (multiSelect.includes(id)) {
+            if (multiSelect.length === 1) {
+                // cancel multiple select, when last one was deselected
+                selectCancel();
+            } else {
+                // Remove one selecteed image from selected array
+                setMultiSelect([...multiSelect.filter((x) => x !== id)]);
+            }
+        } else {
+            setMultiSelect([...multiSelect, id]);
+        }
+    }
+
+    function selectCancel() {
+        setMultiSelect(null);
+    }
+
+    /*
+        Use effect for detecting that image was held for a second long press
+        holding useState array [
+            true or false, -> holding or not
+            image.id
+        ]
+    */
+    useEffect(() => {
+        const timeoutID = setTimeout(() => {
+            if (holding[0]) {
+                // User pressed and held image for 500ms
+                // Enter multi select mode
+
+                console.log("Entering select mode ", holding[1]);
+
+                if (!checkIfMobile()) {
+                    // We are creating empty array, because when pc clicks, it will add the image into the select array
+                    setMultiSelect([]);
+                } else {
+                    // But when on phone, after holding an image, it does not trigger onClick function
+                    // Thats why we are adding image id to the array
+                    setMultiSelect([holding[1]]);
+                }
+                setHolding([false, null]);
+            }
+        }, 1000);
+        return () => clearTimeout(timeoutID);
+    }, [holding]);
+
+    // TODO: Remove useEffect that were created for testing purposes
+    // For testing purposes
+    // useEffect(() => console.log(multiSelect), [multiSelect]);
+
+    // sticky behaviour for multi select header
+    const multiSelectRef = useRef(null);
+
+    useEffect(() => {
+        if (multiSelect === null) {
+            return;
+        }
+
+        const scrollHandler = (e) => {
+            // TODO: Remove console log
+            const fixedClassName = "fixed-position";
+
+            if (e.target.scrollTop >= e.target.querySelector("nav").offsetHeight) {
+                if (!multiSelectRef.current.classList.contains(fixedClassName)) {
+                    multiSelectRef.current.classList.add(fixedClassName);
+                    console.log("class added");
+                }
+            } else {
+                if (multiSelectRef.current.classList.contains(fixedClassName)) {
+                    multiSelectRef.current.classList.remove(fixedClassName);
+                    console.log("class removed");
+                }
+            }
+        };
+
+        // auth container, is the main container for all content, needed to create sticky behaviour for nav bar
+        const authContainer = document.getElementById("auth-container");
+        authContainer.addEventListener("scroll", scrollHandler);
+
+        // Removes the listener whenever the multiselect value changes
+        return () => {
+            authContainer.removeEventListener("scroll", scrollHandler);
+        };
+    }, [multiSelect]);
+
+    function selectAll() {
+        const allImages = images.map((img) => img[1]).flat();
+        let allImageId = allImages.map((x) => x.id);
+
+        // We need to filter images out, so there are no dublicates in the array
+        let filteredIds = allImageId.filter((id) => !multiSelect.includes(id));
+
+        if (filteredIds.length === 0) {
+            // All images have been selected, now we need to deselect them
+            setMultiSelect([...multiSelect.filter((id) => !allImageId.includes(id))]);
+        } else {
+            setMultiSelect([...multiSelect, ...filteredIds]);
+        }
+    }
+
+    // --------------- Multi select end functions ----------
+    // --------------- Multi select menu functions ---------
+
+    const [addTagsConfirm, setAddTagsConfirm] = useState(false);
+    const [removeTagsConfirm, setRemoveTagsConfirm] = useState(false);
+    const [deleteImagesConfirm, setDeleteImagesConfirm] = useState(false);
+
+    function sharePicturesHandler() {
+        axios
+            .post(route("tags.share.images"), { pictures: multiSelect })
+            .then((res) => {
+                showNotification({
+                    title: `Shared ${res.data.count} ${res.data.count === 1 ? "image" : "images"}`,
+                    message: `Created new shared tag with name ${res.data.tagName} containing selected images`,
+                    icon: <IconShare />,
+                });
+                setMultiSelect(null);
+                imageSearch();
+            })
+            .catch((err) => errorNotification(err));
+    }
+
+    function onMultiDeleteConfirm() {
+        axios
+            .delete(route("delete.pictures"), { params: { pictures: multiSelect } })
+            .then((res) => {
+                setMultiSelect(null);
+                imageSearch();
+            })
+            .catch((err) => errorNotification(err));
+    }
+
+    // ----------- Multi select menu functions end ---------
+
+    const iconProps = {
+        strokeWidth: 1.25,
+        size: 20,
+    };
+
+    const multiSelectIcons = {
+        ...iconProps,
+        size: 24,
+    };
+
     return (
         <AuthLayout
             queryTags={queryTags}
@@ -252,6 +442,50 @@ export default function Dashboard({ auth, title = "" }) {
             maxPage={totalPages}
             className={selectedImage ? sty.no_scroll : ""}
         >
+            <Modal
+                opened={addTagsConfirm}
+                title={"Add tags to the pictures"}
+                onClose={() => setAddTagsConfirm(false)}
+            >
+                {/* ==== Add tags ==== */}
+                <AddTags
+                    selectedPictures={multiSelect}
+                    onUpdateGallery={imageSearch}
+                    onClose={() => {
+                        setAddTagsConfirm(false);
+                        setMultiSelect(null);
+                    }}
+                />
+            </Modal>
+
+            <Modal
+                opened={removeTagsConfirm}
+                title={"Remove tags from pictures"}
+                onClose={() => setRemoveTagsConfirm(false)}
+            >
+                {/* ==== Remove tags ==== */}
+                <RemoveTags
+                    selectedPictures={multiSelect}
+                    onUpdateGallery={imageSearch}
+                    onClose={() => {
+                        setRemoveTagsConfirm(false);
+                        setMultiSelect(null);
+                    }}
+                />
+            </Modal>
+
+            <ConfirmationModal
+                opened={deleteImagesConfirm}
+                title={`Delete pictures`}
+                color={"red"}
+                icon={<IconTrash />}
+                close={() => setDeleteImagesConfirm(false)}
+                onConfirm={onMultiDeleteConfirm}
+            >
+                Are you sure you want to delete{" "}
+                <b>{multiSelect === null ? 0 : multiSelect.length}</b> pictures from your gallery
+            </ConfirmationModal>
+
             <Title title={title} />
             {selectedImage && (
                 <PictureViewer
@@ -262,6 +496,57 @@ export default function Dashboard({ auth, title = "" }) {
                     setSelected={setSelectedImage}
                     tags={userTags}
                 />
+            )}
+
+            {multiSelect !== null && (
+                <div className={sty.multiSelect_nav} ref={multiSelectRef}>
+                    <Text fs={"italic"} c={"dimmed"}>
+                        <span className="important-span">{multiSelect.length}</span>{" "}
+                        {multiSelect.length === 1 ? "Picture" : "Pictures"} are selected
+                    </Text>
+
+                    <div className={sty.actions}>
+                        <ActionIcon variant="light" size={"lg"} onClick={selectAll}>
+                            <IconSelectAll {...multiSelectIcons} />
+                        </ActionIcon>
+
+                        <Menu>
+                            <Menu.Target>
+                                <ActionIcon variant="light" size={"lg"}>
+                                    <IconDotsVertical {...multiSelectIcons} />
+                                </ActionIcon>
+                            </Menu.Target>
+                            <Menu.Dropdown>
+                                <Menu.Label>Picture actions</Menu.Label>
+                                <Menu.Item
+                                    leftSection={<IconTags {...iconProps} />}
+                                    onClick={() => setAddTagsConfirm(true)}
+                                >
+                                    Add tags
+                                </Menu.Item>
+                                <Menu.Item
+                                    leftSection={<IconTagsOff {...iconProps} />}
+                                    onClick={() => setRemoveTagsConfirm(true)}
+                                >
+                                    Remove tags
+                                </Menu.Item>
+                                <Menu.Item
+                                    leftSection={<IconShare {...iconProps} />}
+                                    onClick={sharePicturesHandler}
+                                >
+                                    Share pictures
+                                </Menu.Item>
+                                <Menu.Item
+                                    color="red"
+                                    leftSection={<IconTrash {...iconProps} />}
+                                    onClick={() => setDeleteImagesConfirm(true)}
+                                >
+                                    Delete pictures
+                                </Menu.Item>
+                            </Menu.Dropdown>
+                        </Menu>
+                    </div>
+                </div>
             )}
 
             {!images ? ( // getting a list of pictures to load
@@ -286,13 +571,32 @@ export default function Dashboard({ auth, title = "" }) {
                                 <>
                                     {segImages.map((img, i) => {
                                         return (
-                                            <div className={sty.picture} key={i}>
+                                            <div
+                                                className={
+                                                    multiSelect !== null &&
+                                                    multiSelect.includes(img.id)
+                                                        ? sty.picture_selected
+                                                        : sty.picture
+                                                }
+                                                key={i}
+                                                onMouseDown={() => onPcEnter(img.id)}
+                                                onMouseUp={() => onPcLeave()}
+                                                onTouchStart={() => onMobileEnter(img.id)}
+                                                onTouchEnd={() => onMobileLeave()}
+                                            >
+                                                {img.height > 100 && (
+                                                    <div className={sty.picture_check}>
+                                                        <IconCheck size={20} />
+                                                    </div>
+                                                )}
                                                 <LazyLoadImage
                                                     thumbnail={img.thumb}
                                                     id={img.id}
                                                     src={route("get.half.image", img.id)}
                                                     onClick={(id, thumb) =>
-                                                        setSelectedImage([id, thumb])
+                                                        multiSelect !== null
+                                                            ? onSelectHandler(id)
+                                                            : setSelectedImage([id, thumb])
                                                     }
                                                     style={{
                                                         aspectRatio: img.aspectRatio,

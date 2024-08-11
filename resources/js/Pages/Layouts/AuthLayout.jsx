@@ -116,7 +116,11 @@ export default function AuthLayout({
     useEffect(() => setSelectedPage(page), [page]);
 
     return (
-        <div className={className} style={{ height: "100dvh", overflow: "auto" }}>
+        <div
+            className={className}
+            style={{ height: "100dvh", overflow: "auto" }}
+            id="auth-container"
+        >
             <section id="top-section"></section>
             <Modal opened={openedUserModal} onClose={userModal.close} title={auth.user.username}>
                 <SimpleGrid cols={2} spacing={"sm"} verticalSpacing={"sm"}>

@@ -258,4 +258,58 @@ class ShareTagsController extends Controller
 
         return response()->download($fileName)->deleteFileAfterSend(true);
     }
+
+    public function shareImages(Request $req)
+    {
+        $validator = Validator::make($req->all(), [
+            "pictures" => "required|array",
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 500);
+        }
+
+        //process the request
+        $data = $validator->valid(); // validated data
+        $user = auth()->user();
+
+        // Generate new name for the tag, and ensure it's unique
+        $newTag = $this->generateRandomTag();
+        while ($user->tag()->where("name", $newTag)->first()) {
+            $newTag = $this->generateRandomTag();
+        }
+
+        // Create new tag for user, and add it to the selected images, then add tag to the shared tags
+        $tag = $user->tag()->create(["name" => $newTag]);
+
+        foreach ($data["pictures"] as $picId) {
+            $pic = $user->picture()->where("public_id", $picId)->first();
+            if (!$pic) {
+                continue;
+            }
+
+            $tmp = $pic["tags"];
+            $tmp[] = $tag->id;
+            $pic["tags"] = $tmp;
+
+            if (!$pic->save()) {
+                return response("Could not add shared tag to the picture " . $pic["image"], 500);
+            }
+        }
+
+        $tag->share()->create(["user_id" => $user->id]);
+
+        return response()->json(["count" => count($data["pictures"]), "tagName" => $tag->name]);
+    }
+
+    function generateRandomTag($length = 30)
+    {
+        $prefix = "shared-";
+        $maxLength = $length - strlen($prefix);
+
+        // Ensure the random part won't exceed the remaining length
+        $randomPart = substr(bin2hex(random_bytes($maxLength / 2)), 0, $maxLength);
+
+        return $prefix . $randomPart;
+    }
 }

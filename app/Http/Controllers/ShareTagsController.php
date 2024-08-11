@@ -302,7 +302,7 @@ class ShareTagsController extends Controller
         return response()->json(["count" => count($data["pictures"]), "tagName" => $tag->name]);
     }
 
-    function generateRandomTag($length = 10)
+    function generateRandomTag($length = 15)
     {
         $prefix = "shared-";
         $maxLength = $length - strlen($prefix);

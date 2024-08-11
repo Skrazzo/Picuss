@@ -74,7 +74,7 @@ const LazyLoadImage = React.memo(
                 style={{ borderRadius: rounded ? "0.25rem" : 0 }}
                 onClick={() => onClick(id, image)}
             >
-                <img style={style} src={image ? image : thumbnail} alt={alt} />
+                <img className="no-drag" style={style} src={image ? image : thumbnail} alt={alt} />
             </motion.div>
         );
     },

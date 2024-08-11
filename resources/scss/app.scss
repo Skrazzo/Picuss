@@ -12,6 +12,11 @@ a {
     }
 }
 
+.no-drag {
+    -webkit-user-drag: none;
+    user-drag: none;
+}
+
 .important-span {
     font-weight: bold;
     color: $primary;

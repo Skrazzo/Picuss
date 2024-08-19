@@ -138,6 +138,7 @@ a {
 
 .lazy-load-image {
     overflow: hidden;
+    height: min-content;
 
     img {
         transition: 500ms;

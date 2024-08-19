@@ -11,7 +11,6 @@ import {
 } from "@tabler/icons-react";
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import "react-lazy-load-image-component/src/effects/blur.css";
 import sty from "../../scss/Dashboard.module.scss";
 import LazyLoadImage from "./Components/LazyLoadImage";
 import PictureDivider from "./Components/PictureDivider";

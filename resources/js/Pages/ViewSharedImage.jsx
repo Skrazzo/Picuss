@@ -1,26 +1,43 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import GuestLayout from "./Layouts/GuestLayout";
 import "../../scss/ViewSharedImage.scss";
-import {
-    ActionIcon,
-    Button,
-    Container,
-    Flex,
-    Paper,
-    Text,
-} from "@mantine/core";
+import { ActionIcon, AspectRatio, Button, Container, Flex, Paper, Text } from "@mantine/core";
 import { IconDownload, IconX } from "@tabler/icons-react";
-import { LazyLoadImage } from "react-lazy-load-image-component";
+// import { LazyLoadImage } from "react-lazy-load-image-component";
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
+import LazyLoadImage from "./Components/LazyLoadImage";
+import calculateImageSize from "./Functions/calculateImageSize";
 
 export default function ViewSharedImage({ thumb, picture }) {
-    const [selected, setSelected] = useState(null);
+    const [selected, setSelected] = useState({ open: false, blobUrl: null });
+    const [fullSize, setFullSize] = useState(
+        calculateImageSize(
+            [window.innerWidth, window.innerHeight],
+            [picture.width, picture.height],
+        ),
+    );
 
     const iconProps = {
         size: 20,
         strokeWidth: 1.25,
     };
+
+    const calcAvailSize = () => {
+        setFullSize(
+            calculateImageSize(
+                [window.innerWidth, window.innerHeight],
+                [picture.width, picture.height],
+            ),
+        );
+    };
+
+    useEffect(() => {
+        window.addEventListener("resize", calcAvailSize);
+        return () => {
+            window.removeEventListener("scroll", calcAvailSize);
+        };
+    }, []);
 
     return (
         <GuestLayout>
@@ -34,10 +51,7 @@ export default function ViewSharedImage({ thumb, picture }) {
                         miw={"max-content"}
                         rightSection={<IconDownload {...iconProps} />}
                         onClick={() =>
-                            (window.location.href = route(
-                                "share.download.image",
-                                picture.id
-                            ))
+                            (window.location.href = route("share.download.image", picture.id))
                         }
                     >
                         {picture.size} MB
@@ -45,21 +59,19 @@ export default function ViewSharedImage({ thumb, picture }) {
                 </Flex>
 
                 <Paper mt={16}>
-                    <motion.div layoutId="image">
-                        <LazyLoadImage
-                            style={{ opacity: selected ? 0 : 1 }}
-                            className="image"
-                            placeholderSrc={thumb}
-                            src={route("share.get.image", picture.id)}
-                            effect="blur"
-                            onClick={() => setSelected(true)}
-                        />
-                    </motion.div>
+                    <LazyLoadImage
+                        id="image"
+                        thumbnail={thumb}
+                        src={route("share.get.image", picture.id)}
+                        className="image"
+                        onClick={(id, url) => setSelected({ open: true, blobUrl: url })}
+                        containerStyle={{ aspectRatio: `1/${picture.aspectRatio}` }}
+                    />
                 </Paper>
             </Container>
 
             <AnimatePresence>
-                {selected && (
+                {selected.open && (
                     <motion.div
                         initial={{
                             backgroundColor: "rgba(0,0,0,0)",
@@ -74,11 +86,15 @@ export default function ViewSharedImage({ thumb, picture }) {
                             backdropFilter: "blur(0px)",
                         }}
                         className="overlay"
-                        onClick={() => setSelected(null)}
+                        onClick={() => setSelected({ open: false, blobUrl: null })}
                     >
                         <motion.img
                             layoutId="image"
-                            src={route("share.get.image", picture.id)}
+                            src={selected.blobUrl}
+                            style={{
+                                width: fullSize[0],
+                                height: fullSize[1],
+                            }}
                             onClick={(e) => e.stopPropagation()}
                         />
 
@@ -89,7 +105,7 @@ export default function ViewSharedImage({ thumb, picture }) {
                             className="exit-btn"
                         >
                             <ActionIcon
-                                onClick={() => setSelected(null)}
+                                onClick={() => setSelected({ open: false, blobUrl: null })}
                                 variant="light"
                             >
                                 <IconX />

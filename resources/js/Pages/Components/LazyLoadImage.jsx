@@ -10,6 +10,7 @@ const LazyLoadImage = React.memo(
         src,
         alt = "Image",
         style = {},
+        containerStyle = {},
         className = "",
         rounded = false,
         blur = true,
@@ -70,8 +71,8 @@ const LazyLoadImage = React.memo(
         return (
             <motion.div
                 layoutId={useLayoutId ? id : null}
+                style={containerStyle}
                 className={`lazy-load-image${blur ? (image ? "" : "-blur") : ""} ${className}`}
-                style={{ borderRadius: rounded ? "0.25rem" : 0 }}
                 onClick={() => onClick(id, image)}
             >
                 <img className="no-drag" style={style} src={image ? image : thumbnail} alt={alt} />

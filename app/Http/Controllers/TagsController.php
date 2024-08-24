@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\TagsHelper;
 use App\Models\Tags;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -39,6 +40,7 @@ class TagsController extends Controller
                     "id" => $tag["id"],
                     "pictureCount" => $pictureCount,
                     "shared" => $shared ? true : false,
+                    "softDelete" => TagsHelper::CanSoftDelete($tag["id"]),
                     "public_id" => $shared ? $shared->tag_public_id : null,
                 ];
             });
@@ -75,6 +77,7 @@ class TagsController extends Controller
                     "id" => $tag["id"],
                     "pictureCount" => $pictureCount,
                     "shared" => $shared ? true : false,
+                    "softDelete" => TagsHelper::CanSoftDelete($tag["id"]),
                     "public_id" => $shared ? $shared->tag_public_id : null,
                 ];
             });
@@ -130,6 +133,7 @@ class TagsController extends Controller
                     "id" => $tag["id"],
                     "pictureCount" => $pictureCount,
                     "shared" => $shared ? true : false,
+                    "softDelete" => TagsHelper::CanSoftDelete($tag["id"]),
                     "public_id" => $shared ? $shared->tag_public_id : null,
                 ];
             });
@@ -171,6 +175,7 @@ class TagsController extends Controller
                         "id" => $tag["id"],
                         "pictureCount" => $pictureCount,
                         "shared" => $shared ? true : false,
+                        "softDelete" => TagsHelper::CanSoftDelete($tag["id"]),
                         "public_id" => $shared ? $shared->tag_public_id : null,
                     ];
                 });
@@ -273,6 +278,7 @@ class TagsController extends Controller
                     "id" => $tag["id"],
                     "pictureCount" => $pictureCount,
                     "shared" => $shared ? true : false,
+                    "softDelete" => TagsHelper::CanSoftDelete($tag["id"]),
                     "public_id" => $shared ? $shared->tag_public_id : null,
                 ];
             });

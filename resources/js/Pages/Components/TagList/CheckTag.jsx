@@ -28,8 +28,7 @@ export default function CheckTag({
     name = "tag name",
     pictureCount = 0,
     checked = false,
-    onChange = () =>
-        console.log(`Checkbox with id: ${id} clicked - ${checked}`),
+    onChange = () => console.log(`Checkbox with id: ${id} clicked - ${checked}`),
     setTags = (tags) => console.log("New tags", tags),
 }) {
     // Use state variables
@@ -94,6 +93,8 @@ export default function CheckTag({
             });
     }
 
+    // TODO: Add new feature, that shows button when soft delete is available, and tooltip that explains it
+
     // useEffects
     // Use effect to detect for when user stops writing, so we can send a request to the backend
     useEffect(() => {
@@ -121,11 +122,7 @@ export default function CheckTag({
     return (
         <div className={checked ? sty.tag_selected : sty.tag}>
             <Flex align={"center"} gap={8} w={"100%"}>
-                <Checkbox
-                    onChange={() => onChange(id)}
-                    value={id}
-                    checked={checked}
-                />
+                <Checkbox onChange={() => onChange(id)} value={id} checked={checked} />
                 {!nameEdit ? (
                     <>
                         {processing && <Loader size={14} />}
@@ -153,12 +150,9 @@ export default function CheckTag({
                             variant="unstyled"
                             placeholder={name}
                             value={nameValue}
-                            onChange={(e) =>
-                                setNameValue(e.currentTarget.value)
-                            }
+                            onChange={(e) => setNameValue(e.currentTarget.value)}
                             style={{
-                                borderBottom:
-                                    "1px solid var(--mantine-color-default-border)",
+                                borderBottom: "1px solid var(--mantine-color-default-border)",
                             }}
                         />
                     </>
@@ -168,19 +162,10 @@ export default function CheckTag({
             <Flex align={"center"} gap={16}>
                 {shared && (
                     <Flex align={"center"} gap={8}>
-                        <CopyButton
-                            value={route("share.tag.page", public_id)}
-                            timeout={2000}
-                        >
+                        <CopyButton value={route("share.tag.page", public_id)} timeout={2000}>
                             {({ copied, copy }) => (
-                                <Tooltip
-                                    label={copied ? "Copied" : "Copy"}
-                                    withArrow
-                                >
-                                    <ActionIcon
-                                        variant="transparent"
-                                        onClick={copy}
-                                    >
+                                <Tooltip label={copied ? "Copied" : "Copy"} withArrow>
+                                    <ActionIcon variant="transparent" onClick={copy}>
                                         {copied ? (
                                             <IconCheck {...iconProps} />
                                         ) : (

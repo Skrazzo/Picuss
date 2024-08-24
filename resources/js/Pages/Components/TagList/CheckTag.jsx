@@ -98,7 +98,15 @@ export default function CheckTag({
     }
 
     // TODO: Add new feature, that shows button when soft delete is available, and tooltip that explains it
-
+    function softDeleteTag() {
+        axios
+            .delete(route("tags.softDelete"), { params: { tag_id: id } })
+            .then((res) => {
+                showNotification({ message: res.data.message, title: "Success" });
+                setTags(res.data.tags);
+            })
+            .catch((err) => errorNotification(err));
+    }
     // useEffects
     // Use effect to detect for when user stops writing, so we can send a request to the backend
     useEffect(() => {
@@ -127,7 +135,7 @@ export default function CheckTag({
                 close={() => setConfirmSoftDelete(false)}
                 color={"red"}
                 title={"Soft delete"}
-                onConfirm={() => {}}
+                onConfirm={softDeleteTag}
             >
                 Do you want to delete <strong>"{name}"</strong> tag? This wont affect any pictures
                 associated with the tag
@@ -190,7 +198,11 @@ export default function CheckTag({
                         <>
                             <CopyButton value={route("share.tag.page", public_id)} timeout={2000}>
                                 {({ copied, copy }) => (
-                                    <Tooltip label={copied ? "Copied" : "Copy"} withArrow>
+                                    <Tooltip
+                                        label={copied ? "Copied" : "Copy"}
+                                        withArrow
+                                        openDelay={1000}
+                                    >
                                         <ActionIcon variant="transparent" onClick={copy}>
                                             {copied ? (
                                                 <IconCheck {...iconProps} />
@@ -201,7 +213,7 @@ export default function CheckTag({
                                     </Tooltip>
                                 )}
                             </CopyButton>
-                            <Tooltip label={"Remove share"} withArrow>
+                            <Tooltip label={"Remove share"} withArrow openDelay={1000}>
                                 <IconShareOff {...iconProps} onClick={unShare} />
                             </Tooltip>
                         </>

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\TagsHelper;
+use App\Helpers\ValidateApi;
 use App\Models\Tags;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -346,5 +348,32 @@ class TagsController extends Controller
         } else {
             return response()->json(["message" => "Successfully removed tags from pictures"]);
         }
+    }
+
+    public function softDeleteTag(Request $req)
+    {
+        // Validate that tag is not a string, and exists in database
+        try {
+            $data = ValidateApi::validate($req, ["tag_id" => "required|numeric|exists:tags,id"]);
+        } catch (Exception $err) {
+            return response()->json($err->getMessage(), $err->getCode());
+        }
+
+        $tag = Tags::find($data["tag_id"]);
+        // Check if it belongs to user
+        if ($tag->user_id != auth()->id()) {
+            return response()->json(["message" => "This tag does not exist"], 404);
+        }
+
+        // Check if tag can be soft deleted
+        if (!TagsHelper::CanSoftDelete($data["tag_id"])) {
+            return response()->json(["message" => "This tag cannot be soft deleted"], 500);
+        }
+
+        $tag->delete();
+        return response()->json([
+            "message" => 'Soft deleted "' . $tag->name . '" successfully',
+            "tags" => $this->getTags($req),
+        ]);
     }
 }

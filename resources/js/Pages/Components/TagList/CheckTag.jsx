@@ -18,8 +18,10 @@ import {
     IconDeviceFloppy,
     IconError404,
     IconShareOff,
+    IconTagOff,
 } from "@tabler/icons-react";
 import errorNotification from "../../Functions/errorNotification";
+import ConfirmationModal from "../ConfirmationModal";
 
 export default function CheckTag({
     id,
@@ -30,12 +32,14 @@ export default function CheckTag({
     checked = false,
     onChange = () => console.log(`Checkbox with id: ${id} clicked - ${checked}`),
     setTags = (tags) => console.log("New tags", tags),
+    softDelete = false,
 }) {
     // Use state variables
     const [nameEdit, setNameEdit] = useState(false);
     const [nameValue, setNameValue] = useState(name);
     const [processing, setProcessing] = useState(false);
-    // const [shareRemoved, setShareRemoved] = useState(false); // useOptimistic for remove share
+
+    const [confirmSoftDelete, setConfirmSoftDelete] = useState(false);
 
     // functions
     function editName(newName) {
@@ -108,10 +112,6 @@ export default function CheckTag({
         return () => clearTimeout(timeoutID);
     }, [nameValue]);
 
-    // useEffect(() => {
-    //     setShareRemoved(false);
-    // }, [shared]);
-
     const iconProps = {
         strokeWidth: 1.25,
         size: 20,
@@ -121,6 +121,18 @@ export default function CheckTag({
 
     return (
         <div className={checked ? sty.tag_selected : sty.tag}>
+            <ConfirmationModal
+                icon={<IconTagOff />}
+                opened={confirmSoftDelete}
+                close={() => setConfirmSoftDelete(false)}
+                color={"red"}
+                title={"Soft delete"}
+                onConfirm={() => {}}
+            >
+                Do you want to delete <strong>"{name}"</strong> tag? This wont affect any pictures
+                associated with the tag
+            </ConfirmationModal>
+
             <Flex align={"center"} gap={8} w={"100%"}>
                 <Checkbox onChange={() => onChange(id)} value={id} checked={checked} />
                 {!nameEdit ? (
@@ -160,26 +172,41 @@ export default function CheckTag({
             </Flex>
 
             <Flex align={"center"} gap={16}>
-                {shared && (
-                    <Flex align={"center"} gap={8}>
-                        <CopyButton value={route("share.tag.page", public_id)} timeout={2000}>
-                            {({ copied, copy }) => (
-                                <Tooltip label={copied ? "Copied" : "Copy"} withArrow>
-                                    <ActionIcon variant="transparent" onClick={copy}>
-                                        {copied ? (
-                                            <IconCheck {...iconProps} />
-                                        ) : (
-                                            <IconCopy {...iconProps} />
-                                        )}
-                                    </ActionIcon>
-                                </Tooltip>
-                            )}
-                        </CopyButton>
-                        <Tooltip label={"Remove share"} withArrow>
-                            <IconShareOff {...iconProps} onClick={unShare} />
+                <Flex align={"center"} gap={8}>
+                    {softDelete && (
+                        <Tooltip
+                            openDelay={2000}
+                            withArrow
+                            multiline
+                            maw={300}
+                            label={
+                                "Soft delete lets you delete tag, without deleting pictures\n that belong to it, this is available only when all of the pictures have multiple tags applied to them"
+                            }
+                        >
+                            <IconTagOff {...iconProps} onClick={() => setConfirmSoftDelete(true)} />
                         </Tooltip>
-                    </Flex>
-                )}
+                    )}
+                    {shared && (
+                        <>
+                            <CopyButton value={route("share.tag.page", public_id)} timeout={2000}>
+                                {({ copied, copy }) => (
+                                    <Tooltip label={copied ? "Copied" : "Copy"} withArrow>
+                                        <ActionIcon variant="transparent" onClick={copy}>
+                                            {copied ? (
+                                                <IconCheck {...iconProps} />
+                                            ) : (
+                                                <IconCopy {...iconProps} />
+                                            )}
+                                        </ActionIcon>
+                                    </Tooltip>
+                                )}
+                            </CopyButton>
+                            <Tooltip label={"Remove share"} withArrow>
+                                <IconShareOff {...iconProps} onClick={unShare} />
+                            </Tooltip>
+                        </>
+                    )}
+                </Flex>
 
                 <Text c="dimmed" mt={3}>
                     {pictureCount}

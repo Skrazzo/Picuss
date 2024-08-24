@@ -56,13 +56,9 @@ export default function TagList({ tags, search, setTags }) {
     return (
         <div className={sty.container}>
             <div className={sty.head}>
-                <TagMenu
-                    selectedTags={selectedTags}
-                    setTags={(tags) => setTags(tags)}
-                />
+                <TagMenu selectedTags={selectedTags} setTags={(tags) => setTags(tags)} />
                 <span className={sty.selected}>
-                    {selectedTags.length}{" "}
-                    {selectedTags.length === 1 ? "tag" : "tags"} selected
+                    {selectedTags.length} {selectedTags.length === 1 ? "tag" : "tags"} selected
                 </span>
             </div>
             <div className={sty.table_headers}>
@@ -98,9 +94,7 @@ export default function TagList({ tags, search, setTags }) {
                                 strokeWidth={1.25}
                             />
                             <div>
-                                <Text>
-                                    Create "{capitalizeFirstLetter(search)}" tag
-                                </Text>
+                                <Text>Create "{capitalizeFirstLetter(search)}" tag</Text>
                                 <Text c={"dimmed"} size="sm">
                                     Press enter or send to create new tag
                                 </Text>
@@ -116,9 +110,7 @@ export default function TagList({ tags, search, setTags }) {
                         {tags.map((tag) => {
                             if (
                                 search === "" ||
-                                tag.name
-                                    .toLowerCase()
-                                    .includes(search.toLowerCase())
+                                tag.name.toLowerCase().includes(search.toLowerCase())
                             ) {
                                 return (
                                     <CheckTag
@@ -131,6 +123,7 @@ export default function TagList({ tags, search, setTags }) {
                                         setTags={setTags}
                                         shared={tag.shared}
                                         public_id={tag.public_id}
+                                        softDelete={tag.softDelete}
                                     />
                                 );
                             }

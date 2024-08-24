@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\TagsHelper;
+use App\Helpers\ValidateApi;
 use App\Models\Tags;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -12,17 +15,16 @@ use Inertia\Inertia;
 class TagsController extends Controller
 {
     /**
-     * Renders the tags management page using the Inertia library.
-     *
-     * @param Request $request The HTTP request object.
-     * @return \Inertia\Response The Inertia response.
+     * This functions returns tags in array, sorted by created_at in desc order
+     * with picture count, if shared, and some additional data
+     * $orderBy -> array [by what, how] ex: [name, desc]
      */
-    public function index(Request $req)
+    public function getTags(Request $req, $orderBy = ["created_at", "DESC"])
     {
         $tags = $req
             ->user()
             ->tag()
-            ->orderBy("created_at", "DESC")
+            ->orderBy($orderBy[0], $orderBy[1])
             ->get()
             ->map(function ($tag, $idx) {
                 // Search json for the tag id
@@ -39,11 +41,25 @@ class TagsController extends Controller
                     "id" => $tag["id"],
                     "pictureCount" => $pictureCount,
                     "shared" => $shared ? true : false,
+                    "softDelete" => TagsHelper::CanSoftDelete($tag["id"]),
                     "public_id" => $shared ? $shared->tag_public_id : null,
                 ];
             });
+        return $tags;
+    }
 
-        return Inertia::render("ManageTags", ["tags" => $tags, "title" => "Manage tags"]);
+    /**
+     * Renders the tags management page using the Inertia library.
+     *
+     * @param Request $request The HTTP request object.
+     * @return \Inertia\Response The Inertia response.
+     */
+    public function index(Request $req)
+    {
+        return Inertia::render("ManageTags", [
+            "tags" => $this->getTags($req),
+            "title" => "Manage tags",
+        ]);
     }
 
     /**
@@ -54,32 +70,7 @@ class TagsController extends Controller
      */
     public function get(Request $request)
     {
-        // Get only needed info from the database, and sort it
-        $tags = $request
-            ->user()
-            ->tag()
-            ->orderBy("name", "ASC")
-            ->get()
-            ->map(function ($tag) {
-                // Search json for the tag id
-                // It shows an error, but trust me bro, it works
-                $pictureCount = auth()
-                    ->user()
-                    ->picture()
-                    ->whereJsonContains("tags", $tag["id"])
-                    ->count();
-
-                $shared = $tag->share()->first();
-                return [
-                    "name" => $tag["name"],
-                    "id" => $tag["id"],
-                    "pictureCount" => $pictureCount,
-                    "shared" => $shared ? true : false,
-                    "public_id" => $shared ? $shared->tag_public_id : null,
-                ];
-            });
-
-        return response()->json($tags);
+        return response()->json($this->getTags($request, ["name", "ASC"]));
     }
 
     /**
@@ -110,30 +101,7 @@ class TagsController extends Controller
 
         $user->tag()->create($data);
 
-        $tags = $request
-            ->user()
-            ->tag()
-            ->orderBy("created_at", "DESC")
-            ->get()
-            ->map(function ($tag, $idx) {
-                // Search json for the tag id
-                // It shows an error, but trust me bro, it works
-                $pictureCount = auth()
-                    ->user()
-                    ->picture()
-                    ->whereJsonContains("tags", $tag["id"])
-                    ->count();
-
-                $shared = $tag->share()->first();
-                return [
-                    "name" => $tag["name"],
-                    "id" => $tag["id"],
-                    "pictureCount" => $pictureCount,
-                    "shared" => $shared ? true : false,
-                    "public_id" => $shared ? $shared->tag_public_id : null,
-                ];
-            });
-        return back()->with("tags", $tags);
+        return back()->with("tags", $this->getTags($request));
     }
 
     function editName(Tags $tag, Request $req)
@@ -150,34 +118,9 @@ class TagsController extends Controller
 
         $tag->name = strtolower($data["name"]); // All tags are lowercased
         if ($tag->save()) {
-            // Get only needed info from the database, and sort it
-            $tags = $req
-                ->user()
-                ->tag()
-                ->orderBy("name", "ASC")
-                ->get()
-                ->map(function ($tag, $idx) {
-                    // Search json for the tag id
-                    // It shows an error, but trust me bro, it works
-                    $pictureCount = auth()
-                        ->user()
-                        ->picture()
-                        ->whereJsonContains("tags", $tag["id"])
-                        ->count();
-
-                    $shared = $tag->share()->first();
-                    return [
-                        "name" => $tag["name"],
-                        "id" => $tag["id"],
-                        "pictureCount" => $pictureCount,
-                        "shared" => $shared ? true : false,
-                        "public_id" => $shared ? $shared->tag_public_id : null,
-                    ];
-                });
-
             return response()->json([
                 "message" => "Successfully changed tag name",
-                "tags" => $tags,
+                "tags" => $this->getTags($req, ["name", "ASC"]),
             ]);
         }
         // This error should not happen unless database failes to save the record
@@ -253,31 +196,10 @@ class TagsController extends Controller
         }
 
         // Get only needed info from the database, and sort it
-        $tags = $req
-            ->user()
-            ->tag()
-            ->orderBy("name", "ASC")
-            ->get()
-            ->map(function ($tag, $idx) {
-                // Search json for the tag id
-                // It shows an error, but trust me bro, it works
-                $pictureCount = auth()
-                    ->user()
-                    ->picture()
-                    ->whereJsonContains("tags", $tag["id"])
-                    ->count();
-
-                $shared = $tag->share()->first();
-                return [
-                    "name" => $tag["name"],
-                    "id" => $tag["id"],
-                    "pictureCount" => $pictureCount,
-                    "shared" => $shared ? true : false,
-                    "public_id" => $shared ? $shared->tag_public_id : null,
-                ];
-            });
-
-        return response()->json(["message" => "Successfully deleted tags", "tags" => $tags]);
+        return response()->json([
+            "message" => "Successfully deleted tags",
+            "tags" => $this->getTags($req, ["name", "ASC"]),
+        ]);
     }
 
     public function getImagesTags(Request $req, $option)
@@ -426,5 +348,32 @@ class TagsController extends Controller
         } else {
             return response()->json(["message" => "Successfully removed tags from pictures"]);
         }
+    }
+
+    public function softDeleteTag(Request $req)
+    {
+        // Validate that tag is not a string, and exists in database
+        try {
+            $data = ValidateApi::validate($req, ["tag_id" => "required|numeric|exists:tags,id"]);
+        } catch (Exception $err) {
+            return response()->json($err->getMessage(), $err->getCode());
+        }
+
+        $tag = Tags::find($data["tag_id"]);
+        // Check if it belongs to user
+        if ($tag->user_id != auth()->id()) {
+            return response()->json(["message" => "This tag does not exist"], 404);
+        }
+
+        // Check if tag can be soft deleted
+        if (!TagsHelper::CanSoftDelete($data["tag_id"])) {
+            return response()->json(["message" => "This tag cannot be soft deleted"], 500);
+        }
+
+        $tag->delete();
+        return response()->json([
+            "message" => 'Soft deleted "' . $tag->name . '" successfully',
+            "tags" => $this->getTags($req),
+        ]);
     }
 }

@@ -45,13 +45,14 @@ Route::middleware("auth")->group(function () {
     Route::prefix("/tags")->group(function () {
         Route::controller(TagsController::class)->group(function () {
             Route::get("/", "index")->name("tags.index"); // Render manage tags page
-            Route::get("/get", "get")->name("tags.get"); // Get all user tags in api format
+            Route::get("/get", "get")->name("tags.get"); // Api Get all user tags in api format
             Route::post("/", "create")->name("tags.create"); // Api POST call to create a new tag
             Route::put("/name/{tag:id}", "editName")->name("tags.editName"); // Edit tag name
             Route::delete("/", "deleteTags")->name("tags.delete"); // Route for deleting tags
             Route::get("/images/get/{option}", "getImagesTags")->name("tags.images.get"); // Get tags of given images
             Route::post("/images/set", "setImagesTags")->name("tags.images.set"); // Set multiple tags for multiple images
             Route::delete("/images/remove", "removeImagesTags")->name("tags.images.remove"); // Remove multiple tags for multiple pictures
+            Route::delete("/softDelete", "softDeleteTag")->name("tags.softDelete"); // Delete tag without deleting it's pictures
         });
 
         Route::controller(ShareTagsController::class)->group(function () {

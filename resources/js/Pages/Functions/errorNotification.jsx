@@ -10,8 +10,11 @@ function errorNotification(err) {
     console.error(err);
 
     let errMessage =
-        JSON.stringify(err.response.data) ||
-        `${err.message} at ${err.request.responseURL}`;
+        JSON.stringify(err.response.data) || `${err.message} at ${err.request.responseURL}`;
+
+    if ("message" in err.response.data) {
+        errMessage = err.response.data.message;
+    }
 
     showNotification({
         color: "red",

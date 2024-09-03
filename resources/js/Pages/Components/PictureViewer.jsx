@@ -10,6 +10,7 @@ import {
     IconCopy,
     IconDeviceFloppy,
     IconDotsVertical,
+    IconDownload,
     IconFileInfo,
     IconInfoCircleFilled,
     IconShare,
@@ -333,6 +334,14 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
                                     </Menu.Item>
                                 )}
                                 <Menu.Item
+                                    onClick={() =>
+                                        window.open(route("download.image", image.id), "_blank")
+                                    }
+                                    leftSection={<IconDownload {...iconProps} />}
+                                >
+                                    <Text>Download</Text>
+                                </Menu.Item>
+                                <Menu.Item
                                     onClick={() => {
                                         setConfirmDelete.open();
                                     }}
@@ -348,7 +357,13 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
                     <SectionTitle
                         text={"File"}
                         icon={<IconFileInfo />}
-                        rightSection={imageLoading ? <Loader size={18} /> : <IconBadgeHd />}
+                        rightSection={
+                            imageLoading ? (
+                                <Loader size={18} />
+                            ) : (
+                                <IconBadgeHd {...iconProps} size={24} />
+                            )
+                        }
                     />
                     <div className={sty.info_container}>
                         <Table>

@@ -433,4 +433,15 @@ class PictureController extends Controller
 
         return;
     }
+
+    public function download_image(Picture $picture)
+    {
+        $userId = auth()->id();
+        if ($userId !== $picture->user_id) {
+            return abort(404);
+        }
+
+        $disk = Disks::image();
+        return $disk->download($picture->image);
+    }
 }

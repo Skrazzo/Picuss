@@ -31,6 +31,7 @@ Route::middleware("auth")->group(function () {
 
         Route::prefix("/image")->group(function () {
             Route::get("/{picture:public_id}", "get_image")->name("get.image"); // Get image
+            Route::get("/download/{picture:public_id}", "download_image")->name("download.image");
             Route::get("/resized/{page}", "get_resized_images")->name("get.resized.images"); // Get resized image array for the whole page
             // Moved outside of auth middleware
             Route::get("/thumb/{picture:public_id}", "get_thumbnail")->name("get.thumb.image"); // get thumbnail
@@ -52,7 +53,7 @@ Route::middleware("auth")->group(function () {
             Route::get("/images/get/{option}", "getImagesTags")->name("tags.images.get"); // Get tags of given images
             Route::post("/images/set", "setImagesTags")->name("tags.images.set"); // Set multiple tags for multiple images
             Route::delete("/images/remove", "removeImagesTags")->name("tags.images.remove"); // Remove multiple tags for multiple pictures
-            Route::delete("/softDelete", "softDeleteTag")->name("tags.softDelete"); // Delete tag without deleting it's pictures
+            Route::delete("/softDelete", "softDeleteTag")->name("tags.softDelete"); // Delete tag without deleting it's picturess
         });
 
         Route::controller(ShareTagsController::class)->group(function () {

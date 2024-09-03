@@ -16,6 +16,7 @@ const LazyLoadImage = React.memo(
         blur = true,
         onClick = (id, image) => console.log(`Clicked on ${id} - ${image}`),
         useLayoutId = true,
+        setLoading = () => {},
     }) => {
         // useStates
         const [image, setImage] = useState(null);
@@ -25,6 +26,7 @@ const LazyLoadImage = React.memo(
             if (typeof window.lazyLoadBlobs === "object") {
                 if (src in window.lazyLoadBlobs) {
                     setImage(window.lazyLoadBlobs[src]);
+                    setLoading(false);
                     return;
                 }
             }
@@ -32,6 +34,7 @@ const LazyLoadImage = React.memo(
             // Controller for axios request
             const controller = new AbortController();
 
+            setLoading(true);
             axios
                 .get(src, { responseType: "blob", signal: controller.signal })
                 .then((res) => {
@@ -49,6 +52,7 @@ const LazyLoadImage = React.memo(
                         };
                     }
 
+                    setLoading(false);
                     setImage(url);
                 })
                 .catch((err) => {
@@ -60,6 +64,7 @@ const LazyLoadImage = React.memo(
             return () => {
                 // Discard previous image, and display thumbnail instead
                 setImage(null);
+                setLoading(false);
 
                 // Cancel previous axios request
                 controller.abort();

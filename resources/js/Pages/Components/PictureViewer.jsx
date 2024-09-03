@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import sty from "../../../scss/PictureViewer.module.scss";
-import { ActionIcon, Button, Checkbox, Menu, Paper, Table, Text } from "@mantine/core";
+import { ActionIcon, Button, Checkbox, Loader, Menu, Paper, Table, Text } from "@mantine/core";
 import {
+    IconBadgeHd,
+    IconBadgeHdFilled,
     IconBan,
     IconChevronLeft,
     IconChevronRight,
@@ -42,6 +44,8 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
     const [shared, setShared] = useState(image.shared);
     const [confirmDelete, setConfirmDelete] = useDisclosure(false);
     const [imageSize, setImageSize] = useState([0, 0]);
+
+    const [imageLoading, setImageLoading] = useState(true);
 
     // use refs
     const [containerSize, containerRef] = useElementSize();
@@ -341,7 +345,11 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
                         </Menu>
                     </div>
 
-                    <SectionTitle text={"File"} icon={<IconFileInfo />} />
+                    <SectionTitle
+                        text={"File"}
+                        icon={<IconFileInfo />}
+                        rightSection={imageLoading ? <Loader size={18} /> : <IconBadgeHd />}
+                    />
                     <div className={sty.info_container}>
                         <Table>
                             <Table.Tbody>{fileInfoRows}</Table.Tbody>
@@ -407,6 +415,7 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
                                 width: imageSize[0],
                                 height: imageSize[1],
                             }}
+                            setLoading={setImageLoading}
                         />
                     </div>
                 </div>

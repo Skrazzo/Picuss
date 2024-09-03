@@ -2,11 +2,8 @@ $primary: #37b24d;
 $lightPrimary: #69db7c;
 $darkPrimary: #2b8a3e;
 $green: #2f9e4b;
+$red: var(--mantine-color-red-6);
 
 $gray: #757575;
 $border: var(--mantine-color-default-border);
 $body: var(--mantine-color-body);
-
-:root {
-    --test: "red";
-}

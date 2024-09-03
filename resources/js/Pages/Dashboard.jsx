@@ -482,7 +482,9 @@ export default function Dashboard({ auth, title = "" }) {
                 onConfirm={onMultiDeleteConfirm}
             >
                 Are you sure you want to delete{" "}
-                <b className="important-span">{multiSelect === null ? 0 : multiSelect.length}</b>{" "}
+                <b className="important-span-danger">
+                    {multiSelect === null ? 0 : multiSelect.length}
+                </b>{" "}
                 pictures from your gallery
             </ConfirmationModal>
 

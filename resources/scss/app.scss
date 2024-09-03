@@ -21,6 +21,11 @@ a {
 .important-span {
     font-weight: bold;
     color: $primary;
+
+    &-danger {
+        @extend .important-span;
+        color: $red;
+    }
 }
 
 /* width */

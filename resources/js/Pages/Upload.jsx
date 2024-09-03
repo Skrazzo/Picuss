@@ -194,8 +194,6 @@ export default function Upload({ auth, title = "" }) {
         setUploadProgress(0);
     }
 
-    useEffect(() => console.log("upload arr", uploadArr), [uploadArr]);
-
     useEffect(() => {
         if (uploadArr.length === 0) {
             setUploadSize({ compressedSize: 0, unCompressedSize: 0 });

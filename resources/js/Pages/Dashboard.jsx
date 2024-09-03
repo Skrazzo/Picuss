@@ -27,7 +27,7 @@ import errorNotification from "./Functions/errorNotification";
 import showNotification from "./Functions/showNotification";
 import ConfirmationModal from "./Components/ConfirmationModal";
 
-export default function Dashboard({ auth, title = "" }) {
+export default function Dashboard({ auth, title = "", preSelected = null }) {
     const [page, setPage] = useState(1);
     const [images, setImages] = useState(null);
     const [totalPages, setTotalPages] = useState(1);
@@ -38,7 +38,8 @@ export default function Dashboard({ auth, title = "" }) {
     const [userTags, setUserTags] = useState([]);
 
     // queried tags
-    const queryTags = useState([]);
+    // TODO: Finish preselected tags, and add it to manage tags
+    const queryTags = useState(preSelected ? [parseInt(preSelected)] : []);
     const firstRender = useRef(true);
 
     // Divide by months year etc
@@ -89,6 +90,18 @@ export default function Dashboard({ auth, title = "" }) {
 
         // get user tags
         axios.get(route("tags.get")).then((res) => setUserTags(res.data));
+
+        if (preSelected !== null) {
+            // pre selected tag, we need to remove query params from url
+            if (window.history.replaceState) {
+                const url =
+                    window.location.protocol +
+                    "//" +
+                    window.location.host +
+                    window.location.pathname;
+                window.history.replaceState({ path: url }, "", url);
+            }
+        }
 
         axios
             .get(route("get.resized.images", page), {
@@ -316,6 +329,7 @@ export default function Dashboard({ auth, title = "" }) {
                 // User pressed and held image for 500ms
                 // Enter multi select mode
 
+                // TODO: Remoove console log
                 console.log("Entering select mode ", holding[1]);
 
                 if (!checkIfMobile()) {

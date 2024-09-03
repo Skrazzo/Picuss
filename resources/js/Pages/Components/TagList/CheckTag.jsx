@@ -22,6 +22,7 @@ import {
 } from "@tabler/icons-react";
 import errorNotification from "../../Functions/errorNotification";
 import ConfirmationModal from "../ConfirmationModal";
+import { Link } from "@inertiajs/inertia-react";
 
 export default function CheckTag({
     id,
@@ -97,7 +98,6 @@ export default function CheckTag({
             });
     }
 
-    // TODO: Add new feature, that shows button when soft delete is available, and tooltip that explains it
     function softDeleteTag() {
         axios
             .delete(route("tags.softDelete"), { params: { tag_id: id } })
@@ -220,8 +220,8 @@ export default function CheckTag({
                     )}
                 </Flex>
 
-                <Text c="dimmed" mt={3}>
-                    {pictureCount}
+                <Text c="dimmed" mt={3} className="text-underline">
+                    <Link href={`${route("dashboard")}/?tag=${id}`}>{pictureCount}</Link>
                 </Text>
             </Flex>
         </div>

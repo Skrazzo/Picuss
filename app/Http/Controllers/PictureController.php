@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\Disks;
 use App\Helpers\ValidateApi;
 use App\Models\Picture;
+use App\Models\Tags;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -26,7 +27,19 @@ class PictureController extends Controller
 
     public function dashboard_index(Request $req)
     {
-        return Inertia::render("Dashboard");
+        // Get preselected tag from ?tag=
+        // Check if tag exists, and if it belongs to user
+
+        $preSelected = $req->query("tag");
+        if ($preSelected !== null) {
+            $tag = Tags::find($preSelected);
+            if (!$tag || $tag->user_id !== auth()->id()) {
+                $preSelected = null;
+            }
+        }
+        // preSelected is null if tag doesnt belong to user, or doesnt exist
+        // null means that tag is nott preselected
+        return Inertia::render("Dashboard", ["preSelected" => $preSelected]);
     }
 
     public function get_image(Picture $picture)

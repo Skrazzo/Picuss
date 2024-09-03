@@ -28,6 +28,11 @@ a {
     }
 }
 
+.text-underline {
+    text-underline-offset: 2px;
+    text-decoration: underline !important;
+}
+
 /* width */
 ::-webkit-scrollbar {
     width: 7px;

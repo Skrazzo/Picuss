@@ -84,6 +84,7 @@ export default function SelectCreatableTags({ select, addTag }) {
 
         tags.forEach((tag) => {
             // Check if we already added this tag or not
+
             if (!autoTags.current.includes(tag.id)) {
                 autoTags.current.push(tag.id);
                 // Check if tag name is this year

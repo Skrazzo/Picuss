@@ -55,6 +55,7 @@ export default function Upload({ auth, title = "" }) {
     const [uploadProgress, setUploadProgress] = useState(0);
 
     function dropHandler(files) {
+        console.log(files);
         /*
             We need need to count uncompressed file size, so we can compare how much
             data we have saved
@@ -77,6 +78,23 @@ export default function Upload({ auth, title = "" }) {
             setUploadArr([...uploadArr, ...files]);
         }
     }
+
+    // Handle pasting images
+    useEffect(() => {
+        const handlePaste = (e) => {
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf("image") !== -1) {
+                    const blob = items[i].getAsFile();
+                    dropHandler([blob]); // Pass the image blob to your function
+                }
+            }
+        };
+
+        window.addEventListener("paste", handlePaste);
+
+        return () => window.removeEventListener("paste", handlePaste);
+    }, []);
 
     async function compressHandler() {
         let tmp = [];

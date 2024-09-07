@@ -67,6 +67,7 @@ Route::middleware("auth")->group(function () {
     Route::prefix("/settings")->group(function () {
         Route::controller(SettingsController::class)->group(function () {
             Route::get("/", "index")->name("settings.index");
+            Route::get("/stats", "get_stats")->name("settings.get.stats");
         });
     });
 });

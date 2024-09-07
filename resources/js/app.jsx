@@ -43,7 +43,10 @@ createInertiaApp({
         resolvePageComponent(`./Pages/${name}.jsx`, import.meta.glob("./Pages/**/*.jsx")),
     setup({ el, App, props }) {
         createRoot(el).render(
-            <MantineProvider defaultColorScheme="light" theme={{ primaryColor: "green" }}>
+            <MantineProvider
+                defaultColorScheme={localStorage.getItem("picuss-dark") ? "dark" : "light"}
+                theme={{ primaryColor: "green" }}
+            >
                 <App {...props} />
                 <Notifications />
             </MantineProvider>,

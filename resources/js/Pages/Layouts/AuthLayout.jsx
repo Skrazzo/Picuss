@@ -5,6 +5,7 @@ import {
     Box,
     Burger,
     Button,
+    Chip,
     CloseButton,
     Divider,
     Drawer,
@@ -38,6 +39,7 @@ import DisabledInputInfo from "../Components/DisabledInputInfo";
 import Logo from "../Components/Logo";
 import MenuOption from "../Components/MenuOption";
 import SearchTags from "../Components/SearchTags";
+import setDarkMode from "../Functions/setDarkMode";
 
 export default function AuthLayout({
     auth,

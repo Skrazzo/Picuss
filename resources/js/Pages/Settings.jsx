@@ -1,9 +1,9 @@
 import { Container, Paper, Tabs } from "@mantine/core";
 import Title from "./Components/Title";
 import AuthLayout from "./Layouts/AuthLayout";
-import { IconChartBar, IconUser } from "@tabler/icons-react";
+import { IconChartBar, IconSettings2, IconUser } from "@tabler/icons-react";
 import Stats from "./Components/Settings/Stats";
-import Account from "./Components/Settings/Account";
+import General from "./Components/Settings/General";
 
 export default function Settings({ auth, title = "" }) {
     const iconProps = {
@@ -21,16 +21,16 @@ export default function Settings({ auth, title = "" }) {
                         <Tabs.Tab value="stats" leftSection={<IconChartBar {...iconProps} />}>
                             Statistics
                         </Tabs.Tab>
-                        <Tabs.Tab value="account" leftSection={<IconUser {...iconProps} />}>
-                            Account
+                        <Tabs.Tab value="general" leftSection={<IconSettings2 {...iconProps} />}>
+                            General
                         </Tabs.Tab>
                     </Tabs.List>
 
                     <Tabs.Panel value="stats">
                         <Stats />
                     </Tabs.Panel>
-                    <Tabs.Panel value="account">
-                        <Account />
+                    <Tabs.Panel value="general">
+                        <General />
                     </Tabs.Panel>
                 </Tabs>
             </Container>

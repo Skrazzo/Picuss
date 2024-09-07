@@ -1,18 +1,9 @@
 import { Chip, Fieldset, Paper } from "@mantine/core";
 import { useEffect, useState } from "react";
+import checkDarkMode from "../../Functions/checkDarkMode";
 
 export default function General() {
-    const [darkMode, setDarkMode] = useState(false);
-
-    useEffect(() => {
-        let dark = localStorage.getItem("picuss-dark") ? true : false;
-
-        if (!dark) {
-            setDarkMode(false);
-        } else {
-            setDarkMode(true);
-        }
-    }, []);
+    const [darkMode, setDarkMode] = useState(checkDarkMode());
 
     useEffect(() => {
         if (darkMode) {

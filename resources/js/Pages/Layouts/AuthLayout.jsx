@@ -39,7 +39,7 @@ import DisabledInputInfo from "../Components/DisabledInputInfo";
 import Logo from "../Components/Logo";
 import MenuOption from "../Components/MenuOption";
 import SearchTags from "../Components/SearchTags";
-import setDarkMode from "../Functions/setDarkMode";
+import checkDarkMode from "../Functions/checkDarkMode";
 
 export default function AuthLayout({
     auth,

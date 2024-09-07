@@ -24,6 +24,7 @@ export default function Stats() {
             yearSpacing={100}
             monthBorderColor="#ffffff"
             dayBorderWidth={2}
+            dayBorderColor="#ffffff"
         />
     );
 

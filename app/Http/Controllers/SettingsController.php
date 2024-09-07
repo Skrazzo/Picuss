@@ -21,7 +21,7 @@ class SettingsController extends Controller
         Return for all years
         $data = DB::table("pictures")
             ->select(DB::raw("DATE(created_at) as day"), DB::raw("count(*) as value"))
-            ->groupBy("date")
+            ->groupBy("day")
             ->get();
         */
 
@@ -29,7 +29,7 @@ class SettingsController extends Controller
             ->select(DB::raw("DATE(created_at) as day"), DB::raw("count(*) as value"))
             ->where("user_id", auth()->id())
             ->whereYear("created_at", Carbon::now()->year)
-            ->groupBy("date")
+            ->groupBy("day")
             ->get();
 
         return response()->json(["pictures" => ["calendarData" => $data]]);

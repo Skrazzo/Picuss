@@ -3,6 +3,7 @@ import Title from "./Components/Title";
 import AuthLayout from "./Layouts/AuthLayout";
 import { IconChartBar, IconUser } from "@tabler/icons-react";
 import Stats from "./Components/Settings/Stats";
+import Account from "./Components/Settings/Account";
 
 export default function Settings({ auth, title = "" }) {
     const iconProps = {
@@ -28,7 +29,9 @@ export default function Settings({ auth, title = "" }) {
                     <Tabs.Panel value="stats">
                         <Stats />
                     </Tabs.Panel>
-                    <Tabs.Panel value="account">Welcome to account page</Tabs.Panel>
+                    <Tabs.Panel value="account">
+                        <Account />
+                    </Tabs.Panel>
                 </Tabs>
             </Container>
         </AuthLayout>

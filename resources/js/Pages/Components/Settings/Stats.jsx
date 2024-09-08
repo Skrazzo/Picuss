@@ -19,12 +19,12 @@ export default function Stats() {
     const tablet = useMediaQuery("(max-width: 1024px)");
     const phone = useMediaQuery("(max-width: 640px)");
 
+    // TODO: Add other basic stats like in user modal
+
     useEffect(() => {
         axios.get(route("settings.get.stats")).then((res) => {
             setCalendar(res.data.pictures.calendarData);
             setPie(res.data.tags.pieData);
-            console.log(res.data.pictures.calendarData);
-            console.log(res.data.tags.pieData);
         });
     }, []);
 
@@ -73,6 +73,9 @@ export default function Stats() {
 
     const PieGrapgh = ({ data }) => (
         <ResponsivePie
+            onClick={(node) =>
+                (window.location.href = `${route(`dashboard`)}/?tag=${node.data.label}`)
+            }
             colors={
                 darkMode()
                     ? createGradientArray("#1f903b", "#00f63d", 2)
@@ -120,23 +123,6 @@ export default function Stats() {
             ]}
         />
     );
-
-    // TODO: Finish statistics, and make CalendarGraph responsive
-
-    const data = [
-        {
-            id: "hack",
-            label: "hack",
-            value: 41,
-            color: "hsl(334, 70%, 50%)",
-        },
-        {
-            id: "go",
-            label: "go",
-            value: 146,
-            color: "hsl(243, 70%, 50%)",
-        },
-    ];
 
     return (
         <Paper mx={tablet ? 0 : 16} my={tablet ? 16 : 0}>

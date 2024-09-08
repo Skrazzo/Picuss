@@ -1,9 +1,11 @@
 import { Chip, Fieldset, Paper } from "@mantine/core";
 import { useEffect, useState } from "react";
 import checkDarkMode from "../../Functions/checkDarkMode";
+import { useMediaQuery } from "@mantine/hooks";
 
 export default function General() {
     const [darkMode, setDarkMode] = useState(checkDarkMode());
+    const tablet = useMediaQuery("(max-width: 1024px)");
 
     useEffect(() => {
         if (darkMode) {
@@ -15,8 +17,10 @@ export default function General() {
         }
     }, [darkMode]);
 
+    // TODO: Start making general, password change, account deletion
+
     return (
-        <Paper mx={16}>
+        <Paper mx={tablet ? 0 : 16} my={tablet ? 16 : 0}>
             <Fieldset legend={"Theme"} p={16}>
                 <Chip onChange={(e) => setDarkMode(e)} checked={darkMode}>
                     Dark mode

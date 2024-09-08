@@ -40,7 +40,7 @@ class SettingsController extends Controller
             ->map(function ($tag) {
                 return [
                     "id" => $tag->name,
-                    "label" => $tag->name,
+                    "label" => $tag->id,
                     "value" => Picture::whereJsonContains("tags", $tag->id)->count(),
                 ];
             });

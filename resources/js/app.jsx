@@ -10,6 +10,7 @@ import "../../public/Assets/nprogress.css";
 import NProgress from "nprogress";
 import { router } from "@inertiajs/react";
 import "@mantine/dropzone/styles.css";
+import checkDarkMode from "./Pages/Functions/checkDarkMode";
 
 let timeout = null;
 
@@ -43,7 +44,10 @@ createInertiaApp({
         resolvePageComponent(`./Pages/${name}.jsx`, import.meta.glob("./Pages/**/*.jsx")),
     setup({ el, App, props }) {
         createRoot(el).render(
-            <MantineProvider defaultColorScheme="dark" theme={{ primaryColor: "green" }}>
+            <MantineProvider
+                defaultColorScheme={checkDarkMode() ? "dark" : "light"}
+                theme={{ primaryColor: "green" }}
+            >
                 <App {...props} />
                 <Notifications />
             </MantineProvider>,

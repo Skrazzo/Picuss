@@ -5,9 +5,11 @@ import {
     Box,
     Burger,
     Button,
+    Chip,
     CloseButton,
     Divider,
     Drawer,
+    Flex,
     Modal,
     NumberInput,
     SegmentedControl,
@@ -23,6 +25,7 @@ import {
     IconLogout2,
     IconPhoto,
     IconSeparatorVertical,
+    IconSettings,
     IconSignLeft,
     IconTag,
     IconTags,
@@ -36,6 +39,7 @@ import DisabledInputInfo from "../Components/DisabledInputInfo";
 import Logo from "../Components/Logo";
 import MenuOption from "../Components/MenuOption";
 import SearchTags from "../Components/SearchTags";
+import checkDarkMode from "../Functions/checkDarkMode";
 
 export default function AuthLayout({
     auth,
@@ -115,6 +119,11 @@ export default function AuthLayout({
 
     useEffect(() => setSelectedPage(page), [page]);
 
+    const iconProps = {
+        size: 20,
+        strokeWidth: 1.5,
+    };
+
     return (
         <div
             className={className}
@@ -128,27 +137,27 @@ export default function AuthLayout({
                         <>
                             <DisabledInputInfo
                                 tooltip={"Total pictures uploaded"}
-                                icon={<IconPhoto />}
+                                icon={<IconPhoto {...iconProps} />}
                                 value={userInfo.pictures}
                             />
                             <DisabledInputInfo
                                 tooltip={"Total tags made"}
-                                icon={<IconTags />}
+                                icon={<IconTags {...iconProps} />}
                                 value={userInfo.tags}
                             />
                             <DisabledInputInfo
                                 tooltip={"Last picture was uploaded"}
-                                icon={<IconUpload />}
+                                icon={<IconUpload {...iconProps} />}
                                 value={userInfo.last_picture_uploaded}
                             />
                             <DisabledInputInfo
                                 tooltip={"Last tag was made"}
-                                icon={<IconTag />}
+                                icon={<IconTag {...iconProps} />}
                                 value={userInfo.last_tag_created}
                             />
                             <DisabledInputInfo
                                 tooltip={"You created your account"}
-                                icon={<IconUser />}
+                                icon={<IconUser {...iconProps} />}
                                 value={userInfo.user_created}
                             />
                         </>
@@ -163,18 +172,24 @@ export default function AuthLayout({
                     )}
                 </SimpleGrid>
 
-                <Link href={route("logout")}>
-                    <Button
-                        onClick={() => setUserInfo(null)}
-                        loading={!userInfo}
-                        mt={"sm"}
-                        leftSection={<IconLogout2 size={19} />}
-                        size="xs"
-                        color="red"
-                    >
-                        Logout
-                    </Button>
-                </Link>
+                <Flex mt={"sm"} align={"center"} gap={8}>
+                    <Link href={route("logout")}>
+                        <Button
+                            onClick={() => setUserInfo(null)}
+                            loading={!userInfo}
+                            leftSection={<IconLogout2 {...iconProps} />}
+                            size="xs"
+                            color="red"
+                        >
+                            Logout
+                        </Button>
+                    </Link>
+                    <Link href={route("settings.index")}>
+                        <Button size="xs" variant="default" p={4}>
+                            <IconSettings {...iconProps} />
+                        </Button>
+                    </Link>
+                </Flex>
             </Modal>
 
             <Drawer

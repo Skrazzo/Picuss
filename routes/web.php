@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PictureController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ShareImagesController;
 use App\Http\Controllers\ShareTagsController;
 use App\Http\Controllers\TagsController;
@@ -60,6 +61,13 @@ Route::middleware("auth")->group(function () {
             Route::post("/share", "shareTags")->name("tags.share"); // Sharing tags
             Route::delete("/share", "unshareTags")->name("tags.share.remove");
             Route::post("/share/images", "shareImages")->name("tags.share.images"); // Create shared tag, add it to multiple images
+        });
+    });
+
+    Route::prefix("/settings")->group(function () {
+        Route::controller(SettingsController::class)->group(function () {
+            Route::get("/", "index")->name("settings.index");
+            Route::get("/stats", "get_stats")->name("settings.get.stats");
         });
     });
 });

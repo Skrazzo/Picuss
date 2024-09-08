@@ -30,6 +30,7 @@
     "@mantine/tiptap": "^7.8.1",
     "@mbs-dev/react-image-compressor": "^1.0.5",
     "@nivo/calendar": "^0.87.0",
+    "@nivo/pie": "^0.87.0",
     "@prettier/plugin-php": "^0.22.2",
     "@tabler/icons-react": "^3.2.0",
     "@tiptap/extension-link": "^2.3.0",

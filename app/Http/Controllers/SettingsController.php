@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Picture;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,13 +26,28 @@ class SettingsController extends Controller
             ->get();
         */
 
-        $data = DB::table("pictures")
+        $calendarData = DB::table("pictures")
             ->select(DB::raw("DATE(created_at) as day"), DB::raw("count(*) as value"))
             ->where("user_id", auth()->id())
             ->whereYear("created_at", Carbon::now()->year)
             ->groupBy("day")
             ->get();
 
-        return response()->json(["pictures" => ["calendarData" => $data]]);
+        $tagData = auth()
+            ->user()
+            ->tag()
+            ->get()
+            ->map(function ($tag) {
+                return [
+                    "id" => $tag->name,
+                    "label" => $tag->name,
+                    "value" => Picture::whereJsonContains("tags", $tag->id)->count(),
+                ];
+            });
+
+        return response()->json([
+            "pictures" => ["calendarData" => $calendarData],
+            "tags" => ["pieData" => $tagData],
+        ]);
     }
 }

@@ -23,4 +23,16 @@ class Disks
         $thumbEnv = env("SERVER_THUMBNAILS_DISK", "thumbnails");
         return Storage::disk($thumbEnv);
     }
+
+    /**
+     * @retruns disks [image, half, thumbnail]
+     */
+    public static function allDisks()
+    {
+        $imageEnv = env("SERVER_IMAGE_DISK", "images");
+        $halfEnv = env("SERVER_IMAGE_HALF_DISK", "half_images");
+        $thumbEnv = env("SERVER_THUMBNAILS_DISK", "thumbnails");
+
+        return [Storage::disk($imageEnv), Storage::disk($halfEnv), Storage::disk($thumbEnv)];
+    }
 }

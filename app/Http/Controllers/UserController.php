@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Disks;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -50,6 +51,39 @@ class UserController extends Controller
         $picture_count = $user->picture()->get()->count();
         $tag_count = $user->tag()->get()->count();
 
+        // Get users disk usage
+        [$imageDisk, $halfDisk, $thumbDisk] = Disks::allDisks();
+
+        $diskUsage = 0; // In bytes
+        $pictures = $user->picture()->get();
+
+        // Loop through every user picture in every disk, and get their size
+        foreach ($pictures as $pic) {
+            $img = $pic->image;
+
+            if ($imageDisk->exists($img)) {
+                $diskUsage += $imageDisk->size($img);
+            }
+
+            if ($halfDisk->exists($img)) {
+                $diskUsage += $halfDisk->size($img);
+            }
+
+            if ($thumbDisk->exists($img)) {
+                $diskUsage += $thumbDisk->size($img);
+            }
+        }
+
+        // Convert to MB
+        $diskUsage = $diskUsage / (1024 * 1024);
+
+        // Convert to GB if needed
+        if ($diskUsage > 1000) {
+            $diskUsage = round($diskUsage / 1024, 2) . " GB";
+        } else {
+            $diskUsage = round($diskUsage, 2) . " MB";
+        }
+
         $rtn = [
             "pictures" => $picture_count == 0 ? "No pictures" : $picture_count . " pictures",
             "tags" => $tag_count == 0 ? "No tags" : $tag_count . " tags",
@@ -70,6 +104,7 @@ class UserController extends Controller
                         $user->tag()->latest()->first()->created_at->diffForHumans(now())
                     ),
             "user_created" => str_replace("before", "ago", $user->created_at->diffForHumans(now())),
+            "disk_usage" => $diskUsage,
         ];
 
         return response()->json($rtn);

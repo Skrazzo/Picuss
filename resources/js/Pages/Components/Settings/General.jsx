@@ -5,7 +5,7 @@ import { useMediaQuery } from "@mantine/hooks";
 
 export default function General() {
     const [darkMode, setDarkMode] = useState(checkDarkMode());
-    const tablet = useMediaQuery("(max-width: 1024px)");
+    const tablet = useMediaQuery("(max-width: 1130px)");
 
     useEffect(() => {
         if (darkMode) {

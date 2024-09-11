@@ -12,14 +12,14 @@ export default function Settings({ auth, title = "" }) {
         strokeWidth: 1.5,
     };
 
-    const tablet = useMediaQuery("(max-width: 1024px)");
+    const tablet = useMediaQuery("(max-width: 1130px)");
     console.log(tablet);
 
     return (
         <AuthLayout auth={auth}>
             <Title title={title} />
 
-            <Container mt={16}>
+            <Container mt={16} mb={100} size={"lg"}>
                 <Tabs orientation={tablet ? "horizontal" : "vertical"} defaultValue={"stats"}>
                     <Tabs.List>
                         <Tabs.Tab value="stats" leftSection={<IconChartBar {...iconProps} />}>

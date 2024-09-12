@@ -13,7 +13,6 @@ export default function Settings({ auth, title = "" }) {
     };
 
     const tablet = useMediaQuery("(max-width: 1130px)");
-    console.log(tablet);
 
     return (
         <AuthLayout auth={auth}>

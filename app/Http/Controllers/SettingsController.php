@@ -6,6 +6,7 @@ use App\Models\Picture;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class SettingsController extends Controller
@@ -49,5 +50,22 @@ class SettingsController extends Controller
             "pictures" => ["calendarData" => $calendarData],
             "tags" => ["pieData" => $tagData],
         ]);
+    }
+
+    public function change_password(Request $req)
+    {
+        $data = $req->validate([
+            "current" => "required",
+            "new" => "required|min:8|confirmed|different:current",
+        ]);
+
+        $user = auth()->user();
+        if (!Hash::check($data["current"], $user->password)) {
+            return back()->withErrors(["current" => "Current password is not correct"]);
+        }
+
+        $user->password = $data["new"];
+        $user->save();
+        return back();
     }
 }

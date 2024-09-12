@@ -104,7 +104,7 @@ export default function Stats() {
                 modifiers: [["darker", 0.2]],
             }}
             arcLinkLabelsSkipAngle={10}
-            arcLinkLabelsTextColor="#333333"
+            arcLinkLabelsTextColor={darkMode() ? "#eeeeee" : "#333333"}
             arcLinkLabelsThickness={2}
             arcLinkLabelsColor={{ from: "color" }}
             arcLabelsSkipAngle={10}

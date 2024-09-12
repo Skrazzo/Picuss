@@ -1,4 +1,4 @@
-import { Chip, Fieldset, Paper } from "@mantine/core";
+import { Checkbox, Chip, Fieldset, Paper } from "@mantine/core";
 import { useEffect, useState } from "react";
 import checkDarkMode from "../../Functions/checkDarkMode";
 import { useMediaQuery } from "@mantine/hooks";
@@ -22,10 +22,14 @@ export default function General() {
     return (
         <Paper mx={tablet ? 0 : 16} my={tablet ? 16 : 0}>
             <Fieldset legend={"Theme"} p={16}>
-                <Chip onChange={(e) => setDarkMode(e)} checked={darkMode}>
-                    Dark mode
-                </Chip>
+                <Checkbox
+                    onChange={(e) => setDarkMode(e.target.checked)}
+                    checked={darkMode}
+                    label={"Dark mode"}
+                />
             </Fieldset>
+
+            <Fieldset></Fieldset>
         </Paper>
     );
 }

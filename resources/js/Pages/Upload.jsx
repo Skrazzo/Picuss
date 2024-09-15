@@ -99,7 +99,6 @@ export default function Upload({ auth, title = "" }) {
         let tmp = [];
 
         for (const x of compressArr) {
-            // console.log(`compressing ${x}`);
             // Deciding on compression quality happens automatically
             /*
                 If image size is below 200KB, we do not need to compress it
@@ -111,19 +110,14 @@ export default function Upload({ auth, title = "" }) {
 
             const fileSize = x.size / 1024; // Get file size in kiloBytes
             let imageQuality = 0;
-            console.log(`Image: ${x.name} is ${fileSize}KB`);
 
             if (fileSize > 500 && fileSize < 1000) {
-                // If image size is below 200KB, we do not need to compress it
-                console.log(`image: ${x.name} is below 200KB, compressing 90%`);
                 imageQuality = 90;
             } else if (fileSize < 4000) {
                 // If image size is between 200KB and 4MB, we need to compress it 80%
-                console.log(`image: ${x.name} is between 200KB and 4MB, compressing 80%`);
                 imageQuality = 80;
             } else {
                 // If image size is above 4MB, we need to compress it 20%
-                console.log(`image: ${x.name} is above 4MB, compressing 20%`);
                 imageQuality = 20;
             }
 

@@ -40,7 +40,6 @@ export default function Upload({ auth, title = "" }) {
     const [compress, setCompress] = useState(true);
     const [compressing, setCompressing] = useState(false);
     const [compressingProgress, setCompressingProgress] = useState(0);
-    const [imageQuality, setImageQuality] = useState(20);
     const [uploading, setUploading] = useState(false);
 
     // Modify variables
@@ -100,10 +99,43 @@ export default function Upload({ auth, title = "" }) {
         let tmp = [];
 
         for (const x of compressArr) {
-            // console.log('compressing',x.name);
+            // console.log(`compressing ${x}`);
+            // Deciding on compression quality happens automatically
+            /*
+                If image size is below 200KB, we do not need to compress it
+                if it is between 200KB and 4MB, we need to compress it 80%
+                if it is above 4MB, we need to compress it 20%
 
-            const compressedImage = await imageCompressor(x, imageQuality / 100);
+                TODO: Check if bigger images need more compression
+            */
+
+            const fileSize = x.size / 1024; // Get file size in kiloBytes
+            let imageQuality = 0;
+            console.log(`Image: ${x.name} is ${fileSize}KB`);
+
+            if (fileSize > 500 && fileSize < 1000) {
+                // If image size is below 200KB, we do not need to compress it
+                console.log(`image: ${x.name} is below 200KB, compressing 90%`);
+                imageQuality = 90;
+            } else if (fileSize < 4000) {
+                // If image size is between 200KB and 4MB, we need to compress it 80%
+                console.log(`image: ${x.name} is between 200KB and 4MB, compressing 80%`);
+                imageQuality = 80;
+            } else {
+                // If image size is above 4MB, we need to compress it 20%
+                console.log(`image: ${x.name} is above 4MB, compressing 20%`);
+                imageQuality = 20;
+            }
+
+            let compressedImage = x;
+            // Compress the image only if compression is needed for an image (Obove 0 image quality)
+            if (imageQuality !== 0) {
+                compressedImage = await imageCompressor(x, imageQuality / 100);
+            }
+
             tmp.push(compressedImage);
+
+            // Update the progress bar
             setCompressingProgress(Math.round(((tmp.length * 10) / compressArr.length) * 100) / 10);
         }
 
@@ -200,7 +232,6 @@ export default function Upload({ auth, title = "" }) {
         setCompress(true);
         setCompressing(false);
         setCompressingProgress(0);
-        setImageQuality(20);
         setUploading(false);
         setCompressArr([]);
         setUploadArr([]);
@@ -306,20 +337,8 @@ export default function Upload({ auth, title = "" }) {
                         disabled={compressing}
                         checked={compress}
                         onChange={(e) => setCompress(!compress)}
-                        label="Compress my pictures before upload"
+                        label="Compress pictures before upload"
                     />
-
-                    {compress && (
-                        <Slider
-                            max={80}
-                            w={"100%"}
-                            mt={8}
-                            disabled={compressing}
-                            value={imageQuality}
-                            onChange={setImageQuality}
-                            label={(value) => `Image quality: ${value} %`}
-                        />
-                    )}
 
                     <Transition
                         mounted={compressing}

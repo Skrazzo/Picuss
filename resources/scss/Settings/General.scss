@@ -1,0 +1,7 @@
+@import "../variables.scss";
+
+.danger-fieldset {
+    border-color: darken($color: $danger, $amount: 10);
+
+    // color: darken($color: $danger, $amount: 10);
+}

@@ -6,6 +6,7 @@ import darkMode from "../../Functions/checkDarkMode";
 import createGradientArray from "../../Functions/createGradientArray";
 import { useMediaQuery } from "@mantine/hooks";
 import { ResponsivePie } from "@nivo/pie";
+import UserStats from "../UserStats";
 
 export default function Stats() {
     const [calendar, setCalendar] = useState([]);
@@ -16,16 +17,26 @@ export default function Stats() {
             value: 1,
         },
     ]);
-    const tablet = useMediaQuery("(max-width: 1024px)");
-    const phone = useMediaQuery("(max-width: 640px)");
+    const [userInfo, setUserInfo] = useState(null);
 
-    // TODO: Add other basic stats like in user modal
+    const tablet = useMediaQuery("(max-width: 1130px)");
+    const phone = useMediaQuery("(max-width: 640px)");
 
     useEffect(() => {
         axios.get(route("settings.get.stats")).then((res) => {
             setCalendar(res.data.pictures.calendarData);
             setPie(res.data.tags.pieData);
         });
+
+        axios
+            .get(route("user.modal.info"))
+            .then((res) => {
+                setUserInfo(res.data);
+            })
+            .catch((err) => {
+                alert("Error has appeared! Please check the console!");
+                console.error(err);
+            });
     }, []);
 
     /**
@@ -82,7 +93,7 @@ export default function Stats() {
                     : createGradientArray("#5aed7f", "#1f903b", 2)
             }
             data={data}
-            margin={{ top: 10, bottom: 10 }}
+            margin={{ top: 40, bottom: 40, left: 40, right: 40 }}
             innerRadius={0.5}
             padAngle={0.7}
             cornerRadius={3}
@@ -93,7 +104,7 @@ export default function Stats() {
                 modifiers: [["darker", 0.2]],
             }}
             arcLinkLabelsSkipAngle={10}
-            arcLinkLabelsTextColor="#333333"
+            arcLinkLabelsTextColor={darkMode() ? "#eeeeee" : "#333333"}
             arcLinkLabelsThickness={2}
             arcLinkLabelsColor={{ from: "color" }}
             arcLabelsSkipAngle={10}
@@ -143,6 +154,10 @@ export default function Stats() {
                 style={{ aspectRatio: phone ? "1/0.8" : "1/0.6" }}
             >
                 <PieGrapgh data={pie} />
+            </Fieldset>
+
+            <Fieldset legend={"User stats"} mt={8} p={16}>
+                <UserStats data={userInfo} />
             </Fieldset>
         </Paper>
     );

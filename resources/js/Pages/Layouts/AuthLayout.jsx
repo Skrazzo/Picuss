@@ -21,6 +21,7 @@ import {
 import { useDisclosure, useWindowScroll } from "@mantine/hooks";
 import {
     IconArrowUp,
+    IconBrandOnedrive,
     IconLink,
     IconLogout2,
     IconPhoto,
@@ -40,6 +41,7 @@ import Logo from "../Components/Logo";
 import MenuOption from "../Components/MenuOption";
 import SearchTags from "../Components/SearchTags";
 import checkDarkMode from "../Functions/checkDarkMode";
+import UserStats from "../Components/UserStats";
 
 export default function AuthLayout({
     auth,
@@ -68,7 +70,6 @@ export default function AuthLayout({
                 .get(route("user.modal.info"))
                 .then((res) => {
                     setUserInfo(res.data);
-                    console.log(res.data);
                 })
                 .catch((err) => {
                     alert("Error has appeared! Please check the console!");
@@ -132,46 +133,7 @@ export default function AuthLayout({
         >
             <section id="top-section"></section>
             <Modal opened={openedUserModal} onClose={userModal.close} title={auth.user.username}>
-                <SimpleGrid cols={2} spacing={"sm"} verticalSpacing={"sm"}>
-                    {userInfo ? (
-                        <>
-                            <DisabledInputInfo
-                                tooltip={"Total pictures uploaded"}
-                                icon={<IconPhoto {...iconProps} />}
-                                value={userInfo.pictures}
-                            />
-                            <DisabledInputInfo
-                                tooltip={"Total tags made"}
-                                icon={<IconTags {...iconProps} />}
-                                value={userInfo.tags}
-                            />
-                            <DisabledInputInfo
-                                tooltip={"Last picture was uploaded"}
-                                icon={<IconUpload {...iconProps} />}
-                                value={userInfo.last_picture_uploaded}
-                            />
-                            <DisabledInputInfo
-                                tooltip={"Last tag was made"}
-                                icon={<IconTag {...iconProps} />}
-                                value={userInfo.last_tag_created}
-                            />
-                            <DisabledInputInfo
-                                tooltip={"You created your account"}
-                                icon={<IconUser {...iconProps} />}
-                                value={userInfo.user_created}
-                            />
-                        </>
-                    ) : (
-                        <>
-                            <Skeleton w={"100%"} h={30} />
-                            <Skeleton w={"100%"} h={30} />
-                            <Skeleton w={"100%"} h={30} />
-                            <Skeleton w={"100%"} h={30} />
-                            <Skeleton w={"100%"} h={30} />
-                        </>
-                    )}
-                </SimpleGrid>
-
+                <UserStats data={userInfo} />
                 <Flex mt={"sm"} align={"center"} gap={8}>
                     <Link href={route("logout")}>
                         <Button

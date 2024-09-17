@@ -1,10 +1,12 @@
-import { Chip, Fieldset, Paper } from "@mantine/core";
+import { ActionIcon, Button, Checkbox, Chip, Fieldset, Flex, Input, Paper } from "@mantine/core";
 import { useEffect, useState } from "react";
 import checkDarkMode from "../../Functions/checkDarkMode";
 import { useMediaQuery } from "@mantine/hooks";
 import { Button, Input, Text } from "@mantine/core";
 import { IconFileShredder } from "@tabler/icons-react";
 import "../../../../scss/Settings/General.scss";
+import { useForm } from "@inertiajs/inertia-react";
+import { IconCheck } from "@tabler/icons-react";
 
 const FormInput = ({ useForm, name, label = "", placeholder = "", type = "text" }) => {
     let inputLabel = label;
@@ -25,7 +27,20 @@ const FormInput = ({ useForm, name, label = "", placeholder = "", type = "text" 
 
 export default function General() {
     const [darkMode, setDarkMode] = useState(checkDarkMode());
-    const tablet = useMediaQuery("(max-width: 1024px)");
+    const tablet = useMediaQuery("(max-width: 1130px)");
+
+    const newPassword = useForm({
+        current: "",
+        new: "",
+        new_confirmation: "",
+    });
+
+    function newPasswordHandler(e) {
+        e.preventDefault();
+        newPassword.put(route("password.update"), {
+            onSuccess: () => newPassword.reset(),
+        });
+    }
 
     useEffect(() => {
         if (darkMode) {
@@ -37,14 +52,53 @@ export default function General() {
         }
     }, [darkMode]);
 
-    // TODO: Start making general, password change, account deletion
+    const iconProps = {
+        size: 20,
+        strokeWidth: 1.5,
+    };
 
     return (
         <Paper mx={tablet ? 0 : 16} my={tablet ? 16 : 0}>
             <Fieldset legend={"Theme"} p={16}>
-                <Chip onChange={(e) => setDarkMode(e)} checked={darkMode}>
-                    Dark mode
-                </Chip>
+                <Checkbox
+                    onChange={(e) => setDarkMode(e.target.checked)}
+                    checked={darkMode}
+                    label={"Dark mode"}
+                />
+            </Fieldset>
+
+            <Fieldset legend={"Change account password"} mt={16} p={16}>
+                <form onSubmit={newPasswordHandler}>
+                    <Flex direction={"column"} gap={8}>
+                        <FormInput
+                            useForm={newPassword}
+                            placeholder="Current password"
+                            name={"current"}
+                            type={"password"}
+                        />
+                        <FormInput
+                            useForm={newPassword}
+                            placeholder="New password"
+                            name={"new"}
+                            type={"password"}
+                        />
+                        <FormInput
+                            useForm={newPassword}
+                            placeholder="Confirm new password"
+                            name={"new_confirmation"}
+                            type={"password"}
+                        />
+                        <div>
+                            <Button
+                                onClick={newPasswordHandler}
+                                leftSection={<IconCheck {...iconProps} />}
+                                variant="default"
+                            >
+                                Save
+                            </Button>
+                        </div>
+                    </Flex>
+                </form>
             </Fieldset>
 
             <Fieldset

@@ -1,12 +1,12 @@
-import { ActionIcon, Button, Checkbox, Chip, Fieldset, Flex, Input, Paper } from "@mantine/core";
+import { Button, Checkbox, Fieldset, Flex, Input, Paper, Text, TextInput } from "@mantine/core";
 import { useEffect, useState } from "react";
 import checkDarkMode from "../../Functions/checkDarkMode";
 import { useMediaQuery } from "@mantine/hooks";
-import { Button, Input, Text } from "@mantine/core";
 import { IconFileShredder } from "@tabler/icons-react";
 import "../../../../scss/Settings/General.scss";
 import { useForm } from "@inertiajs/inertia-react";
 import { IconCheck } from "@tabler/icons-react";
+import ConfirmationModal from "../ConfirmationModal";
 
 const FormInput = ({ useForm, name, label = "", placeholder = "", type = "text" }) => {
     let inputLabel = label;
@@ -27,6 +27,7 @@ const FormInput = ({ useForm, name, label = "", placeholder = "", type = "text" 
 
 export default function General() {
     const [darkMode, setDarkMode] = useState(checkDarkMode());
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const tablet = useMediaQuery("(max-width: 1130px)");
 
     const newPassword = useForm({
@@ -39,6 +40,23 @@ export default function General() {
         e.preventDefault();
         newPassword.put(route("password.update"), {
             onSuccess: () => newPassword.reset(),
+        });
+    }
+
+    const deleteAccount = useForm({
+        password: "",
+    });
+
+    function deleteAccountHandler() {
+        deleteAccount.post(route("account.delete"), {
+            onSuccess: () => {
+                setShowDeleteModal(false);
+                deleteAccount.reset();
+            },
+            onError: (err) => {
+                deleteAccount.reset();
+                console.warn(err);
+            },
         });
     }
 
@@ -55,11 +73,6 @@ export default function General() {
     const iconProps = {
         size: 20,
         strokeWidth: 1.5,
-    };
-
-    const iconProps = {
-        size: 20,
-        strokeWidth: 1.25,
     };
 
     return (
@@ -106,23 +119,49 @@ export default function General() {
                 </form>
             </Fieldset>
 
-            <Fieldset
-                // legend={"Delete your account"}
-                mt={16}
-                p={16}
-                // c={"red"}
-                className="danger-fieldset"
-            >
+            <Fieldset mt={16} p={16} className="danger-fieldset">
+                <ConfirmationModal
+                    childrenText={false}
+                    icon={<IconFileShredder />}
+                    color="red"
+                    opened={showDeleteModal}
+                    title={"Verify deletion"}
+                    onConfirm={deleteAccountHandler}
+                    close={() => {
+                        setShowDeleteModal(false);
+                        deleteAccount.reset();
+                    }}
+                >
+                    <Text mt={16} c={"dimmed"}>
+                        Please enter your account password to verify that you want to delete your
+                        account.
+                    </Text>
+                    <Input
+                        value={deleteAccount.data.password}
+                        onChange={(e) => deleteAccount.setData("password", e.target.value)}
+                        autoFocus
+                        error
+                        type="password"
+                        mt={8}
+                        placeholder="Your password"
+                    />
+                </ConfirmationModal>
+
                 <Text size="xl" mb={8}>
                     Delete your account
                 </Text>
-                <Text>
+                <Text c={"dimmed"}>
                     If you delete your account, all of your data will be permanently deleted. And
                     all the pictures you uploaded will be permanently lost, as well as your shared
                     links.
                 </Text>
 
-                <Button color="red" leftSection={<IconFileShredder {...iconProps} />} mt={24}>
+                <Button
+                    color="red"
+                    leftSection={<IconFileShredder {...iconProps} />}
+                    mt={24}
+                    onClick={() => setShowDeleteModal(true)}
+                >
                     Delete account
                 </Button>
             </Fieldset>

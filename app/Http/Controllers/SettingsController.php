@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Disks;
 use App\Models\Picture;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -67,5 +68,51 @@ class SettingsController extends Controller
         $user->password = $data["new"];
         $user->save();
         return back();
+    }
+
+    public function delete_account(Request $req)
+    {
+        $data = $req->validate([
+            "password" => "required|string",
+        ]);
+
+        $user = auth()->user();
+
+        if (!Hash::check($data["password"], $user->password)) {
+            return back()->withErrors(["password" => "Current password is not correct"]);
+        }
+
+        // TODO: When encryption for hidden pictures is implemented, need to delete all hidden pictures too
+
+        // Get all image storages
+        [$full, $half, $thumb] = Disks::allDisks();
+
+        // Delete all pictures
+        $pictures = $user->picture()->get();
+        foreach ($pictures as $pic) {
+            if ($full->exists($pic->image)) {
+                $full->delete($pic->image);
+            }
+
+            if ($half->exists($pic->image)) {
+                $half->delete($pic->image);
+            }
+
+            if ($thumb->exists($pic->image)) {
+                $thumb->delete($pic->image);
+            }
+
+            $pic->delete();
+        }
+
+        // Delete all tags
+        $user->tag()->delete();
+
+        // TODO: Send email to the user, about its account being deleted
+
+        // delete user itself
+        $user->delete();
+
+        return redirect(route("dashboard"));
     }
 }

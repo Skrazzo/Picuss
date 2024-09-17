@@ -48,7 +48,7 @@ export default function General() {
     });
 
     function deleteAccountHandler() {
-        deleteAccount.post(route("account.delete"), {
+        deleteAccount.delete(route("delete.account"), {
             onSuccess: () => {
                 setShowDeleteModal(false);
                 deleteAccount.reset();
@@ -127,24 +127,28 @@ export default function General() {
                     opened={showDeleteModal}
                     title={"Verify deletion"}
                     onConfirm={deleteAccountHandler}
+                    closeOnConfirm={false}
                     close={() => {
                         setShowDeleteModal(false);
                         deleteAccount.reset();
                     }}
+                    loading={deleteAccount.processing}
                 >
                     <Text mt={16} c={"dimmed"}>
                         Please enter your account password to verify that you want to delete your
                         account.
                     </Text>
-                    <Input
-                        value={deleteAccount.data.password}
-                        onChange={(e) => deleteAccount.setData("password", e.target.value)}
-                        autoFocus
-                        error
-                        type="password"
-                        mt={8}
-                        placeholder="Your password"
-                    />
+                    <Input.Wrapper error={deleteAccount.errors.password}>
+                        <Input
+                            value={deleteAccount.data.password}
+                            onChange={(e) => deleteAccount.setData("password", e.target.value)}
+                            autoFocus
+                            error
+                            type="password"
+                            mt={8}
+                            placeholder="Your password"
+                        />
+                    </Input.Wrapper>
                 </ConfirmationModal>
 
                 <Text size="xl" mb={8}>

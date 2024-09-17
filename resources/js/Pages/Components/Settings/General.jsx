@@ -57,6 +57,11 @@ export default function General() {
         strokeWidth: 1.5,
     };
 
+    const iconProps = {
+        size: 20,
+        strokeWidth: 1.25,
+    };
+
     return (
         <Paper mx={tablet ? 0 : 16} my={tablet ? 16 : 0}>
             <Fieldset legend={"Theme"} p={16}>

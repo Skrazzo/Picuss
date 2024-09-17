@@ -1,9 +1,12 @@
-import { ActionIcon, Button, Checkbox, Chip, Fieldset, Flex, Input, Paper } from "@mantine/core";
+import { Button, Checkbox, Fieldset, Flex, Input, Paper, Text, TextInput } from "@mantine/core";
 import { useEffect, useState } from "react";
 import checkDarkMode from "../../Functions/checkDarkMode";
 import { useMediaQuery } from "@mantine/hooks";
+import { IconFileShredder } from "@tabler/icons-react";
+import "../../../../scss/Settings/General.scss";
 import { useForm } from "@inertiajs/inertia-react";
 import { IconCheck } from "@tabler/icons-react";
+import ConfirmationModal from "../ConfirmationModal";
 
 const FormInput = ({ useForm, name, label = "", placeholder = "", type = "text" }) => {
     let inputLabel = label;
@@ -24,6 +27,7 @@ const FormInput = ({ useForm, name, label = "", placeholder = "", type = "text" 
 
 export default function General() {
     const [darkMode, setDarkMode] = useState(checkDarkMode());
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const tablet = useMediaQuery("(max-width: 1130px)");
 
     const newPassword = useForm({
@@ -36,6 +40,23 @@ export default function General() {
         e.preventDefault();
         newPassword.put(route("password.update"), {
             onSuccess: () => newPassword.reset(),
+        });
+    }
+
+    const deleteAccount = useForm({
+        password: "",
+    });
+
+    function deleteAccountHandler() {
+        deleteAccount.delete(route("delete.account"), {
+            onSuccess: () => {
+                setShowDeleteModal(false);
+                deleteAccount.reset();
+            },
+            onError: (err) => {
+                deleteAccount.reset();
+                console.warn(err);
+            },
         });
     }
 
@@ -96,6 +117,57 @@ export default function General() {
                         </div>
                     </Flex>
                 </form>
+            </Fieldset>
+
+            <Fieldset mt={16} p={16} className="danger-fieldset">
+                <ConfirmationModal
+                    childrenText={false}
+                    icon={<IconFileShredder />}
+                    color="red"
+                    opened={showDeleteModal}
+                    title={"Verify deletion"}
+                    onConfirm={deleteAccountHandler}
+                    closeOnConfirm={false}
+                    close={() => {
+                        setShowDeleteModal(false);
+                        deleteAccount.reset();
+                    }}
+                    loading={deleteAccount.processing}
+                >
+                    <Text mt={16} c={"dimmed"}>
+                        Please enter your account password to verify that you want to delete your
+                        account.
+                    </Text>
+                    <Input.Wrapper error={deleteAccount.errors.password}>
+                        <Input
+                            value={deleteAccount.data.password}
+                            onChange={(e) => deleteAccount.setData("password", e.target.value)}
+                            autoFocus
+                            error
+                            type="password"
+                            mt={8}
+                            placeholder="Your password"
+                        />
+                    </Input.Wrapper>
+                </ConfirmationModal>
+
+                <Text size="xl" mb={8}>
+                    Delete your account
+                </Text>
+                <Text c={"dimmed"}>
+                    If you delete your account, all of your data will be permanently deleted. And
+                    all the pictures you uploaded will be permanently lost, as well as your shared
+                    links.
+                </Text>
+
+                <Button
+                    color="red"
+                    leftSection={<IconFileShredder {...iconProps} />}
+                    mt={24}
+                    onClick={() => setShowDeleteModal(true)}
+                >
+                    Delete account
+                </Button>
             </Fieldset>
         </Paper>
     );

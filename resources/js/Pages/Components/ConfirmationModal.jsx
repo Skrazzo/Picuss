@@ -9,9 +9,11 @@ export default function ConfirmationModal({
     opened,
     title,
     onConfirm,
+    closeOnConfirm = true,
     onCancel = () => {},
     childrenText = true, // specifies if children are text, or custom elements
     confirmBtnText = "Confirm",
+    loading = false,
 }) {
     const [modalOpened, setModalOpened] = useState(false);
     const [confirm, setConfirm] = useState(false);
@@ -19,7 +21,9 @@ export default function ConfirmationModal({
     function onConfirmHandler() {
         if (confirm) {
             onConfirm();
-            close();
+            if (closeOnConfirm) {
+                close();
+            }
             return;
         }
 
@@ -85,6 +89,7 @@ export default function ConfirmationModal({
                                         onClick={onConfirmHandler}
                                         variant={confirm ? "outline" : "light"}
                                         color={colors[color]}
+                                        loading={loading}
                                     >
                                         {confirm ? "Are you sure?" : confirmBtnText}
                                     </Button>

@@ -69,6 +69,7 @@ Route::middleware("auth")->group(function () {
             Route::get("/", "index")->name("settings.index");
             Route::get("/stats", "get_stats")->name("settings.get.stats");
             Route::put("/password", "change_password")->name("password.update");
+            Route::delete("/delete", "delete_account")->name("delete.account");
         });
     });
 });

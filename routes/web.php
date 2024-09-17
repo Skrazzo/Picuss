@@ -72,6 +72,15 @@ Route::middleware("auth")->group(function () {
             Route::delete("/delete", "delete_account")->name("delete.account");
         });
     });
+
+    // TODO: Finish hidden routes
+    Route::prefix("/hidden")->group(function () {
+        Route::controller(HiddenPinController::class)->group(function () {
+            Route::get("/", "index")->name("hidden.index");
+            Route::get("/get", "get")->name("hidden.get");
+            Route::delete("/", "delete")->name("hidden.delete");
+        });
+    });
 });
 
 Route::get("/image/meta/{image}", [PictureController::class, "get_meta_image"])->name(

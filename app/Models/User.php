@@ -16,20 +16,14 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'username',
-        'password',
-    ];
+    protected $fillable = ["username", "password"];
 
     /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ["password", "remember_token"];
 
     /**
      * Get the attributes that should be cast.
@@ -39,19 +33,27 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'password' => 'hashed',
+            "password" => "hashed",
         ];
     }
 
-    public function picture(){
+    public function picture()
+    {
         return $this->hasMany(\App\Models\Picture::class);
     }
 
-    public function tag(){
+    public function tag()
+    {
         return $this->hasMany(\App\Models\Tags::class);
     }
 
-    public function sharedImage() {
+    public function sharedImage()
+    {
         return $this->hasMany(\App\Models\ShareImages::class);
+    }
+
+    public function pin()
+    {
+        return $this->hasOne(\App\Models\HiddenPin::class);
     }
 }

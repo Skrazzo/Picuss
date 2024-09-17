@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HiddenPinController;
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ShareImagesController;
@@ -76,9 +77,10 @@ Route::middleware("auth")->group(function () {
     // TODO: Finish hidden routes
     Route::prefix("/hidden")->group(function () {
         Route::controller(HiddenPinController::class)->group(function () {
-            Route::get("/", "index")->name("hidden.index");
-            Route::get("/get", "get")->name("hidden.get");
-            Route::delete("/", "delete")->name("hidden.delete");
+            Route::post("/auth", "auth")->name("hidden.auth"); // Create session for to decrypt hidden images
+            // Route::get("/", "index")->name("hidden.index");
+            // Route::get("/get", "get")->name("hidden.get");
+            // Route::delete("/", "delete")->name("hidden.delete");
         });
     });
 });

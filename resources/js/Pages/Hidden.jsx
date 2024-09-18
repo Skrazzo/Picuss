@@ -8,7 +8,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
         <AuthLayout auth={auth}>
             <Title title={title} />
             {!allowed && (
-                <PinAuthenticate opened={true} title="" closeButton={false} firstTime={hasPin} />
+                <PinAuthenticate opened={true} title="" closeButton={false} firstTime={!hasPin} />
             )}
         </AuthLayout>
     );

@@ -7,23 +7,26 @@ import ConfirmationModal from "../ConfirmationModal";
 export default function PinAuthenticate({ opened, closeButton = true, firstTime = false }) {
     if (!opened) return <></>;
 
-    const [open, { openModal, closeModal }] = useDisclosure(opened);
+    const [open, setModal] = useDisclosure(opened);
 
     const iconProps = {
         strokeWidth: 1.25,
         size: 20,
     };
 
+    // TODO: Create pin-code
+    // TODO: Encrypt first files
+
     return (
         <ConfirmationModal
             opened={open}
-            close={closeModal}
+            close={() => setModal.close()}
             title={firstTime ? "Create pin-code" : "Enter pin-code"}
             color={"green"}
             icon={<IconKey />}
             childrenText={false}
             confirmBtnText="Create pin-code"
-            hideButtons
+            hideButtons={!firstTime}
         >
             {firstTime && (
                 <Text mt={8} size="lg" c={"dimmed"}>

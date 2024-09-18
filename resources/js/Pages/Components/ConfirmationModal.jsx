@@ -14,6 +14,7 @@ export default function ConfirmationModal({
     childrenText = true, // specifies if children are text, or custom elements
     confirmBtnText = "Confirm",
     loading = false,
+    hideButtons = false,
 }) {
     const [modalOpened, setModalOpened] = useState(false);
     const [confirm, setConfirm] = useState(false);
@@ -84,27 +85,29 @@ export default function ConfirmationModal({
                                     </div>
                                 </div>
 
-                                <div className={"footer"}>
-                                    <Button
-                                        onClick={onConfirmHandler}
-                                        variant={confirm ? "outline" : "light"}
-                                        color={colors[color]}
-                                        loading={loading}
-                                    >
-                                        {confirm ? "Are you sure?" : confirmBtnText}
-                                    </Button>
+                                {!hideButtons && (
+                                    <div className={"footer"}>
+                                        <Button
+                                            onClick={onConfirmHandler}
+                                            variant={confirm ? "outline" : "light"}
+                                            color={colors[color]}
+                                            loading={loading}
+                                        >
+                                            {confirm ? "Are you sure?" : confirmBtnText}
+                                        </Button>
 
-                                    <Button
-                                        onClick={() => {
-                                            onCancel();
-                                            close();
-                                        }}
-                                        variant={confirm ? "light" : "outline"}
-                                        color={colors[color]}
-                                    >
-                                        Cancel
-                                    </Button>
-                                </div>
+                                        <Button
+                                            onClick={() => {
+                                                onCancel();
+                                                close();
+                                            }}
+                                            variant={confirm ? "light" : "outline"}
+                                            color={colors[color]}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </Transition>

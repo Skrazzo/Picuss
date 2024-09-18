@@ -22,6 +22,7 @@ import { useDisclosure, useWindowScroll } from "@mantine/hooks";
 import {
     IconArrowUp,
     IconBrandOnedrive,
+    IconEyeOff,
     IconLink,
     IconLogout2,
     IconPhoto,
@@ -178,6 +179,12 @@ export default function AuthLayout({
                         icon={<IconPhoto {...defaultIconProps} />}
                         text={"Pictures"}
                         hrefRoute={"dashboard"}
+                    />
+                    <MenuOption
+                        currentRoute={auth.route}
+                        icon={<IconEyeOff {...defaultIconProps} />}
+                        text={"Hidden pictures"}
+                        hrefRoute={"hidden.index"}
                     />
                     <MenuOption
                         currentRoute={auth.route}

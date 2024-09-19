@@ -106,12 +106,19 @@ class HiddenPinController extends Controller
      */
     public function auth(Request $req)
     {
-        try {
-            $data = ValidateApi::validate($req, [
-                "pin" => "required|length:6",
-            ]);
-        } catch (Exception $e) {
-            return response()->json($e->getMessage(), $e->getCode());
+        $isInertia = $req->header("X-Inertia") === "true";
+
+        $rules = ["pin" => "required|min:6"];
+        if ($isInertia) {
+            // If inertia called this instance, then we need to return error according to Inertia response
+            $data = $req->validate($rules);
+        } else {
+            // Api type response
+            try {
+                $data = ValidateApi::validate($req, $rules);
+            } catch (Exception $e) {
+                return response()->json($e->getMessage(), $e->getCode());
+            }
         }
 
         /*
@@ -136,8 +143,9 @@ class HiddenPinController extends Controller
 
         // Securely store the pin code in the session, for temp file decyption and encryption
         session()->put("pin", $data["pin"]);
-        return response()->json([
-            "message" => "Pin correct",
-        ]);
+        // return response()->json([
+        //     "message" => "Pin correct",
+        // ]);
+        return back();
     }
 }

@@ -43,7 +43,16 @@ export default function PinAuthenticate({
     const pinForm = useForm({
         pin: null,
     });
-    const authenticate = () => {};
+    const authenticate = () => {
+        pinForm.post(route("hidden.auth"), {
+            onSuccess: (res) => {
+                console.log(res);
+            },
+            onError: (err) => {
+                console.error(err);
+            },
+        });
+    };
 
     // TODO: Create pin-code
     // TODO: Encrypt first files
@@ -58,6 +67,7 @@ export default function PinAuthenticate({
                 icon={<IconKey />}
                 childrenText={false}
                 loading={true}
+                onConfirm={() => {}}
             >
                 <Skeleton mt={16} h={16} />
                 <Skeleton mt={8} h={16} w={"40%"} />
@@ -76,6 +86,7 @@ export default function PinAuthenticate({
             childrenText={false}
             confirmBtnText="Create pin-code"
             hideButtons={!firstTime}
+            onConfirm={authenticate}
         >
             {firstTime && (
                 <Text mt={8} size="lg" c={"dimmed"}>
@@ -99,7 +110,13 @@ export default function PinAuthenticate({
                 autoFocus
                 value={pinForm.data.pin}
                 onChange={(e) => pinForm.setData("pin", e)}
+                error={pinForm.hasErrors}
             />
+            {pinForm.hasErrors && (
+                <Text c={"red"} size="sm" mt={8}>
+                    {pinForm.errors.pin}
+                </Text>
+            )}
         </ConfirmationModal>
     );
 }

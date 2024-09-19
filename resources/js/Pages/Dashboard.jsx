@@ -2,6 +2,7 @@ import { ActionIcon, Center, Menu, Modal, Pagination, Skeleton, Text } from "@ma
 import {
     IconCheck,
     IconDotsVertical,
+    IconEyeOff,
     IconPhotoOff,
     IconSelectAll,
     IconShare,
@@ -26,6 +27,7 @@ import RemoveTags from "./Components/MultiSelect/RemoveTags";
 import errorNotification from "./Functions/errorNotification";
 import showNotification from "./Functions/showNotification";
 import ConfirmationModal from "./Components/ConfirmationModal";
+import PinAuthenticate from "./Components/Hidden/PinAuthenticate";
 
 export default function Dashboard({ auth, title = "", preSelected = null }) {
     const [page, setPage] = useState(1);
@@ -34,11 +36,13 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
     const [processing, setProcessing] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
 
+    // For hidden picutre pin-code
+    const [hiddenModal, setHiddenModal] = useState(false);
+
     // Available tagas
     const [userTags, setUserTags] = useState([]);
 
     // queried tags
-    // TODO: Finish preselected tags, and add it to manage tags
     const queryTags = useState(preSelected ? [parseInt(preSelected)] : []);
     const firstRender = useRef(true);
 
@@ -455,6 +459,8 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
             maxPage={totalPages}
             className={selectedImage ? sty.no_scroll : ""}
         >
+            <PinAuthenticate opened={hiddenModal} onClose={() => setHiddenModal(false)} />
+
             <Modal
                 opened={addTagsConfirm}
                 title={"Add tags to the pictures"}
@@ -551,6 +557,13 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                                     onClick={sharePicturesHandler}
                                 >
                                     Share pictures
+                                </Menu.Item>
+                                {/* TODO: download pictures */}
+                                <Menu.Item
+                                    leftSection={<IconEyeOff {...iconProps} />}
+                                    onClick={() => setHiddenModal(true)}
+                                >
+                                    Hide pictures
                                 </Menu.Item>
                                 <Menu.Item
                                     color="red"

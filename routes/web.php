@@ -79,6 +79,7 @@ Route::middleware("auth")->group(function () {
         Route::controller(HiddenPinController::class)->group(function () {
             Route::get("/", "index")->name("hidden.index");
             Route::post("/auth", "auth")->name("hidden.auth"); // Create session for to decrypt hidden images
+            Route::get("/info", "info")->name("hidden.info"); // Get user info about his hidden pictures
             // Route::get("/get", "get")->name("hidden.get");
             // Route::delete("/", "delete")->name("hidden.delete");
         });

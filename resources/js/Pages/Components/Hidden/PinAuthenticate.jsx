@@ -1,26 +1,75 @@
-import { Button, Center, Flex, Group, Modal, PinInput, Text } from "@mantine/core";
+import { PinInput, Skeleton, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconKey } from "@tabler/icons-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ConfirmationModal from "../ConfirmationModal";
+import axios from "axios";
+import errorNotification from "../../Functions/errorNotification";
+import { useForm } from "@inertiajs/react";
 
-export default function PinAuthenticate({ opened, closeButton = true, firstTime = false }) {
+export default function PinAuthenticate({
+    opened,
+    onClose,
+    closeButton = true,
+    firstTime: firstTimeProp = null,
+}) {
     if (!opened) return <></>;
 
+    const [firstTime, setFirstTime] = useState(firstTimeProp);
     const [open, setModal] = useDisclosure(opened);
 
-    const iconProps = {
-        strokeWidth: 1.25,
-        size: 20,
+    // TODO: remove if nott needed
+    // const iconProps = {
+    //     strokeWidth: 1.25,
+    //     size: 20,
+    // };
+
+    const closeModal = () => {
+        setModal.close();
+        setTimeout(() => onClose(), 300);
     };
+
+    // Fetch user hidden data, in case firstTimeProp is not provided
+    useEffect(() => {
+        if (firstTime !== null) {
+            return;
+        }
+
+        axios.get(route("hidden.info")).then((res) => {
+            setFirstTime(!res.data.hasPin);
+        });
+    }, []);
+
+    const pinForm = useForm({
+        pin: null,
+    });
+    const authenticate = () => {};
 
     // TODO: Create pin-code
     // TODO: Encrypt first files
 
+    if (firstTime === null) {
+        return (
+            <ConfirmationModal
+                opened={open}
+                close={closeModal}
+                title={<Skeleton h={35} />}
+                color={"green"}
+                icon={<IconKey />}
+                childrenText={false}
+                loading={true}
+            >
+                <Skeleton mt={16} h={16} />
+                <Skeleton mt={8} h={16} w={"40%"} />
+                <Skeleton mt={8} h={16} w={"70%"} />
+            </ConfirmationModal>
+        );
+    }
+
     return (
         <ConfirmationModal
             opened={open}
-            close={() => setModal.close()}
+            close={closeModal}
             title={firstTime ? "Create pin-code" : "Enter pin-code"}
             color={"green"}
             icon={<IconKey />}
@@ -41,41 +90,16 @@ export default function PinAuthenticate({ opened, closeButton = true, firstTime 
                 </Text>
             )}
 
-            <PinInput mt={16} size="md" length={6} mask type={"number"} autoFocus />
-        </ConfirmationModal>
-    );
-
-    return (
-        <Modal
-            opened={open}
-            onClose={closeModal}
-            title={""}
-            withCloseButton={closeButton}
-            size={"480px"}
-        >
-            <Text align={"center"} size="xl">
-                Please enter your pin to access hidden pictures
-            </Text>
-            <Text align={"center"} mt={8} size="lg" c={"dimmed"} hidden={!firstTime}>
-                Entering your pin will create a new pin-code for your user, but won't save it on the
-                server, so make sure to remember it.
-            </Text>
-
             <PinInput
-                mt={24}
-                // size="100%"
-                // h={40}
+                mt={16}
+                size="md"
                 length={6}
                 mask
                 type={"number"}
-                // autoFocus
+                autoFocus
+                value={pinForm.data.pin}
+                onChange={(e) => pinForm.setData("pin", e)}
             />
-
-            {firstTime && (
-                <Group mt={16}>
-                    <Button leftSection={<IconKey {...iconProps} />}>Create pin-code</Button>
-                </Group>
-            )}
-        </Modal>
+        </ConfirmationModal>
     );
 }

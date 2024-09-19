@@ -30,6 +30,64 @@ class HiddenPinController extends Controller
     }
 
     /**
+     * Returns information about the user's hidden pin.
+     *
+     * @api {get} /hidden/info Get hidden pin info
+     * @apiName GetHiddenPinInfo
+     * @apiGroup Hidden
+     * @apiPermission Only for authenticated users
+     *
+     * @apiSuccess {Boolean} hasPin If the user has ever made a pin
+     * @apiSuccess {Boolean} authenticated If the user is currently authenticated with the correct pin
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 Ok
+     *     {
+     *       "hasPin": true,
+     *       "authenticated": true
+     *     }
+     */
+    public function info(Request $req)
+    {
+        $user = auth()->user();
+        $hasPin = $user->pin()->first() ? true : false;
+
+        return response()->json([
+            "hasPin" => $hasPin,
+            "authenticated" => $this->authenticated($req),
+        ]);
+    }
+
+    /**
+     * Checks if the user is authenticated with the correct pin code.
+     * If pin is not set, returns false.
+     * If pin code is not set in the session, returns false.
+     * If the pin code in the session does not match the hash in the database, returns false.
+     * Otherwise returns true.
+     *
+     * @param Request $req
+     * @return bool
+     */
+    public function authenticated(Request $req)
+    {
+        $pin = auth()->user()->pin()->first();
+        if (!$pin) {
+            return false;
+        }
+
+        $pinCode = session("pin");
+        if ($pinCode === null) {
+            return false;
+        }
+
+        if (!Hash::check($pinCode, $pin->pin)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @api {post} /hidden/auth Authorize user with a pin
      * @apiName AuthorizeWithPin
      * @apiGroup Hidden

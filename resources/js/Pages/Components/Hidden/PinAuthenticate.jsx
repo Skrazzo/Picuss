@@ -10,6 +10,7 @@ import { useForm } from "@inertiajs/react";
 export default function PinAuthenticate({
     opened,
     onClose,
+    onSuccessAuth,
     closeButton = true,
     firstTime: firstTimeProp = null,
 }) {
@@ -17,6 +18,10 @@ export default function PinAuthenticate({
 
     const [firstTime, setFirstTime] = useState(firstTimeProp);
     const [open, setModal] = useDisclosure(opened);
+    const [pinForm, setPinForm] = useState({
+        pin: null,
+        error: null,
+    });
 
     // TODO: remove if nott needed
     // const iconProps = {
@@ -36,23 +41,46 @@ export default function PinAuthenticate({
         }
 
         axios.get(route("hidden.info")).then((res) => {
+            if (res.data.authenticated) {
+                onSuccessAuth();
+                return;
+            }
             setFirstTime(!res.data.hasPin);
         });
     }, []);
 
-    const pinForm = useForm({
-        pin: null,
-    });
     const authenticate = () => {
-        pinForm.post(route("hidden.auth"), {
-            onSuccess: (res) => {
-                console.log(res);
-            },
-            onError: (err) => {
+        axios
+            .post(route("hidden.auth"), { pin: pinForm.pin })
+            .then((res) => onSuccessAuth())
+            .catch((err) => {
                 console.error(err);
-            },
-        });
+                if (err.response.status === 422) {
+                    // Validation error
+
+                    console.log(JSON.parse(err.response.data).pin);
+                    setPinForm({
+                        pin: "",
+                        error: JSON.parse(err.response.data).pin,
+                    });
+                } else {
+                    setPinForm({
+                        pin: "",
+                        error: err["message"],
+                    });
+                }
+            });
     };
+
+    useEffect(() => {
+        if (firstTime) {
+            return;
+        }
+
+        if (pinForm.pin !== null && pinForm.pin.length === 6) {
+            authenticate();
+        }
+    }, [pinForm]);
 
     // TODO: Create pin-code
     // TODO: Encrypt first files
@@ -87,6 +115,7 @@ export default function PinAuthenticate({
             confirmBtnText="Create pin-code"
             hideButtons={!firstTime}
             onConfirm={authenticate}
+            closeOnConfirm={false}
         >
             {firstTime && (
                 <Text mt={8} size="lg" c={"dimmed"}>
@@ -108,13 +137,13 @@ export default function PinAuthenticate({
                 mask
                 type={"number"}
                 autoFocus
-                value={pinForm.data.pin}
-                onChange={(e) => pinForm.setData("pin", e)}
-                error={pinForm.hasErrors}
+                value={pinForm.pin}
+                onChange={(e) => setPinForm({ ...pinForm, pin: e })}
+                error={pinForm.error}
             />
-            {pinForm.hasErrors && (
+            {pinForm.error && (
                 <Text c={"red"} size="sm" mt={8}>
-                    {pinForm.errors.pin}
+                    {pinForm.error}
                 </Text>
             )}
         </ConfirmationModal>

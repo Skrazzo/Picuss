@@ -177,6 +177,7 @@ class PictureController extends Controller
                     $query->orWhereJsonContains("tags", $tagId);
                 }
             })
+            ->where("hidden", false)
             ->orderBy("created_at", "DESC")
             ->skip($skip)
             ->take($perPage)

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Disks;
+use App\Helpers\Encrypt;
 use App\Helpers\ValidateApi;
 use Exception;
 use Illuminate\Http\Request;
@@ -80,11 +82,45 @@ class HiddenPinController extends Controller
             return false;
         }
 
-        if (!Hash::check($pinCode, $pin->pin)) {
+        if (!Hash::check($pinCode, $pin->hash)) {
             return false;
         }
 
         return true;
+    }
+
+    public function hide(Request $req)
+    {
+        if (!$this->authenticated($req)) {
+            return abort(403);
+        }
+
+        try {
+            $data = ValidateApi::validate($req, ["pictures" => "required|array"]);
+        } catch (Exception $e) {
+            return response()->json($e->getMessage(), $e->getCode());
+        }
+
+        $user = auth()->user();
+        [$imageDisk, $halfDisk, $thumbDisk] = Disks::allDisks();
+
+        foreach ($data["pictures"] as $picId) {
+            $pic = $user->picture()->where("public_id", $picId)->first();
+
+            if (!$pic) {
+                // If picture does not exist, skip it
+                continue;
+            }
+
+            $pin = session("pin");
+            // Encrypt the picture
+            Encrypt::encrypt($imageDisk, $pic->image, $pin);
+
+            $pic->hidden = true;
+            $pic->save();
+        }
+
+        return response(200);
     }
 
     /**
@@ -143,9 +179,12 @@ class HiddenPinController extends Controller
 
         // Securely store the pin code in the session, for temp file decyption and encryption
         session()->put("pin", $data["pin"]);
-        // return response()->json([
-        //     "message" => "Pin correct",
-        // ]);
-        return back();
+
+        if ($isInertia) {
+            return back();
+        }
+        return response()->json([
+            "message" => "Pin correct",
+        ]);
     }
 }

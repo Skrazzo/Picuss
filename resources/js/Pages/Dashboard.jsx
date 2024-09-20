@@ -55,6 +55,9 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
 
     const [containerSize, containerRef] = useElementSize();
 
+    // For hiding images
+    const [confirmHide, setConfirmHide] = useState({ showModal: false, loading: false });
+
     useEffect(() => {
         if (firstRender.current) {
             firstRender.current = false;
@@ -448,6 +451,16 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
         size: 24,
     };
 
+    // Hiding pictures request
+
+    function hidePicturesHandler() {
+        setConfirmHide({ ...confirmHide, loading: true });
+        axios
+            .post(route("hide.pictures"), { pictures: multiSelect })
+            .then((res) => {})
+            .catch((err) => console.log(err));
+    }
+
     return (
         <AuthLayout
             queryTags={queryTags}
@@ -459,7 +472,14 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
             maxPage={totalPages}
             className={selectedImage ? sty.no_scroll : ""}
         >
-            <PinAuthenticate opened={hiddenModal} onClose={() => setHiddenModal(false)} />
+            <PinAuthenticate
+                opened={hiddenModal}
+                onClose={() => setHiddenModal(false)}
+                onSuccessAuth={() => {
+                    setHiddenModal(false);
+                    setConfirmHide({ showModal: true, loading: false });
+                }}
+            />
 
             <Modal
                 opened={addTagsConfirm}
@@ -506,6 +526,20 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                     {multiSelect === null ? 0 : multiSelect.length}
                 </b>{" "}
                 pictures from your gallery
+            </ConfirmationModal>
+
+            <ConfirmationModal
+                opened={confirmHide.showModal}
+                icon={<IconEyeOff />}
+                title="Hide pictures"
+                color={"green"}
+                close={() => setConfirmHide({ ...confirmHide, showModal: false })}
+                closeOnConfirm={false}
+                onConfirm={() => hidePicturesHandler()}
+                loading={confirmHide.loading}
+            >
+                Hiding these pictures will encrypt them, and they will be only available in the
+                hidden picture section.
             </ConfirmationModal>
 
             <Title title={title} />

@@ -53,6 +53,15 @@ class Encrypt
         return $decrypted;
     }
 
+    /**
+     * Decrypts a file with a given password, using AES-256-CBC,
+     * and returns the decrypted file contents as a base64 encoded string,
+     * prefixed with "data:image/jpeg;base64,".
+     *
+     * @return string The decrypted file contents as a base64 encoded string
+     *
+     * @throws \Exception If there is an error decrypting the file
+     */
     public static function decrypt2Base64($storage, string $fileName, string $password)
     {
         try {

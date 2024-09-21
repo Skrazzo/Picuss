@@ -6,6 +6,7 @@ import sty from "../../scss/Dashboard.module.scss";
 import { IconPhotoOff } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Dashboard from "./Dashboard";
 
 export default function Hidden({ allowed, title, auth, hasPin }) {
     const [images, setImages] = useState(null);

@@ -1,7 +1,7 @@
 import PinAuthenticate from "./Components/Hidden/PinAuthenticate";
 import Title from "./Components/Title";
 import AuthLayout from "./Layouts/AuthLayout";
-import { Skeleton, Text } from "@mantine/core";
+import { Center, Pagination, Skeleton, Text } from "@mantine/core";
 import sty from "../../scss/Dashboard.module.scss";
 import { IconCheck, IconPhotoOff } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
@@ -13,11 +13,19 @@ import generateRandomBetween from "./Functions/randomNumberBetween";
 import segmentalSwitch from "./Functions/segmentalSwitch";
 import checkIfMobile from "./Functions/checkIfMobile";
 import PictureViewer from "./Components/PictureViewer";
+import scrollUp from "./Functions/scrollUp";
+import useElementSize from "./Functions/useElementSize";
 
 export default function Hidden({ allowed, title, auth, hasPin }) {
     const firstRender = useRef(true);
     const [images, setImages] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
+
+    const [processing, setProcessing] = useState(false);
+    const [containerSize, containerRef] = useElementSize();
+
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     // Available tagas
     const [userTags, setUserTags] = useState([]);
@@ -63,11 +71,23 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
         setImages(newImages);
     }
 
+    function resetStates() {
+        setImages(null);
+        setMultiSelect(null);
+    }
+
     function searchImages() {
-        axios.get(route("get.hidden.resized.images", 1)).then((res) => {
+        resetStates();
+        setProcessing(true);
+
+        axios.get(route("get.hidden.resized.images", page)).then((res) => {
             // Checks the switch, to see what images to display
             // Segmental switch fuction, splits images into segmental arrays based on the segment control
             setImages(segmentalSwitch(res.data.images, images, segmentControl));
+
+            setTotalPages(res.data.totalPages);
+            setProcessing(false);
+            scrollUp({ timeout: false });
         });
 
         // get user tags
@@ -75,9 +95,12 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
     }
 
     useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+        }
+
         searchImages();
-        firstRender.current = false;
-    }, []);
+    }, [page]);
 
     useEffect(() => {
         if (firstRender.current) return;
@@ -298,6 +321,20 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
                     );
                 })
             )}
+
+            <Center ref={containerRef}>
+                <Pagination
+                    siblings={containerSize.width < 600 ? 1 : 3}
+                    disabled={processing}
+                    value={page}
+                    mx={"auto"}
+                    my={32}
+                    total={totalPages}
+                    onChange={setPage}
+                    size={containerSize.width < 600 ? "sm" : "md"}
+                />
+            </Center>
+            <section id="bottom-section"></section>
         </AuthLayout>
     );
 }

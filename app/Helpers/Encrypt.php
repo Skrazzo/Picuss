@@ -31,23 +31,37 @@ class Encrypt
         }
     }
 
-    public static function decrypt(Storage $storage, string $file, string $password)
+    /**
+     * Decrypts a file with a given password, using AES-256-CBC.
+     *
+     * @param Storage $storage The storage to use
+     * @param string $file The file name to decrypt
+     * @param string $password The password to decrypt with
+     *
+     * @return string The decrypted file contents
+     */
+    public static function decrypt($storage, string $file, string $password)
     {
-        try {
-            $encrypted = $storage->get($file);
-            $decrypted = openssl_decrypt(
-                $encrypted,
-                "AES-256-CBC",
-                $password,
-                OPENSSL_RAW_DATA,
-                substr(sha1($password), 0, 16)
-            );
-            $storage->put($file, $decrypted);
-        } catch (\Exception $e) {
-            throw new \Exception("Error decrypting $file");
-        }
+        $encrypted = $storage->get($file);
+        $decrypted = openssl_decrypt(
+            $encrypted,
+            "AES-256-CBC",
+            $password,
+            OPENSSL_RAW_DATA,
+            substr(sha1($password), 0, 16)
+        );
+        return $decrypted;
     }
 
+    public static function decrypt2Base64($storage, string $fileName, string $password)
+    {
+        try {
+            $decrypted = self::decrypt($storage, $fileName, $password);
+            return "data:image/jpeg;base64," . base64_encode($decrypted);
+        } catch (\Exception $e) {
+            throw new \Exception("Error decrypting $fileName");
+        }
+    }
     /**
      * Encrypts multiple files across multiple storages with a single password.
      *

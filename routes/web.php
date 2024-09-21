@@ -35,7 +35,7 @@ Route::middleware("auth")->group(function () {
             Route::get("/{picture:public_id}", "get_image")->name("get.image"); // Get image
             Route::get("/download/{picture:public_id}", "download_image")->name("download.image");
             Route::get("/resized/{page}", "get_resized_images")->name("get.resized.images"); // Get resized image array for the whole page
-            // Moved outside of auth middleware
+            // Moved outside of auth middlewa   re
             Route::get("/thumb/{picture:public_id}", "get_thumbnail")->name("get.thumb.image"); // get thumbnail
             Route::get("/half/{picture:public_id}", "get_half_picture")->name("get.half.image"); // get scaled down image
             Route::delete("/delete/{picture:public_id}", "delete_picture")->name("delete.picture");
@@ -78,9 +78,10 @@ Route::middleware("auth")->group(function () {
     Route::prefix("/hidden")->group(function () {
         Route::controller(HiddenPinController::class)->group(function () {
             Route::get("/", "index")->name("hidden.index");
-            Route::post("/auth", "auth")->name("hidden.auth"); // Create session for to decrypt hidden images
+            Route::post("/auth", "auth")->name("hidden.auth"); // Create session for decrypting hidden images
             Route::post("/hide", "hide")->name("hide.pictures"); // Hide pictures and encrypt pictures
             Route::get("/info", "info")->name("hidden.info"); // Get user info about his hidden pictures
+            Route::get("/resized/{page}", "get_resized_images")->name("get.hidden.resized.images"); // Get resized image array for the whole page
             // Route::get("/get", "get")->name("hidden.get");
             // Route::delete("/", "delete")->name("hidden.delete");
         });

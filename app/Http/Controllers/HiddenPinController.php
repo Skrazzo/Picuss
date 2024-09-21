@@ -102,7 +102,7 @@ class HiddenPinController extends Controller
         }
 
         $user = auth()->user();
-        [$imageDisk, $halfDisk, $thumbDisk] = Disks::allDisks();
+        $disks = Disks::allDisks();
 
         foreach ($data["pictures"] as $picId) {
             $pic = $user->picture()->where("public_id", $picId)->first();
@@ -114,7 +114,8 @@ class HiddenPinController extends Controller
 
             $pin = session("pin");
             // Encrypt the picture
-            Encrypt::encrypt($imageDisk, $pic->image, $pin);
+
+            Encrypt::encryptFiles($disks, [$pic->image], $pin);
 
             $pic->hidden = true;
             $pic->save();
@@ -186,5 +187,125 @@ class HiddenPinController extends Controller
         return response()->json([
             "message" => "Pin correct",
         ]);
+    }
+
+    public function get_half_picture(Picture $picture)
+    {
+        if (auth()->id() != $picture->user_id) {
+            return response('You\'re not allowed to view this', 403);
+        }
+
+        // Get storages
+        $SERVER_IMAGE_HALF_DISK = env("SERVER_IMAGE_HALF_DISK", "half_images");
+        $disk = Storage::disk($SERVER_IMAGE_HALF_DISK);
+
+        // If half size already exists, show it
+        if ($disk->exists($picture->image)) {
+            // if exists return
+            return $disk->response($picture->image);
+        }
+
+        // ------ Create half size image -------
+
+        // Get storage
+        $SERVER_IMAGE_DISK = env("SERVER_IMAGE_DISK", "images");
+        $imageDisk = Storage::disk($SERVER_IMAGE_DISK);
+
+        // Check if image exists
+        if (!$imageDisk->exists($picture->image)) {
+            return response("Original Image does not exist!!!", 500);
+        }
+
+        // Scale down original image
+        $path = $imageDisk->path($picture->image);
+        $imageSize = getimagesize($path);
+        $scalePercentage = env("scaledDownImages", 20); // Image is going to be n% from all the width pixels
+        $resultPixels = ($scalePercentage * $imageSize[0]) / 100;
+
+        // Initiate scaling down, and save the image
+        $manager = new ImageManager(new Driver());
+        $image = $manager->read($path);
+        $image->scaleDown(width: $resultPixels);
+        $image->save($disk->path($picture->image));
+
+        // Return half size image
+        return $disk->response($picture->image);
+    }
+
+    public function get_resized_images(Request $req, $page)
+    {
+        // TODO: If in the future i won't be using other disks, then remove this, and use only thumb Disk
+        [$image, $half, $thumb] = Disks::allDisks();
+
+        if ($page < 1) {
+            return response()->json(["message" => "Page cannot be below 0"], 422);
+        }
+
+        // queriedTags
+        $queryTags = [];
+
+        // Check either user is querying tags or not
+        $data = $req->all();
+        if (isset($data["queryTags"])) {
+            $queryTags = json_decode($data["queryTags"]);
+        }
+
+        // Picture per page
+        $perPage = env("perPage", 40);
+        $skip = ($page - 1) * $perPage;
+
+        $pictures = $req
+            ->user()
+            ->picture()
+            ->where(function ($query) use ($queryTags) {
+                // This function searches for tags in json
+                foreach ($queryTags as $tagId) {
+                    $query->orWhereJsonContains("tags", $tagId);
+                }
+            })
+            ->where("hidden", true) // Search only pictures that are encrypted
+            ->orderBy("created_at", "DESC")
+            ->skip($skip)
+            ->take($perPage)
+            ->get();
+
+        // build a return array
+        $rtn_arr = [
+            "totalPages" => ceil(
+                $req
+                    ->user()
+                    ->picture()
+                    ->where(function ($query) use ($queryTags) {
+                        // This function searches for tags in json
+                        foreach ($queryTags as $tagId) {
+                            $query->orWhereJsonContains("tags", $tagId);
+                        }
+                    })
+                    ->where("hidden", true)
+                    ->count() / $perPage
+            ),
+            "images" => [],
+        ];
+
+        foreach ($pictures as $pic) {
+            $rtn_arr["images"][] = [
+                "id" => $pic->public_id,
+                "name" => $pic->image,
+                "size" => round($pic->size, 3),
+                "tags" => $pic->tags,
+                "uploaded" => $pic->created_at,
+                "uploaded_ago" => str_replace(
+                    "before",
+                    "ago",
+                    $pic->created_at->diffForHumans(now())
+                ),
+                "thumb" => Encrypt::decrypt2Base64($thumb, $pic->image, session("pin")),
+                "width" => $pic->width,
+                "height" => $pic->height,
+                "aspectRatio" => round($pic->width / $pic->height, 2) . "/1",
+            ];
+        }
+
+        return response()->json($rtn_arr);
     }
 }

@@ -79,6 +79,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
 
     function resetStates() {
         setImages(null);
+        setMultiSelect(null);
     }
 
     useEffect(() => {
@@ -100,6 +101,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
 
         if (preSelected !== null) {
             // pre selected tag, we need to remove query params from url
+            // ?tag=123
             if (window.history.replaceState) {
                 const url =
                     window.location.protocol +
@@ -457,8 +459,11 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
         setConfirmHide({ ...confirmHide, loading: true });
         axios
             .post(route("hide.pictures"), { pictures: multiSelect })
-            .then((res) => {})
-            .catch((err) => console.log(err));
+            .then(() => {
+                setConfirmHide({ showModal: false, loading: false });
+                imageSearch();
+            })
+            .catch((err) => console.error(err));
     }
 
     return (

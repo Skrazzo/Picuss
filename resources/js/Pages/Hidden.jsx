@@ -4,7 +4,8 @@ import AuthLayout from "./Layouts/AuthLayout";
 import { Text } from "@mantine/core";
 import sty from "../../scss/Dashboard.module.scss";
 import { IconPhotoOff } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function Hidden({ allowed, title, auth, hasPin }) {
     const [images, setImages] = useState(null);
@@ -26,12 +27,22 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
         </>
     );
 
+    function searchImages() {
+        axios.get(route("get.hidden.resized.images", 1)).then((res) => console.log(res.data));
+    }
+
+    useEffect(() => {
+        searchImages();
+    }, []);
+
     return (
         <AuthLayout auth={auth}>
             <Title title={title} />
             {!allowed && (
                 <PinAuthenticate opened={true} title="" closeButton={false} firstTime={!hasPin} />
             )}
+
+            {images === null && noPicturesFound}
         </AuthLayout>
     );
 }

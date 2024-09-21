@@ -195,6 +195,7 @@ class PictureController extends Controller
                             $query->orWhereJsonContains("tags", $tagId);
                         }
                     })
+                    ->where("hidden", false)
                     ->count() / $perPage
             ),
             "images" => [],

@@ -56,6 +56,7 @@ Route::middleware("auth")->group(function () {
             Route::post("/images/set", "setImagesTags")->name("tags.images.set"); // Set multiple tags for multiple images
             Route::delete("/images/remove", "removeImagesTags")->name("tags.images.remove"); // Remove multiple tags for multiple pictures
             Route::delete("/softDelete", "softDeleteTag")->name("tags.softDelete"); // Delete tag without deleting it's picturess
+            Route::get("/hidden", "hidden_get_tags")->name("hidden.get.tags"); // Get tags of hidden images
         });
 
         Route::controller(ShareTagsController::class)->group(function () {
@@ -81,16 +82,21 @@ Route::middleware("auth")->group(function () {
             Route::post("/auth", "auth")->name("hidden.auth"); // Create session for decrypting hidden images
             Route::post("/hide", "hide")->name("hide.pictures"); // Hide pictures and encrypt pictures
             Route::get("/info", "info")->name("hidden.info"); // Get user info about his hidden pictures
-            Route::get("/resized/{page}", "get_resized_images")->name("get.hidden.resized.images"); // Get resized image array for the whole page
+
+            // All routes related to images
+            Route::prefix("/image")->group(function () {
+                Route::get("/resized/{page}", "get_resized_images")->name("get.hidden.resized.images");
+                Route::get("/half/{picture:public_id}", "get_half_picture")->name("get.hidden.half.image");
+                Route::get("/full/{picture:public_id}", "get_full_picture")->name("get.hidden.full.image");
+            });
+
             // Route::get("/get", "get")->name("hidden.get");
             // Route::delete("/", "delete")->name("hidden.delete");
         });
     });
 });
 
-Route::get("/image/meta/{image}", [PictureController::class, "get_meta_image"])->name(
-    "get.meta.image"
-); // get image for meta tag
+Route::get("/image/meta/{image}", [PictureController::class, "get_meta_image"])->name("get.meta.image"); // get image for meta tag
 // Route::get('/image/thumb/{picture:public_id}', [PictureController::class, 'get_thumbnail'])->name('get.thumb.image'); // get thumbnail
 
 // Shared images routes
@@ -113,9 +119,7 @@ Route::prefix("/s")->group(function () {
     Route::controller(ShareTagsController::class)->group(function () {
         Route::prefix("/t")->group(function () {
             Route::get("/{tag:tag_public_id}", "view")->name("share.tag.page"); // Index view
-            Route::get("/full/{picture:public_id}", "get_full_image")->name(
-                "share.tags.get.picture"
-            ); // get full size image
+            Route::get("/full/{picture:public_id}", "get_full_image")->name("share.tags.get.picture"); // get full size image
             Route::get("/download/{tag}", "download")->name("share.tag.download"); // Download all images belonging to a tag
             Route::get("/{tag:tag_public_id}/{page}", "get")->name("share.tags.api"); // Get shared tag pictures in api format
         });

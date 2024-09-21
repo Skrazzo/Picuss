@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\Disks;
 use App\Helpers\Encrypt;
 use App\Helpers\ValidateApi;
+use App\Models\Picture;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -189,6 +190,24 @@ class HiddenPinController extends Controller
         ]);
     }
 
+    public function get_full_picture(Picture $picture)
+    {
+        if (auth()->id() != $picture->user_id) {
+            return response('You\'re not allowed to view this', 403);
+        }
+
+        // Get storages
+        $disk = Disks::image();
+
+        // Check if image exists, show error if doesn't
+        if (!$disk->exists($picture->image)) {
+            return response("Not found", 404);
+        }
+
+        $halfImage = Encrypt::decrypt($disk, $picture->image, session("pin"));
+        return response($halfImage, 200);
+    }
+
     public function get_half_picture(Picture $picture)
     {
         if (auth()->id() != $picture->user_id) {
@@ -196,40 +215,15 @@ class HiddenPinController extends Controller
         }
 
         // Get storages
-        $SERVER_IMAGE_HALF_DISK = env("SERVER_IMAGE_HALF_DISK", "half_images");
-        $disk = Storage::disk($SERVER_IMAGE_HALF_DISK);
+        $disk = Disks::half();
 
-        // If half size already exists, show it
-        if ($disk->exists($picture->image)) {
-            // if exists return
-            return $disk->response($picture->image);
+        // Check if image exists, show error if doesn't
+        if (!$disk->exists($picture->image)) {
+            return response("Not found", 404);
         }
 
-        // ------ Create half size image -------
-
-        // Get storage
-        $SERVER_IMAGE_DISK = env("SERVER_IMAGE_DISK", "images");
-        $imageDisk = Storage::disk($SERVER_IMAGE_DISK);
-
-        // Check if image exists
-        if (!$imageDisk->exists($picture->image)) {
-            return response("Original Image does not exist!!!", 500);
-        }
-
-        // Scale down original image
-        $path = $imageDisk->path($picture->image);
-        $imageSize = getimagesize($path);
-        $scalePercentage = env("scaledDownImages", 20); // Image is going to be n% from all the width pixels
-        $resultPixels = ($scalePercentage * $imageSize[0]) / 100;
-
-        // Initiate scaling down, and save the image
-        $manager = new ImageManager(new Driver());
-        $image = $manager->read($path);
-        $image->scaleDown(width: $resultPixels);
-        $image->save($disk->path($picture->image));
-
-        // Return half size image
-        return $disk->response($picture->image);
+        $halfImage = Encrypt::decrypt($disk, $picture->image, session("pin"));
+        return response($halfImage, 200);
     }
 
     public function get_resized_images(Request $req, $page)
@@ -294,11 +288,7 @@ class HiddenPinController extends Controller
                 "size" => round($pic->size, 3),
                 "tags" => $pic->tags,
                 "uploaded" => $pic->created_at,
-                "uploaded_ago" => str_replace(
-                    "before",
-                    "ago",
-                    $pic->created_at->diffForHumans(now())
-                ),
+                "uploaded_ago" => str_replace("before", "ago", $pic->created_at->diffForHumans(now())),
                 "thumb" => Encrypt::decrypt2Base64($thumb, $pic->image, session("pin")),
                 "width" => $pic->width,
                 "height" => $pic->height,

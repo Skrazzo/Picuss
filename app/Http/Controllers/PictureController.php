@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Disks;
+use App\Helpers\Encrypt;
 use App\Helpers\ValidateApi;
 use App\Models\Picture;
 use App\Models\Tags;
@@ -220,11 +221,7 @@ class PictureController extends Controller
                         "tags" => $pic->tags,
                         "uploaded" => $pic->created_at,
                         "shared" => $pic->sharedImage()->count() >= 1 ? true : false,
-                        "uploaded_ago" => str_replace(
-                            "before",
-                            "ago",
-                            $pic->created_at->diffForHumans(now())
-                        ),
+                        "uploaded_ago" => str_replace("before", "ago", $pic->created_at->diffForHumans(now())),
                         "thumb" => "data:image/webp;base64,",
                         "width" => $pic->width,
                         "height" => $pic->height,
@@ -249,11 +246,7 @@ class PictureController extends Controller
                 "tags" => $pic->tags,
                 "shared" => $pic->sharedImage()->count() >= 1 ? true : false,
                 "uploaded" => $pic->created_at,
-                "uploaded_ago" => str_replace(
-                    "before",
-                    "ago",
-                    $pic->created_at->diffForHumans(now())
-                ),
+                "uploaded_ago" => str_replace("before", "ago", $pic->created_at->diffForHumans(now())),
                 "thumb" => "data:image/webp;base64," . base64_encode($thumbDISK->get($pic->image)),
                 "width" => $pic->width,
                 "height" => $pic->height,
@@ -360,10 +353,7 @@ class PictureController extends Controller
         }
 
         if (!$allExtracted) {
-            return response()->json(
-                ["message" => "Not all files could be extracted successfully!"],
-                500
-            );
+            return response()->json(["message" => "Not all files could be extracted successfully!"], 500);
         }
 
         return response()->json(["message" => "All images were uploaded successfully"], 201);
@@ -457,6 +447,17 @@ class PictureController extends Controller
         }
 
         $disk = Disks::image();
+        if ($picture->hidden) {
+            if (!Encrypt::authorized()) {
+                return response("Not authorized", 403);
+            }
+
+            $decryptedFile = Encrypt::decrypt($disk, $picture->image, session("pin"));
+
+            return response()->streamDownload(function () use ($decryptedFile) {
+                echo $decryptedFile;
+            }, $picture->image);
+        }
         return $disk->download($picture->image);
     }
 }

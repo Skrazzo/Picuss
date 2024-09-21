@@ -105,11 +105,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
             // pre selected tag, we need to remove query params from url
             // ?tag=123
             if (window.history.replaceState) {
-                const url =
-                    window.location.protocol +
-                    "//" +
-                    window.location.host +
-                    window.location.pathname;
+                const url = window.location.protocol + "//" + window.location.host + window.location.pathname;
                 window.history.replaceState({ path: url }, "", url);
             }
         }
@@ -366,11 +362,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                 }}
             />
 
-            <Modal
-                opened={addTagsConfirm}
-                title={"Add tags to the pictures"}
-                onClose={() => setAddTagsConfirm(false)}
-            >
+            <Modal opened={addTagsConfirm} title={"Add tags to the pictures"} onClose={() => setAddTagsConfirm(false)}>
                 {/* ==== Add tags ==== */}
                 <AddTags
                     selectedPictures={multiSelect}
@@ -407,10 +399,8 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                 onConfirm={onMultiDeleteConfirm}
             >
                 Are you sure you want to delete{" "}
-                <b className="important-span-danger">
-                    {multiSelect === null ? 0 : multiSelect.length}
-                </b>{" "}
-                pictures from your gallery
+                <b className="important-span-danger">{multiSelect === null ? 0 : multiSelect.length}</b> pictures from
+                your gallery
             </ConfirmationModal>
 
             <ConfirmationModal
@@ -423,8 +413,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                 onConfirm={() => hidePicturesHandler()}
                 loading={confirmHide.loading}
             >
-                Hiding these pictures will encrypt them, and they will be only available in the
-                hidden picture section.
+                Hiding these pictures will encrypt them, and they will be only available in the hidden picture section.
             </ConfirmationModal>
 
             <Title title={title} />
@@ -471,10 +460,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                                 >
                                     Remove tags
                                 </Menu.Item>
-                                <Menu.Item
-                                    leftSection={<IconShare {...iconProps} />}
-                                    onClick={sharePicturesHandler}
-                                >
+                                <Menu.Item leftSection={<IconShare {...iconProps} />} onClick={sharePicturesHandler}>
                                     Share pictures
                                 </Menu.Item>
                                 {/* TODO: download pictures */}
@@ -500,11 +486,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
             {!images ? ( // getting a list of pictures to load
                 <div className={`${sty.container}`}>
                     {skelets.map((x, i) => (
-                        <Skeleton
-                            key={i}
-                            className={sty.column}
-                            h={generateRandomBetween(100, 300)}
-                        />
+                        <Skeleton key={i} className={sty.column} h={generateRandomBetween(100, 300)} />
                     ))}
                 </div>
             ) : images.length === 0 ? ( // Couldnt find any pictures in segments
@@ -521,8 +503,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                                         return (
                                             <div
                                                 className={
-                                                    multiSelect !== null &&
-                                                    multiSelect.includes(img.id)
+                                                    multiSelect !== null && multiSelect.includes(img.id)
                                                         ? sty.picture_selected
                                                         : sty.picture
                                                 }

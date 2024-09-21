@@ -15,7 +15,6 @@
  * and the second element is an array of images that fall into that segment
  */
 export default function segmentalSwitch(allImages = null, images = null, segmentControl = null) {
-    console.log("executing");
     if (!allImages) {
         allImages = images.map((img) => img[1]).flat();
     }
@@ -102,20 +101,7 @@ export default function segmentalSwitch(allImages = null, images = null, segment
         case "day":
             arr = [];
 
-            months = [
-                "Jan",
-                "Feb",
-                "Mar",
-                "Apr",
-                "May",
-                "Jun",
-                "Jul",
-                "Aug",
-                "Sep",
-                "Oct",
-                "Nov",
-                "Dec",
-            ];
+            months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
             allImages.forEach((img) => {
                 const d = new Date(img.uploaded);

@@ -32,7 +32,7 @@ import copyToClipboard from "../Functions/copyToClipboard";
 import calculateImageSize from "../Functions/calculateImageSize";
 import scrollDown from "../Functions/scrollDown";
 
-export default function PictureViewer({ selected, setSelected, images, tags, onDelete, close }) {
+export default function PictureViewer({ selected, setSelected, images, tags, onDelete, close, hiddenImages = false }) {
     // Find image and recheck if it exists
     const image = images.filter((x) => x.id === selected[0])[0] || {};
     if (!("id" in image)) return <></>;
@@ -65,10 +65,7 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
     // When window is resized, we need to change image size
     useEffect(() => {
         setImageSize(
-            calculateImageSize(
-                [containerSize.width, containerSize.height - 106],
-                [image.width, image.height],
-            ),
+            calculateImageSize([containerSize.width, containerSize.height - 106], [image.width, image.height]),
         );
     }, [containerSize, image]);
 
@@ -95,8 +92,7 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
                 showNotification({
                     color: "red",
                     title: "Not allowed",
-                    message:
-                        "Each image has to have at least one tag, that's why you cannot remove it.",
+                    message: "Each image has to have at least one tag, that's why you cannot remove it.",
                     icon: <IconInfoCircleFilled />,
                 });
             } else {
@@ -190,7 +186,7 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
     function findBlobUrl(imgId) {
         // Check if url for half image hasn't been loaded yet and saved in cache
         // If has, then use the cached image blob link
-        let url = route("get.half.image", imgId);
+        let url = route(hiddenImages ? "get.hidden.half.image" : "get.half.image", imgId);
         if (url in window.lazyLoadBlobs) {
             url = window.lazyLoadBlobs[url];
         }
@@ -252,12 +248,7 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
 
                 if (res.data.public) {
                     setShared(true);
-                    copyToClipboard(
-                        res.data.link,
-                        true,
-                        "Sharable link was copied to your clipboard",
-                        "Copied",
-                    );
+                    copyToClipboard(res.data.link, true, "Sharable link was copied to your clipboard", "Copied");
                 } else {
                     setShared(false);
                 }
@@ -305,10 +296,7 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
                             <Menu.Dropdown>
                                 {shared ? (
                                     <>
-                                        <Menu.Item
-                                            leftSection={<IconShareOff {...iconProps} />}
-                                            onClick={shareHandler}
-                                        >
+                                        <Menu.Item leftSection={<IconShareOff {...iconProps} />} onClick={shareHandler}>
                                             <Text>Make private</Text>
                                         </Menu.Item>
                                         <Menu.Item
@@ -326,17 +314,14 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
                                         </Menu.Item>
                                     </>
                                 ) : (
-                                    <Menu.Item
-                                        leftSection={<IconShare {...iconProps} />}
-                                        onClick={shareHandler}
-                                    >
-                                        <Text>Make public</Text>
-                                    </Menu.Item>
+                                    !hiddenImages && (
+                                        <Menu.Item leftSection={<IconShare {...iconProps} />} onClick={shareHandler}>
+                                            <Text>Make public</Text>
+                                        </Menu.Item>
+                                    )
                                 )}
                                 <Menu.Item
-                                    onClick={() =>
-                                        window.open(route("download.image", image.id), "_blank")
-                                    }
+                                    onClick={() => window.open(route("download.image", image.id), "_blank")}
                                     leftSection={<IconDownload {...iconProps} />}
                                 >
                                     <Text>Download</Text>
@@ -357,13 +342,7 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
                     <SectionTitle
                         text={"File"}
                         icon={<IconFileInfo />}
-                        rightSection={
-                            imageLoading ? (
-                                <Loader size={18} />
-                            ) : (
-                                <IconBadgeHd {...iconProps} size={24} />
-                            )
-                        }
+                        rightSection={imageLoading ? <Loader size={18} /> : <IconBadgeHd {...iconProps} size={24} />}
                     />
                     <div className={sty.info_container}>
                         <Table>
@@ -390,21 +369,13 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
 
                 <div className={sty.buttons}>
                     {imageIndex !== 0 && (
-                        <Button
-                            variant="default"
-                            leftSection={<IconChevronLeft />}
-                            onClick={previousImage}
-                        >
+                        <Button variant="default" leftSection={<IconChevronLeft />} onClick={previousImage}>
                             Previous
                         </Button>
                     )}
 
                     {imageIndex !== images.length - 1 && (
-                        <Button
-                            variant="default"
-                            rightSection={<IconChevronRight />}
-                            onClick={nextImage}
-                        >
+                        <Button variant="default" rightSection={<IconChevronRight />} onClick={nextImage}>
                             Next
                         </Button>
                     )}
@@ -424,7 +395,7 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
                     >
                         <LazyLoadImage
                             blur={false}
-                            src={route("get.image", image.id)}
+                            src={route(hiddenImages ? "get.hidden.full.image" : "get.image", image.id)}
                             thumbnail={selected[1]}
                             style={{
                                 width: imageSize[0],

@@ -11,9 +11,16 @@ import PictureDivider from "./Components/PictureDivider";
 import LazyLoadImage from "./Components/LazyLoadImage";
 import generateRandomBetween from "./Functions/randomNumberBetween";
 import segmentalSwitch from "./Functions/segmentalSwitch";
+import checkIfMobile from "./Functions/checkIfMobile";
+import PictureViewer from "./Components/PictureViewer";
 
 export default function Hidden({ allowed, title, auth, hasPin }) {
+    const firstRender = useRef(true);
     const [images, setImages] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    // Available tagas
+    const [userTags, setUserTags] = useState([]);
 
     // Divide by months year etc
     // [0] -> value [1] -> set value
@@ -38,17 +45,47 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
         </>
     );
 
+    /**
+     * Deletes an image with id from the images list.
+     * @param {number} id - The id of the image to delete
+     * @returns {void}
+     */
+    function onImageDelete(id) {
+        // setSelectedImage(null);
+
+        let newImages = [];
+        images.forEach((imgArr) => {
+            let rtn = [imgArr[0], imgArr[1].filter((image) => image.id !== id)];
+
+            newImages.push(rtn);
+        });
+
+        setImages(newImages);
+    }
+
     function searchImages() {
         axios.get(route("get.hidden.resized.images", 1)).then((res) => {
             // Checks the switch, to see what images to display
             // Segmental switch fuction, splits images into segmental arrays based on the segment control
             setImages(segmentalSwitch(res.data.images, images, segmentControl));
         });
+
+        // get user tags
+        axios.get(route("hidden.get.tags")).then((res) => setUserTags(res.data));
     }
 
     useEffect(() => {
         searchImages();
+        firstRender.current = false;
     }, []);
+
+    useEffect(() => {
+        if (firstRender.current) return;
+        if (!images) return;
+        // Segmental switch fuction, splits images into segmental arrays based on the segment control
+        // Recalculate items
+        setImages(segmentalSwitch(null, images, segmentControl));
+    }, [segmentControl[0]]);
 
     //#region Multi select
     // --------------- Multi select functions --------------
@@ -190,18 +227,24 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
     return (
         <AuthLayout auth={auth} segmentControl={segmentControl}>
             <Title title={title} />
-            {!allowed && (
-                <PinAuthenticate opened={true} title="" closeButton={false} firstTime={!hasPin} />
+            {!allowed && <PinAuthenticate opened={true} title="" closeButton={false} firstTime={!hasPin} />}
+
+            {selectedImage && (
+                <PictureViewer
+                    close={() => setSelectedImage(null)}
+                    onDelete={onImageDelete}
+                    images={images.map((img) => img[1]).flat()}
+                    selected={selectedImage}
+                    setSelected={setSelectedImage}
+                    tags={userTags}
+                    hiddenImages
+                />
             )}
 
             {!images ? ( // getting a list of pictures to load
                 <div className={`${sty.container}`}>
                     {skelets.map((x, i) => (
-                        <Skeleton
-                            key={i}
-                            className={sty.column}
-                            h={generateRandomBetween(100, 300)}
-                        />
+                        <Skeleton key={i} className={sty.column} h={generateRandomBetween(100, 300)} />
                     ))}
                 </div>
             ) : images.length === 0 ? ( // Couldnt find any pictures in segments
@@ -218,8 +261,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
                                         return (
                                             <div
                                                 className={
-                                                    multiSelect !== null &&
-                                                    multiSelect.includes(img.id)
+                                                    multiSelect !== null && multiSelect.includes(img.id)
                                                         ? sty.picture_selected
                                                         : sty.picture
                                                 }
@@ -237,7 +279,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
                                                 <LazyLoadImage
                                                     thumbnail={img.thumb}
                                                     id={img.id}
-                                                    // src={route("get.half.image", img.id)}
+                                                    src={route("get.hidden.half.image", img.id)}
                                                     onClick={(id, thumb) =>
                                                         multiSelect !== null
                                                             ? onSelectHandler(id)

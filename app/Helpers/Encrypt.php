@@ -2,10 +2,39 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class Encrypt
 {
+    /**
+     * Checks if the user is authenticated with the correct pin code.
+     * If user is not logged in, returns false.
+     * If pin is not set, returns false.
+     * If pin code is not set in the session, returns false.
+     * If the pin code in the session does not match the hash in the database, returns false.
+     * Otherwise returns true.
+     *
+     * @return bool
+     */
+    public static function authorized()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return false;
+        }
+        $pinHash = $user->pin()->first() ? $user->pin()->first()->hash : null;
+
+        if (!$pinHash) {
+            return false;
+        }
+
+        if (session()->has("pin") && Hash::check(session("pin"), $pinHash)) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Encrypts a file with a given password, using AES-256-CBC.
      *

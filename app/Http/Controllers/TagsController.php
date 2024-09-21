@@ -7,6 +7,7 @@ use App\Helpers\ValidateApi;
 use App\Models\Tags;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -124,10 +125,7 @@ class TagsController extends Controller
             ]);
         }
         // This error should not happen unless database failes to save the record
-        return response()->json(
-            ["message" => "It seems that database did not save new name", "tags" => []],
-            500
-        );
+        return response()->json(["message" => "It seems that database did not save new name", "tags" => []], 500);
     }
 
     public function deleteTags(Request $req)
@@ -178,8 +176,7 @@ class TagsController extends Controller
                 if (!$pic->delete()) {
                     return response()->json(
                         [
-                            "message" =>
-                                "We could not delete picture from our database, please try again",
+                            "message" => "We could not delete picture from our database, please try again",
                         ],
                         500
                     );
@@ -237,11 +234,7 @@ class TagsController extends Controller
             foreach ($tags as $tag) {
                 // Check if tag is in the image
                 // If tag isn't in the image, check if tag isn't in $rtnIds
-                if (
-                    in_array($tag, $img->tags) == (intval($option) == 1)
-                        ? false
-                        : true && !in_array($tag, $rtnIds)
-                ) {
+                if (in_array($tag, $img->tags) == (intval($option) == 1) ? false : true && !in_array($tag, $rtnIds)) {
                     // If not in array, add it to array
                     $rtnIds[] = $tag;
                 }
@@ -342,8 +335,7 @@ class TagsController extends Controller
 
         if ($onlyOneTag) {
             return response()->json([
-                "message" =>
-                    "Some picture tags weren't removed, because picture had only 1 tag left",
+                "message" => "Some picture tags weren't removed, because picture had only 1 tag left",
             ]);
         } else {
             return response()->json(["message" => "Successfully removed tags from pictures"]);
@@ -375,5 +367,21 @@ class TagsController extends Controller
             "message" => 'Soft deleted "' . $tag->name . '" successfully',
             "tags" => $this->getTags($req),
         ]);
+    }
+
+    public function hidden_get_tags()
+    {
+        $user = auth()->user();
+        $hiddenPics = $user->picture()->select("tags")->where("hidden", true)->get();
+
+        // Get distinct tags ids
+        $tagIds = [];
+        foreach ($hiddenPics as $pic) {
+            $tagIds = array_unique(array_merge($tagIds, $pic->tags));
+        }
+
+        $tags = Tags::whereIn("id", $tagIds)->get();
+
+        return response()->json($tags);
     }
 }

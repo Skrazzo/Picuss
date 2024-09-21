@@ -206,65 +206,77 @@ export default function AuthLayout({
                     />
                 </div>
 
-                {auth.route === "dashboard" && (
+                {(auth.route === "dashboard" || auth.route === "hidden.index") && (
                     <>
-                        <Divider
-                            my={16}
-                            label={
-                                <>
-                                    <IconTags size={16} />
-                                    <Box ml={4}>Filter by tags</Box>
-                                </>
-                            }
-                        />
-                        <SearchTags
-                            queryTags={queryTags}
-                            userTags={userTags}
-                            closeDrawer={() => drawer.close()}
-                        />
+                        {queryTags !== null && userTags.length !== 0 && (
+                            <>
+                                <Divider
+                                    my={16}
+                                    label={
+                                        <>
+                                            <IconTags size={16} />
+                                            <Box ml={4}>Filter by tags</Box>
+                                        </>
+                                    }
+                                />
+                                <SearchTags
+                                    queryTags={queryTags}
+                                    userTags={userTags}
+                                    closeDrawer={() => drawer.close()}
+                                />
+                            </>
+                        )}
 
-                        <Divider
-                            my={16}
-                            label={
-                                <>
-                                    <IconSeparatorVertical size={16} />
-                                    <Box ml={4}>Separate pictures</Box>
-                                </>
-                            }
-                        />
-                        <SegmentedControl
-                            fullWidth
-                            mx={8}
-                            value={segmentControl[0]}
-                            onChange={segmentControl[1]}
-                            data={[
-                                { label: "All", value: "all" },
-                                { label: "Year", value: "year" },
-                                { label: "Month", value: "month" },
-                                { label: "Day", value: "day" },
-                            ]}
-                        />
+                        {segmentControl !== null && (
+                            <>
+                                <Divider
+                                    my={16}
+                                    label={
+                                        <>
+                                            <IconSeparatorVertical size={16} />
+                                            <Box ml={4}>Separate pictures</Box>
+                                        </>
+                                    }
+                                />
+                                <SegmentedControl
+                                    fullWidth
+                                    mx={8}
+                                    value={segmentControl[0]}
+                                    onChange={segmentControl[1]}
+                                    data={[
+                                        { label: "All", value: "all" },
+                                        { label: "Year", value: "year" },
+                                        { label: "Month", value: "month" },
+                                        { label: "Day", value: "day" },
+                                    ]}
+                                />
+                            </>
+                        )}
 
-                        <Divider
-                            my={16}
-                            label={
-                                <>
-                                    <IconSignLeft size={16} />
-                                    <Box ml={4}>Jump to page</Box>
-                                </>
-                            }
-                        />
+                        {maxPage !== 0 && (
+                            <>
+                                <Divider
+                                    my={16}
+                                    label={
+                                        <>
+                                            <IconSignLeft size={16} />
+                                            <Box ml={4}>Jump to page</Box>
+                                        </>
+                                    }
+                                />
 
-                        <NumberInput
-                            onChange={onPageChangeHandler}
-                            value={selectedPage}
-                            placeholder="Enter page number"
-                            mx={8}
-                            mb={16}
-                            min={1}
-                            max={maxPage}
-                            error={pageError}
-                        />
+                                <NumberInput
+                                    onChange={onPageChangeHandler}
+                                    value={selectedPage}
+                                    placeholder="Enter page number"
+                                    mx={8}
+                                    mb={16}
+                                    min={1}
+                                    max={maxPage}
+                                    error={pageError}
+                                />
+                            </>
+                        )}
                     </>
                 )}
             </Drawer>

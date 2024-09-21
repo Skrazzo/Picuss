@@ -120,6 +120,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
             })
             .then((res) => {
                 // Checks the switch, to see what images to display
+                // Segmental switch fuction, splits images into segmental arrays based on the segment control
                 setImages(segmentalSwitch(res.data.images, images, segmentControl));
 
                 setTotalPages(res.data.totalPages);
@@ -158,6 +159,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
         setImages(newImages);
     }
 
+    //#region Multi select
     // --------------- Multi select functions --------------
     // id -> picture_id
     function onPcEnter(id) {
@@ -287,6 +289,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
     }
 
     // --------------- Multi select end functions ----------
+    //#endregion
     // --------------- Multi select menu functions ---------
 
     const [addTagsConfirm, setAddTagsConfirm] = useState(false);

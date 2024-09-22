@@ -68,10 +68,9 @@ class HiddenPinController extends Controller
      * If the pin code in the session does not match the hash in the database, returns false.
      * Otherwise returns true.
      *
-     * @param Request $req
      * @return bool
      */
-    public function authenticated(Request $req)
+    public function authenticated()
     {
         $pin = auth()->user()->pin()->first();
         if (!$pin) {
@@ -113,12 +112,53 @@ class HiddenPinController extends Controller
                 continue;
             }
 
+            // Check if picture has been shared
+            $shared = $pic->sharedImage()->first();
+            if ($shared) {
+                $shared->delete();
+            }
+
             $pin = session("pin");
             // Encrypt the picture
 
             Encrypt::encryptFiles($disks, [$pic->image], $pin);
 
             $pic->hidden = true;
+            $pic->save();
+        }
+
+        return response(200);
+    }
+
+    public function reveal(Request $req)
+    {
+        if (!$this->authenticated($req)) {
+            return abort(403);
+        }
+
+        try {
+            $data = ValidateApi::validate($req, ["pictures" => "required|array"]);
+        } catch (Exception $e) {
+            return response()->json($e->getMessage(), $e->getCode());
+        }
+
+        $user = auth()->user();
+        $disks = Disks::allDisks();
+
+        foreach ($data["pictures"] as $picId) {
+            $pic = $user->picture()->where("public_id", $picId)->first();
+
+            if (!$pic) {
+                // If picture does not exist, skip it
+                continue;
+            }
+
+            $pin = session("pin");
+
+            // Decrypt the picture
+            Encrypt::decryptFiles($disks, [$pic->image], $pin);
+
+            $pic->hidden = false;
             $pic->save();
         }
 
@@ -192,6 +232,10 @@ class HiddenPinController extends Controller
 
     public function get_full_picture(Picture $picture)
     {
+        if (!$this->authenticated()) {
+            return response("Not authorized", 401);
+        }
+
         if (auth()->id() != $picture->user_id) {
             return response('You\'re not allowed to view this', 403);
         }
@@ -210,6 +254,10 @@ class HiddenPinController extends Controller
 
     public function get_half_picture(Picture $picture)
     {
+        if (!$this->authenticated()) {
+            return response("Not authorized", 401);
+        }
+
         if (auth()->id() != $picture->user_id) {
             return response('You\'re not allowed to view this', 403);
         }
@@ -228,6 +276,10 @@ class HiddenPinController extends Controller
 
     public function get_resized_images(Request $req, $page)
     {
+        if (!$this->authenticated()) {
+            return response("Not authorized", 401);
+        }
+
         // TODO: If in the future i won't be using other disks, then remove this, and use only thumb Disk
         [$image, $half, $thumb] = Disks::allDisks();
 

@@ -1,9 +1,19 @@
 import PinAuthenticate from "./Components/Hidden/PinAuthenticate";
 import Title from "./Components/Title";
 import AuthLayout from "./Layouts/AuthLayout";
-import { Center, Pagination, Skeleton, Text } from "@mantine/core";
+import { ActionIcon, Center, Menu, Modal, Pagination, Skeleton, Text } from "@mantine/core";
 import sty from "../../scss/Dashboard.module.scss";
-import { IconCheck, IconPhotoOff } from "@tabler/icons-react";
+import {
+    IconCheck,
+    IconDotsVertical,
+    IconEye,
+    IconEyeOff,
+    IconPhotoOff,
+    IconSelectAll,
+    IconTags,
+    IconTagsOff,
+    IconTrash,
+} from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import Dashboard from "./Dashboard";
@@ -15,8 +25,13 @@ import checkIfMobile from "./Functions/checkIfMobile";
 import PictureViewer from "./Components/PictureViewer";
 import scrollUp from "./Functions/scrollUp";
 import useElementSize from "./Functions/useElementSize";
+import AddTags from "./Components/MultiSelect/AddTags";
+import RemoveTags from "./Components/MultiSelect/RemoveTags";
+import ConfirmationModal from "./Components/ConfirmationModal";
+import errorNotification from "./Functions/errorNotification";
 
 export default function Hidden({ allowed, title, auth, hasPin }) {
+    const [openedPinModal, setOpenedPinModal] = useState(!allowed);
     const firstRender = useRef(true);
     const [images, setImages] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -99,7 +114,9 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
             firstRender.current = false;
         }
 
-        searchImages();
+        if (!openedPinModal) {
+            searchImages();
+        }
     }, [page]);
 
     useEffect(() => {
@@ -247,10 +264,115 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
     // --------------- Multi select end functions ----------
     //#endregion
 
+    //#region Multi select functions
+    // --------------- Multi select menu functions ---------
+
+    const [addTagsConfirm, setAddTagsConfirm] = useState(false);
+    const [removeTagsConfirm, setRemoveTagsConfirm] = useState(false);
+    const [deleteImagesConfirm, setDeleteImagesConfirm] = useState(false);
+    const [revealModal, setRevealModal] = useState(false);
+
+    function onMultiDeleteConfirm() {
+        axios
+            .delete(route("delete.pictures"), { params: { pictures: multiSelect } })
+            .then((res) => {
+                setMultiSelect(null);
+                searchImages();
+            })
+            .catch((err) => errorNotification(err));
+    }
+
+    function revealPicturesHandler() {
+        setRevealModal(false);
+
+        axios
+            .post(route("reveal.pictures"), { pictures: multiSelect })
+            .then((res) => {
+                searchImages();
+                setMultiSelect(null);
+            })
+            .catch((err) => errorNotification(err));
+    }
+
+    // ----------- Multi select menu functions end ---------
+    //#endregion
+
+    const iconProps = {
+        strokeWidth: 1.25,
+        size: 20,
+    };
+
+    const multiSelectIcons = {
+        ...iconProps,
+        size: 24,
+    };
+
     return (
         <AuthLayout auth={auth} segmentControl={segmentControl}>
             <Title title={title} />
-            {!allowed && <PinAuthenticate opened={true} title="" closeButton={false} firstTime={!hasPin} />}
+
+            <PinAuthenticate
+                opened={openedPinModal}
+                title=""
+                onSuccessAuth={() => {
+                    setOpenedPinModal(false);
+                    searchImages();
+                }}
+                closeButton={false}
+                firstTime={!hasPin}
+            />
+
+            <ConfirmationModal
+                icon={<IconEye />}
+                opened={revealModal}
+                title={"Reveal pictures"}
+                close={() => setRevealModal(false)}
+                onConfirm={revealPicturesHandler}
+                color={"green"}
+            >
+                Are you sure you want to reveal the selected pictures?
+            </ConfirmationModal>
+
+            <Modal opened={addTagsConfirm} title={"Add tags to the pictures"} onClose={() => setAddTagsConfirm(false)}>
+                {/* ==== Add tags ==== */}
+                <AddTags
+                    selectedPictures={multiSelect}
+                    onUpdateGallery={searchImages}
+                    onClose={() => {
+                        setAddTagsConfirm(false);
+                        setMultiSelect(null);
+                    }}
+                />
+            </Modal>
+
+            <ConfirmationModal
+                opened={deleteImagesConfirm}
+                title={`Delete pictures`}
+                color={"red"}
+                icon={<IconTrash />}
+                close={() => setDeleteImagesConfirm(false)}
+                onConfirm={onMultiDeleteConfirm}
+            >
+                Are you sure you want to delete{" "}
+                <b className="important-span-danger">{multiSelect === null ? 0 : multiSelect.length}</b> pictures from
+                your gallery
+            </ConfirmationModal>
+
+            <Modal
+                opened={removeTagsConfirm}
+                title={"Remove tags from pictures"}
+                onClose={() => setRemoveTagsConfirm(false)}
+            >
+                {/* ==== Remove tags ==== */}
+                <RemoveTags
+                    selectedPictures={multiSelect}
+                    onUpdateGallery={searchImages}
+                    onClose={() => {
+                        setRemoveTagsConfirm(false);
+                        setMultiSelect(null);
+                    }}
+                />
+            </Modal>
 
             {selectedImage && (
                 <PictureViewer
@@ -262,6 +384,59 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
                     tags={userTags}
                     hiddenImages
                 />
+            )}
+
+            {multiSelect !== null && (
+                <div className={sty.multiSelect_nav} ref={multiSelectRef}>
+                    <Text fs={"italic"} c={"dimmed"}>
+                        <span className="important-span">{multiSelect.length}</span>{" "}
+                        {multiSelect.length === 1 ? "Picture" : "Pictures"} are selected
+                    </Text>
+
+                    <div className={sty.actions}>
+                        <ActionIcon variant="light" size={"lg"} onClick={selectAll}>
+                            <IconSelectAll {...multiSelectIcons} />
+                        </ActionIcon>
+
+                        <Menu>
+                            <Menu.Target>
+                                <ActionIcon variant="light" size={"lg"}>
+                                    <IconDotsVertical {...multiSelectIcons} />
+                                </ActionIcon>
+                            </Menu.Target>
+                            <Menu.Dropdown>
+                                <Menu.Label>Picture actions</Menu.Label>
+                                <Menu.Item
+                                    leftSection={<IconTags {...iconProps} />}
+                                    onClick={() => setAddTagsConfirm(true)}
+                                >
+                                    Add tags
+                                </Menu.Item>
+                                <Menu.Item
+                                    leftSection={<IconTagsOff {...iconProps} />}
+                                    onClick={() => setRemoveTagsConfirm(true)}
+                                >
+                                    Remove tags
+                                </Menu.Item>
+
+                                {/* TODO: download pictures */}
+                                <Menu.Item
+                                    leftSection={<IconEye {...iconProps} />}
+                                    onClick={() => setRevealModal(true)}
+                                >
+                                    Reveal pictures
+                                </Menu.Item>
+                                <Menu.Item
+                                    color="red"
+                                    leftSection={<IconTrash {...iconProps} />}
+                                    onClick={() => setDeleteImagesConfirm(true)}
+                                >
+                                    Delete pictures
+                                </Menu.Item>
+                            </Menu.Dropdown>
+                        </Menu>
+                    </div>
+                </div>
             )}
 
             {!images ? ( // getting a list of pictures to load

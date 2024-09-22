@@ -46,18 +46,14 @@ class Encrypt
      */
     public static function encrypt($storage, string $file, string $password)
     {
-        try {
-            $encrypted = openssl_encrypt(
-                $storage->get($file),
-                "AES-256-CBC",
-                $password,
-                OPENSSL_RAW_DATA,
-                substr(sha1($password), 0, 16)
-            );
-            $storage->put($file, $encrypted);
-        } catch (\Exception $e) {
-            throw new \Exception("Error encrypting $file");
-        }
+        $encrypted = openssl_encrypt(
+            $storage->get($file),
+            "AES-256-CBC",
+            $password,
+            OPENSSL_RAW_DATA,
+            substr(sha1($password), 0, 16)
+        );
+        return $encrypted;
     }
 
     /**
@@ -113,7 +109,18 @@ class Encrypt
     {
         foreach ($storages as $storage) {
             foreach ($files as $file) {
-                self::encrypt($storage, $file, $password);
+                $encrypted = self::encrypt($storage, $file, $password);
+                $storage->put($file, $encrypted);
+            }
+        }
+    }
+
+    public static function decryptFiles(array $storages, array $files, string $password)
+    {
+        foreach ($storages as $storage) {
+            foreach ($files as $file) {
+                $decrypted = self::decrypt($storage, $file, $password);
+                $storage->put($file, $decrypted);
             }
         }
     }

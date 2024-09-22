@@ -81,6 +81,7 @@ Route::middleware("auth")->group(function () {
             Route::get("/", "index")->name("hidden.index");
             Route::post("/auth", "auth")->name("hidden.auth"); // Create session for decrypting hidden images
             Route::post("/hide", "hide")->name("hide.pictures"); // Hide pictures and encrypt pictures
+            Route::post("/reveal", "reveal")->name("reveal.pictures"); // Reveal pictures and decrypt them
             Route::get("/info", "info")->name("hidden.info"); // Get user info about his hidden pictures
 
             // All routes related to images

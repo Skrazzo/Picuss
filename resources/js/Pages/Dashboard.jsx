@@ -2,6 +2,7 @@ import { ActionIcon, Center, Menu, Modal, Pagination, Skeleton, Text } from "@ma
 import {
     IconCheck,
     IconDotsVertical,
+    IconEye,
     IconEyeOff,
     IconPhotoOff,
     IconSelectAll,
@@ -81,7 +82,6 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
 
     function resetStates() {
         setImages(null);
-        setMultiSelect(null);
     }
 
     useEffect(() => {
@@ -317,6 +317,19 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
             .catch((err) => errorNotification(err));
     }
 
+    // Hiding pictures request
+    function hidePicturesHandler() {
+        setConfirmHide({ ...confirmHide, loading: true });
+        axios
+            .post(route("hide.pictures"), { pictures: multiSelect })
+            .then(() => {
+                setConfirmHide({ showModal: false, loading: false });
+                imageSearch();
+                setMultiSelect(null);
+            })
+            .catch((err) => console.error(err));
+    }
+
     // ----------- Multi select menu functions end ---------
 
     const iconProps = {
@@ -328,19 +341,6 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
         ...iconProps,
         size: 24,
     };
-
-    // Hiding pictures request
-
-    function hidePicturesHandler() {
-        setConfirmHide({ ...confirmHide, loading: true });
-        axios
-            .post(route("hide.pictures"), { pictures: multiSelect })
-            .then(() => {
-                setConfirmHide({ showModal: false, loading: false });
-                imageSearch();
-            })
-            .catch((err) => console.error(err));
-    }
 
     return (
         <AuthLayout

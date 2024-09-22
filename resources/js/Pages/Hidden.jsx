@@ -6,6 +6,7 @@ import sty from "../../scss/Dashboard.module.scss";
 import {
     IconCheck,
     IconDotsVertical,
+    IconDownload,
     IconEye,
     IconEyeOff,
     IconPhotoOff,
@@ -445,19 +446,29 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
                                     Remove tags
                                 </Menu.Item>
 
-                                {/* TODO: download pictures */}
+                                <Menu.Item
+                                    leftSection={<IconDownload {...iconProps} />}
+                                    onClick={() =>
+                                        window.open(
+                                            route("download.multiple.hidden.images", JSON.stringify(multiSelect)),
+                                            "_blank",
+                                        )
+                                    }
+                                >
+                                    Download
+                                </Menu.Item>
                                 <Menu.Item
                                     leftSection={<IconEye {...iconProps} />}
                                     onClick={() => setRevealModal(true)}
                                 >
-                                    Reveal pictures
+                                    Reveal
                                 </Menu.Item>
                                 <Menu.Item
                                     color="red"
                                     leftSection={<IconTrash {...iconProps} />}
                                     onClick={() => setDeleteImagesConfirm(true)}
                                 >
-                                    Delete pictures
+                                    Delete
                                 </Menu.Item>
                             </Menu.Dropdown>
                         </Menu>

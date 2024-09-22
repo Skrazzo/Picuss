@@ -480,7 +480,7 @@ class PictureController extends Controller
         $imageDisk = Disks::image();
         $tmp = Disks::tmp();
         $zip = new ZipArchive();
-        $zipName = $user->username . "_pictures_" . time() . ".zip";
+        $zipName = $user->username . "_pictures_" . date(now()) . ".zip";
 
         if ($zip->open($tmp->path($zipName), ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
             foreach ($data["ids"] as $id) {

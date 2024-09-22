@@ -93,6 +93,8 @@ Route::middleware("auth")->group(function () {
                 Route::get("/full/{picture:public_id}", "get_full_picture")->name("get.hidden.full.image");
             });
 
+            Route::get("/download/multiple/{ids}", "download_multiple_images")->name("download.multiple.hidden.images");
+
             // Route::get("/get", "get")->name("hidden.get");
             // Route::delete("/", "delete")->name("hidden.delete");
         });

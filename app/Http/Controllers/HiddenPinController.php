@@ -9,7 +9,9 @@ use App\Models\Picture;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
+use ZipArchive;
 
 class HiddenPinController extends Controller
 {
@@ -349,5 +351,59 @@ class HiddenPinController extends Controller
         }
 
         return response()->json($rtn_arr);
+    }
+
+    public function download_multiple_images($ids)
+    {
+        if (!$this->authenticated()) {
+            return abort(403);
+        }
+
+        $validator = Validator::make(
+            ["ids" => json_decode($ids)],
+            [
+                "ids" => ["required", "array"],
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 422);
+        }
+
+        $data = $validator->validated();
+        $user = auth()->user();
+
+        $imageDisk = Disks::image();
+        $tmp = Disks::tmp();
+        $zip = new ZipArchive();
+        $zipName = $user->username . "_hidden_pictures_" . date(now()) . ".zip";
+
+        if ($zip->open($tmp->path($zipName), ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+            foreach ($data["ids"] as $id) {
+                $picture = Picture::where("public_id", $id)->first();
+
+                // Check if picture belongs to user
+                if ($picture->user_id !== $user->id) {
+                    $zip->close();
+                    $tmp->delete($zipName);
+                    return abort(403);
+                }
+
+                // Check if picture exists on the disk
+                if (!$imageDisk->exists($picture->image)) {
+                    continue;
+                }
+
+                // Decrypt and add images to the zip file
+                $zip->addFromString($picture->image, Encrypt::decrypt($imageDisk, $picture->image, session("pin")));
+                // $zip->addFile($imageDisk->path($picture->image), $picture->image);
+            }
+
+            // Close the archive
+            $zip->close();
+            return response()->download($tmp->path($zipName))->deleteFileAfterSend(true);
+        } else {
+            return response()->json(["error" => "Unable to create ZIP archive"], 500);
+        }
     }
 }

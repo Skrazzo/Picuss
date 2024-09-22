@@ -286,6 +286,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
 
     // --------------- Multi select end functions ----------
     //#endregion
+    //#region region Multi select menu funcitons
     // --------------- Multi select menu functions ---------
 
     const [addTagsConfirm, setAddTagsConfirm] = useState(false);
@@ -331,6 +332,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
     }
 
     // ----------- Multi select menu functions end ---------
+    //#endregion
 
     const iconProps = {
         strokeWidth: 1.25,
@@ -345,8 +347,8 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
     return (
         <AuthLayout
             queryTags={queryTags}
-            segmentControl={segmentControl}
             userTags={userTags}
+            segmentControl={segmentControl}
             auth={auth}
             page={page}
             setPage={setPage}

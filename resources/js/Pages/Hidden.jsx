@@ -41,6 +41,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
 
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const queryTags = useState([]);
 
     // Available tagas
     const [userTags, setUserTags] = useState([]);
@@ -95,20 +96,45 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
         resetStates();
         setProcessing(true);
 
-        axios.get(route("get.hidden.resized.images", page)).then((res) => {
-            // Checks the switch, to see what images to display
-            // Segmental switch fuction, splits images into segmental arrays based on the segment control
-            setImages(segmentalSwitch(res.data.images, images, segmentControl));
+        axios
+            .get(route("get.hidden.resized.images", page), { params: { queryTags: JSON.stringify(queryTags[0]) } })
+            .then((res) => {
+                // Checks the switch, to see what images to display
+                // Segmental switch fuction, splits images into segmental arrays based on the segment control
+                setImages(segmentalSwitch(res.data.images, images, segmentControl));
 
-            setTotalPages(res.data.totalPages);
-            setProcessing(false);
-            scrollUp({ timeout: false });
-        });
+                setTotalPages(res.data.totalPages);
+                setProcessing(false);
+                scrollUp({ timeout: false });
+            });
 
         // get user tags
         axios.get(route("hidden.get.tags")).then((res) => setUserTags(res.data));
     }
 
+    useEffect(() => {
+        if (firstRender.current) return;
+        if (!images) return;
+        // Segmental switch fuction, splits images into segmental arrays based on the segment control
+        // Recalculate items
+        setImages(segmentalSwitch(null, images, segmentControl));
+    }, [segmentControl[0]]);
+
+    useEffect(() => {
+        if (firstRender.current) return;
+
+        // Wait for 2 seconds for tags to finish changing
+        const timeoutID = setTimeout(() => {
+            if (page !== 1) {
+                setPage(1);
+            } else {
+                searchImages();
+            }
+        }, 2000);
+        return () => clearTimeout(timeoutID);
+    }, [queryTags[0]]);
+
+    // This function has to be at the end of useStates, because it sets first render as false
     useEffect(() => {
         if (firstRender.current) {
             firstRender.current = false;
@@ -118,14 +144,6 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
             searchImages();
         }
     }, [page]);
-
-    useEffect(() => {
-        if (firstRender.current) return;
-        if (!images) return;
-        // Segmental switch fuction, splits images into segmental arrays based on the segment control
-        // Recalculate items
-        setImages(segmentalSwitch(null, images, segmentControl));
-    }, [segmentControl[0]]);
 
     //#region Multi select
     // --------------- Multi select functions --------------
@@ -308,7 +326,15 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
     };
 
     return (
-        <AuthLayout auth={auth} segmentControl={segmentControl}>
+        <AuthLayout
+            auth={auth}
+            segmentControl={segmentControl}
+            queryTags={queryTags}
+            userTags={userTags}
+            page={page}
+            setPage={setPage}
+            maxPage={totalPages}
+        >
             <Title title={title} />
 
             <PinAuthenticate

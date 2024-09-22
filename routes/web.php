@@ -34,13 +34,15 @@ Route::middleware("auth")->group(function () {
         Route::prefix("/image")->group(function () {
             Route::get("/{picture:public_id}", "get_image")->name("get.image"); // Get image
             Route::get("/download/{picture:public_id}", "download_image")->name("download.image");
+
             Route::get("/resized/{page}", "get_resized_images")->name("get.resized.images"); // Get resized image array for the whole page
-            // Moved outside of auth middlewa   re
+            // Moved outside of auth middleware
             Route::get("/thumb/{picture:public_id}", "get_thumbnail")->name("get.thumb.image"); // get thumbnail
             Route::get("/half/{picture:public_id}", "get_half_picture")->name("get.half.image"); // get scaled down image
             Route::delete("/delete/{picture:public_id}", "delete_picture")->name("delete.picture");
 
             Route::put("/tags/{picture:public_id}", "edit_tags")->name("edit.tags");
+            Route::get("/download/multiple/{ids}", "download_multiple_images")->name("download.multiple.images");
         });
         Route::delete("/delete/images", "delete_pictures")->name("delete.pictures"); // Delete multiple pictures
     });

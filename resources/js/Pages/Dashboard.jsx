@@ -2,6 +2,7 @@ import { ActionIcon, Center, Menu, Modal, Pagination, Skeleton, Text } from "@ma
 import {
     IconCheck,
     IconDotsVertical,
+    IconDownload,
     IconEye,
     IconEyeOff,
     IconPhotoOff,
@@ -463,21 +464,32 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                                     Remove tags
                                 </Menu.Item>
                                 <Menu.Item leftSection={<IconShare {...iconProps} />} onClick={sharePicturesHandler}>
-                                    Share pictures
+                                    Share
                                 </Menu.Item>
-                                {/* TODO: download pictures */}
+
                                 <Menu.Item
                                     leftSection={<IconEyeOff {...iconProps} />}
                                     onClick={() => setHiddenModal(true)}
                                 >
-                                    Hide pictures
+                                    Hide
+                                </Menu.Item>
+                                <Menu.Item
+                                    leftSection={<IconDownload {...iconProps} />}
+                                    onClick={() =>
+                                        window.open(
+                                            route("download.multiple.images", JSON.stringify(multiSelect)),
+                                            "_blank",
+                                        )
+                                    }
+                                >
+                                    Download
                                 </Menu.Item>
                                 <Menu.Item
                                     color="red"
                                     leftSection={<IconTrash {...iconProps} />}
                                     onClick={() => setDeleteImagesConfirm(true)}
                                 >
-                                    Delete pictures
+                                    Delete
                                 </Menu.Item>
                             </Menu.Dropdown>
                         </Menu>

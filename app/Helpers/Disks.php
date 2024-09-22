@@ -24,15 +24,25 @@ class Disks
         return Storage::disk($thumbEnv);
     }
 
+    public static function tmp()
+    {
+        $tmpEnv = env("SERVER_TMP_ZIP_DISK", "tmp");
+        return Storage::disk($tmpEnv);
+    }
+
     /**
-     * @retruns disks [image, half, thumbnail]
+     * @return array<\Illuminate\Contracts\Filesystem\Filesystem> - array of all disks [image, half, thumbnail]
      */
-    public static function allDisks()
+    public static function allDisks(): array
     {
         $imageEnv = env("SERVER_IMAGE_DISK", "images");
         $halfEnv = env("SERVER_IMAGE_HALF_DISK", "half_images");
         $thumbEnv = env("SERVER_THUMBNAILS_DISK", "thumbnails");
 
-        return [Storage::disk($imageEnv), Storage::disk($halfEnv), Storage::disk($thumbEnv)];
+        return [
+            Storage::disk($imageEnv), // image
+            Storage::disk($halfEnv), // half
+            Storage::disk($thumbEnv), // thumbnail
+        ];
     }
 }

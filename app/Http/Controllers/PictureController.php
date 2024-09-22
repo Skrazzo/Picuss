@@ -460,4 +460,52 @@ class PictureController extends Controller
         }
         return $disk->download($picture->image);
     }
+
+    public function download_multiple_images($ids)
+    {
+        $validator = Validator::make(
+            ["ids" => json_decode($ids)],
+            [
+                "ids" => ["required", "array"],
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 422);
+        }
+
+        $data = $validator->validated();
+        $user = auth()->user();
+
+        $imageDisk = Disks::image();
+        $tmp = Disks::tmp();
+        $zip = new ZipArchive();
+        $zipName = $user->username . "_pictures_" . time() . ".zip";
+
+        if ($zip->open($tmp->path($zipName), ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+            foreach ($data["ids"] as $id) {
+                $picture = Picture::where("public_id", $id)->first();
+
+                // Check if picture belongs to user
+                if ($picture->user_id !== $user->id) {
+                    $zip->close();
+                    $tmp->delete($zipName);
+                    return abort(403);
+                }
+
+                // Check if picture exists on the disk
+                if (!$imageDisk->exists($picture->image)) {
+                    continue;
+                }
+
+                $zip->addFile($imageDisk->path($picture->image), $picture->image);
+            }
+
+            // Close the archive
+            $zip->close();
+            return response()->download($tmp->path($zipName))->deleteFileAfterSend(true);
+        } else {
+            return response()->json(["error" => "Unable to create ZIP archive"], 500);
+        }
+    }
 }

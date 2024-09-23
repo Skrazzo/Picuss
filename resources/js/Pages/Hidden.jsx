@@ -90,7 +90,6 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
 
     function resetStates() {
         setImages(null);
-        setMultiSelect(null);
     }
 
     function searchImages() {

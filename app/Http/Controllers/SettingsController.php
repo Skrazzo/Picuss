@@ -14,7 +14,8 @@ class SettingsController extends Controller
 {
     public function index()
     {
-        return Inertia::render("Settings");
+        $user = auth()->user();
+        return Inertia::render("Settings", ["title" => "Settings", "hasPin" => $user->pin()->first() ? true : false]);
     }
 
     public function get_stats()

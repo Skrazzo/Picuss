@@ -406,4 +406,77 @@ class HiddenPinController extends Controller
             return response()->json(["error" => "Unable to create ZIP archive"], 500);
         }
     }
+
+    public function change_pin(Request $req)
+    {
+        $data = $req->validate([
+            "current" => "required|integer|digits:6",
+            "new" => "required|integer|digits:6|different:current|confirmed",
+        ]);
+
+        $user = auth()->user();
+        $userPin = $user->pin()->first();
+
+        if ($userPin && !Hash::check($data["current"], $userPin->hash)) {
+            return back()->withErrors(["current" => "Current pin is not correct"]);
+        }
+
+        $storages = Disks::allDisks();
+        // Decrypt every picture and then encrypt it with different password
+        $pictures = $user->picture()->where("hidden", true)->get();
+        foreach ($pictures as $pic) {
+            try {
+                Encrypt::decryptFiles($storages, [$pic->image], $data["current"]);
+                Encrypt::encryptFiles($storages, [$pic->image], $data["new"]);
+            } catch (Exception $e) {
+                return back()->withErrors(["new" => "Unable to change pin", "error" => $e->getMessage()]);
+            }
+        }
+
+        session()->forget("pin");
+        $userPin->hash = $data["new"];
+        $userPin->save();
+
+        return back();
+    }
+
+    /**
+     * Deletes the user's hidden pin.
+     *
+     * @param Request $req
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function delete_pin(Request $req)
+    {
+        $data = $req->validate(["password" => "required"]);
+
+        $user = auth()->user();
+
+        if (!Hash::check($data["password"], $user->password)) {
+            return back()->withErrors(["password" => "Current password is not correct"]);
+        }
+
+        // Delete all hidden pictures
+        $storages = Disks::allDisks();
+        $pictures = $user->picture()->where("hidden", true)->get();
+
+        foreach ($storages as $storage) {
+            foreach ($pictures as $pic) {
+                // Check if the picture exists on each storage
+                if ($storage->exists($pic->image)) {
+                    // Delete the picture
+                    $storage->delete($pic->image);
+                }
+            }
+        }
+
+        // Delete all pictures from database
+        $user->picture()->where("hidden", true)->delete();
+
+        // Delete the pin
+        session()->forget("pin");
+        $user->pin()->delete();
+
+        return back();
+    }
 }

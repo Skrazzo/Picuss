@@ -188,7 +188,7 @@ class HiddenPinController extends Controller
     {
         $isInertia = $req->header("X-Inertia") === "true";
 
-        $rules = ["pin" => "required|min:6"];
+        $rules = ["pin" => "required|digits:6"];
         if ($isInertia) {
             // If inertia called this instance, then we need to return error according to Inertia response
             $data = $req->validate($rules);
@@ -218,7 +218,7 @@ class HiddenPinController extends Controller
 
         // If pin exists, return error if pin is not correct
         if ($userPin && !Hash::check($data["pin"], $userPin->hash)) {
-            return response()->json(["message" => "Pin incorrect"], 401);
+            return response()->json(["message" => "Incorrect pin-code"], 401);
         }
 
         // Securely store the pin code in the session, for temp file decyption and encryption

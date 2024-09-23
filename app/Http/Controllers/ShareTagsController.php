@@ -21,7 +21,9 @@ class ShareTagsController extends Controller
         $tagName = $tag->tag()->value("name");
         $username = User::find($tag->tag()->value("user_id"))->first()["username"];
 
-        $pictureCount = Picture::whereJsonContains("tags", $tag->tags_id)->count();
+        $pictureCount = Picture::whereJsonContains("tags", $tag->tags_id)
+            ->where("hidden", false)
+            ->count();
 
         return Inertia::render("Components/SharedTagView/Index", [
             "title" => "Shared images",
@@ -60,6 +62,7 @@ class ShareTagsController extends Controller
 
         // Get pages
         $DBpictures = Picture::whereJsonContains("tags", $tag->tags_id)
+            ->where("hidden", false)
             ->orderBy("created_at", "DESC")
             ->skip($perPage * ($page - 1))
             ->take($perPage)
@@ -212,18 +215,18 @@ class ShareTagsController extends Controller
         }
 
         // Get picture names and check server limit
-        $pictures = Picture::whereJsonContains("tags", $tag->id)->get();
+        $pictures = Picture::whereJsonContains("tags", $tag->id)
+            ->where("hidden", false)
+            ->get();
+
         if ($pictures->count() === 0) {
-            return response("No images found", 404);
+            return abort(404);
         }
 
         $sizeLimit = env("maxZipSize", 25);
 
         if ($pictures->sum("size") > $sizeLimit) {
-            return response(
-                "Files exceed server zip limit of " . $sizeLimit . " MB, and cannot be downloaded",
-                403
-            );
+            return response("Files exceed server zip limit of " . $sizeLimit . " MB, and cannot be downloaded", 403);
         }
 
         // Get storage

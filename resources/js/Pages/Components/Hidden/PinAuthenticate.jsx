@@ -64,9 +64,10 @@ export default function PinAuthenticate({
                         error: JSON.parse(err.response.data).pin,
                     });
                 } else {
+                    console.log(err);
                     setPinForm({
                         pin: "",
-                        error: err["message"],
+                        error: err.response.data["message"],
                     });
                 }
             });
@@ -119,8 +120,8 @@ export default function PinAuthenticate({
         >
             {firstTime && (
                 <Text mt={8} size="lg" c={"dimmed"}>
-                    Entering your pin will create a new pin-code for your user, but won't save it on
-                    the server, so make sure to remember it.
+                    Entering your pin will create a new pin-code for your user, but won't save it on the server, so make
+                    sure to remember it.
                 </Text>
             )}
 

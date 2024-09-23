@@ -96,9 +96,6 @@ Route::middleware("auth")->group(function () {
             Route::get("/download/multiple/{ids}", "download_multiple_images")->name("download.multiple.hidden.images");
             Route::put("/change/pin", "change_pin")->name("change.hidden.pin");
             Route::delete("/delete/pin", "delete_pin")->name("delete.hidden.pin");
-
-            // Route::get("/get", "get")->name("hidden.get");
-            // Route::delete("/", "delete")->name("hidden.delete");
         });
     });
 });

@@ -31,6 +31,7 @@ import ConfirmationModal from "./ConfirmationModal";
 import copyToClipboard from "../Functions/copyToClipboard";
 import calculateImageSize from "../Functions/calculateImageSize";
 import scrollDown from "../Functions/scrollDown";
+import { PhotoProvider, PhotoView } from "react-photo-view";
 
 export default function PictureViewer({ selected, setSelected, images, tags, onDelete, close, hiddenImages = false }) {
     // Find image and recheck if it exists
@@ -393,16 +394,20 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
                             e.stopPropagation();
                         }}
                     >
-                        <LazyLoadImage
-                            blur={false}
-                            src={route(hiddenImages ? "get.hidden.full.image" : "get.image", image.id)}
-                            thumbnail={selected[1]}
-                            style={{
-                                width: imageSize[0],
-                                height: imageSize[1],
-                            }}
-                            setLoading={setImageLoading}
-                        />
+                        <PhotoProvider bannerVisible={false}>
+                            <PhotoView src={route(hiddenImages ? "get.hidden.full.image" : "get.image", image.id)}>
+                                <LazyLoadImage
+                                    blur={false}
+                                    src={route(hiddenImages ? "get.hidden.full.image" : "get.image", image.id)}
+                                    thumbnail={selected[1]}
+                                    style={{
+                                        width: imageSize[0],
+                                        height: imageSize[1],
+                                    }}
+                                    setLoading={setImageLoading}
+                                />
+                            </PhotoView>
+                        </PhotoProvider>
                     </div>
                 </div>
 

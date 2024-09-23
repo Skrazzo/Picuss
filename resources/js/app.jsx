@@ -11,6 +11,7 @@ import NProgress from "nprogress";
 import { router } from "@inertiajs/react";
 import "@mantine/dropzone/styles.css";
 import checkDarkMode from "./Pages/Functions/checkDarkMode";
+import "react-photo-view/dist/react-photo-view.css";
 
 let timeout = null;
 
@@ -40,14 +41,10 @@ router.on("finish", (event) => {
 
 createInertiaApp({
     // Below you can see that we are going to get all React components from resources/js/Pages folder
-    resolve: (name) =>
-        resolvePageComponent(`./Pages/${name}.jsx`, import.meta.glob("./Pages/**/*.jsx")),
+    resolve: (name) => resolvePageComponent(`./Pages/${name}.jsx`, import.meta.glob("./Pages/**/*.jsx")),
     setup({ el, App, props }) {
         createRoot(el).render(
-            <MantineProvider
-                defaultColorScheme={checkDarkMode() ? "dark" : "light"}
-                theme={{ primaryColor: "green" }}
-            >
+            <MantineProvider defaultColorScheme={checkDarkMode() ? "dark" : "light"} theme={{ primaryColor: "green" }}>
                 <App {...props} />
                 <Notifications />
             </MantineProvider>,

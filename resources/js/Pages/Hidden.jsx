@@ -1,4 +1,8 @@
+import PinAuthenticate from "./Components/Hidden/PinAuthenticate";
+import Title from "./Components/Title";
+import AuthLayout from "./Layouts/AuthLayout";
 import { ActionIcon, Center, Menu, Modal, Pagination, Skeleton, Text } from "@mantine/core";
+import sty from "../../scss/Dashboard.module.scss";
 import {
     IconCheck,
     IconDotsVertical,
@@ -7,124 +11,47 @@ import {
     IconEyeOff,
     IconPhotoOff,
     IconSelectAll,
-    IconShare,
     IconTags,
     IconTagsOff,
     IconTrash,
 } from "@tabler/icons-react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
-import sty from "../../scss/Dashboard.module.scss";
-import LazyLoadImage from "./Components/LazyLoadImage";
+import Dashboard from "./Dashboard";
 import PictureDivider from "./Components/PictureDivider";
-import PictureViewer from "./Components/PictureViewer";
-import Title from "./Components/Title";
-import checkIfMobile from "./Functions/checkIfMobile";
+import LazyLoadImage from "./Components/LazyLoadImage";
 import generateRandomBetween from "./Functions/randomNumberBetween";
+import segmentalSwitch from "./Functions/segmentalSwitch";
+import checkIfMobile from "./Functions/checkIfMobile";
+import PictureViewer from "./Components/PictureViewer";
 import scrollUp from "./Functions/scrollUp";
 import useElementSize from "./Functions/useElementSize";
-import AuthLayout from "./Layouts/AuthLayout";
 import AddTags from "./Components/MultiSelect/AddTags";
 import RemoveTags from "./Components/MultiSelect/RemoveTags";
-import errorNotification from "./Functions/errorNotification";
-import showNotification from "./Functions/showNotification";
 import ConfirmationModal from "./Components/ConfirmationModal";
-import PinAuthenticate from "./Components/Hidden/PinAuthenticate";
-import segmentalSwitch from "./Functions/segmentalSwitch";
+import errorNotification from "./Functions/errorNotification";
 
-export default function Dashboard({ auth, title = "", preSelected = null }) {
-    const [page, setPage] = useState(1);
+export default function Hidden({ allowed, title, auth, hasPin }) {
+    const [openedPinModal, setOpenedPinModal] = useState(!allowed);
+    const firstRender = useRef(true);
     const [images, setImages] = useState(null);
-    const [totalPages, setTotalPages] = useState(1);
-    const [processing, setProcessing] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
 
-    // For hidden picutre pin-code
-    const [hiddenModal, setHiddenModal] = useState(false);
+    const [processing, setProcessing] = useState(false);
+    const [containerSize, containerRef] = useElementSize();
+
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const queryTags = useState([]);
 
     // Available tagas
     const [userTags, setUserTags] = useState([]);
-
-    // queried tags
-    const queryTags = useState(preSelected ? [parseInt(preSelected)] : []);
-    const firstRender = useRef(true);
 
     // Divide by months year etc
     // [0] -> value [1] -> set value
     const segmentControl = useState("month");
 
-    // For multi select
-    const [holding, setHolding] = useState([false, null]); // currently holding on image [if holding, image_id]
-    const [multiSelect, setMultiSelect] = useState(null); // null -> no selected images [image_id] -> selected images
-
-    const [containerSize, containerRef] = useElementSize();
-
-    // For hiding images
-    const [confirmHide, setConfirmHide] = useState({ showModal: false, loading: false });
-
-    useEffect(() => {
-        if (firstRender.current) {
-            firstRender.current = false;
-            return;
-        }
-
-        // Wait for 2 seconds for tags to finish changing
-        const timeoutID = setTimeout(() => {
-            if (page !== 1) {
-                setPage(1);
-            } else {
-                imageSearch();
-            }
-        }, 2000);
-        return () => clearTimeout(timeoutID);
-    }, [queryTags[0]]);
-
     const skelets = Array(30).fill(null);
-
-    function resetStates() {
-        setImages(null);
-    }
-
-    useEffect(() => {
-        imageSearch();
-    }, [page]);
-
-    useEffect(() => {
-        if (firstRender.current) return;
-        if (!images) return;
-        setImages(segmentalSwitch(null, images, segmentControl));
-    }, [segmentControl[0]]);
-
-    function imageSearch() {
-        resetStates();
-        setProcessing(true);
-
-        // get user tags
-        axios.get(route("tags.get")).then((res) => setUserTags(res.data));
-
-        if (preSelected !== null) {
-            // pre selected tag, we need to remove query params from url
-            // ?tag=123
-            if (window.history.replaceState) {
-                const url = window.location.protocol + "//" + window.location.host + window.location.pathname;
-                window.history.replaceState({ path: url }, "", url);
-            }
-        }
-
-        axios
-            .get(route("get.resized.images", page), {
-                params: { queryTags: JSON.stringify(queryTags[0]) },
-            })
-            .then((res) => {
-                // Checks the switch, to see what images to display
-                // Segmental switch fuction, splits images into segmental arrays based on the segment control
-                setImages(segmentalSwitch(res.data.images, images, segmentControl));
-
-                setTotalPages(res.data.totalPages);
-                setProcessing(false);
-                scrollUp({ timeout: false });
-            });
-    }
 
     const noPicturesFound = (
         <>
@@ -143,6 +70,11 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
         </>
     );
 
+    /**
+     * Deletes an image with id from the images list.
+     * @param {number} id - The id of the image to delete
+     * @returns {void}
+     */
     function onImageDelete(id) {
         // setSelectedImage(null);
 
@@ -156,8 +88,70 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
         setImages(newImages);
     }
 
+    function resetStates() {
+        setImages(null);
+    }
+
+    function searchImages() {
+        resetStates();
+        setProcessing(true);
+
+        axios
+            .get(route("get.hidden.resized.images", page), { params: { queryTags: JSON.stringify(queryTags[0]) } })
+            .then((res) => {
+                // Checks the switch, to see what images to display
+                // Segmental switch fuction, splits images into segmental arrays based on the segment control
+                setImages(segmentalSwitch(res.data.images, images, segmentControl));
+
+                setTotalPages(res.data.totalPages);
+                setProcessing(false);
+                scrollUp({ timeout: false });
+            });
+
+        // get user tags
+        axios.get(route("hidden.get.tags")).then((res) => setUserTags(res.data));
+    }
+
+    useEffect(() => {
+        if (firstRender.current) return;
+        if (!images) return;
+        // Segmental switch fuction, splits images into segmental arrays based on the segment control
+        // Recalculate items
+        setImages(segmentalSwitch(null, images, segmentControl));
+    }, [segmentControl[0]]);
+
+    useEffect(() => {
+        if (firstRender.current) return;
+
+        // Wait for 2 seconds for tags to finish changing
+        const timeoutID = setTimeout(() => {
+            if (page !== 1) {
+                setPage(1);
+            } else {
+                searchImages();
+            }
+        }, 2000);
+        return () => clearTimeout(timeoutID);
+    }, [queryTags[0]]);
+
+    // This function has to be at the end of useStates, because it sets first render as false
+    useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+        }
+
+        if (!openedPinModal) {
+            searchImages();
+        }
+    }, [page]);
+
     //#region Multi select
     // --------------- Multi select functions --------------
+
+    // For multi select
+    const [multiSelect, setMultiSelect] = useState(null); // null -> no selected images [image_id] -> selected images
+    const [holding, setHolding] = useState([false, null]); // currently holding on image [if holding, image_id]
+
     // id -> picture_id
     function onPcEnter(id) {
         if (checkIfMobile()) return;
@@ -287,49 +281,35 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
 
     // --------------- Multi select end functions ----------
     //#endregion
-    //#region region Multi select menu funcitons
+
+    //#region Multi select functions
     // --------------- Multi select menu functions ---------
 
     const [addTagsConfirm, setAddTagsConfirm] = useState(false);
     const [removeTagsConfirm, setRemoveTagsConfirm] = useState(false);
     const [deleteImagesConfirm, setDeleteImagesConfirm] = useState(false);
-
-    function sharePicturesHandler() {
-        axios
-            .post(route("tags.share.images"), { pictures: multiSelect })
-            .then((res) => {
-                showNotification({
-                    title: `Shared ${res.data.count} ${res.data.count === 1 ? "image" : "images"}`,
-                    message: `Created new shared tag with name ${res.data.tagName} containing selected images`,
-                    icon: <IconShare />,
-                });
-                setMultiSelect(null);
-                imageSearch();
-            })
-            .catch((err) => errorNotification(err));
-    }
+    const [revealModal, setRevealModal] = useState(false);
 
     function onMultiDeleteConfirm() {
         axios
             .delete(route("delete.pictures"), { params: { pictures: multiSelect } })
             .then((res) => {
                 setMultiSelect(null);
-                imageSearch();
+                searchImages();
             })
             .catch((err) => errorNotification(err));
     }
 
-    // Hiding pictures request
-    function hidePicturesHandler() {
-        setConfirmHide({ ...confirmHide, loading: true });
+    function revealPicturesHandler() {
+        setRevealModal(false);
+
         axios
-            .post(route("hide.pictures"), { pictures: multiSelect })
-            .then(() => {
-                setConfirmHide({ showModal: false, loading: false });
-                imageSearch();
+            .post(route("reveal.pictures"), { pictures: multiSelect })
+            .then((res) => {
+                searchImages();
                 setMultiSelect(null);
             })
-            .catch((err) => console.error(err));
+            .catch((err) => errorNotification(err));
     }
 
     // ----------- Multi select menu functions end ---------
@@ -347,47 +327,45 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
 
     return (
         <AuthLayout
+            auth={auth}
+            segmentControl={segmentControl}
             queryTags={queryTags}
             userTags={userTags}
-            segmentControl={segmentControl}
-            auth={auth}
             page={page}
             setPage={setPage}
             maxPage={totalPages}
-            className={selectedImage ? sty.no_scroll : ""}
         >
+            <Title title={title} />
+
             <PinAuthenticate
-                opened={hiddenModal}
-                onClose={() => setHiddenModal(false)}
+                opened={openedPinModal}
+                title=""
                 onSuccessAuth={() => {
-                    setHiddenModal(false);
-                    setConfirmHide({ showModal: true, loading: false });
+                    setOpenedPinModal(false);
+                    searchImages();
                 }}
+                closeButton={false}
+                firstTime={!hasPin}
             />
+
+            <ConfirmationModal
+                icon={<IconEye />}
+                opened={revealModal}
+                title={"Reveal pictures"}
+                close={() => setRevealModal(false)}
+                onConfirm={revealPicturesHandler}
+                color={"green"}
+            >
+                Are you sure you want to reveal the selected pictures?
+            </ConfirmationModal>
 
             <Modal opened={addTagsConfirm} title={"Add tags to the pictures"} onClose={() => setAddTagsConfirm(false)}>
                 {/* ==== Add tags ==== */}
                 <AddTags
                     selectedPictures={multiSelect}
-                    onUpdateGallery={imageSearch}
+                    onUpdateGallery={searchImages}
                     onClose={() => {
                         setAddTagsConfirm(false);
-                        setMultiSelect(null);
-                    }}
-                />
-            </Modal>
-
-            <Modal
-                opened={removeTagsConfirm}
-                title={"Remove tags from pictures"}
-                onClose={() => setRemoveTagsConfirm(false)}
-            >
-                {/* ==== Remove tags ==== */}
-                <RemoveTags
-                    selectedPictures={multiSelect}
-                    onUpdateGallery={imageSearch}
-                    onClose={() => {
-                        setRemoveTagsConfirm(false);
                         setMultiSelect(null);
                     }}
                 />
@@ -406,20 +384,22 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                 your gallery
             </ConfirmationModal>
 
-            <ConfirmationModal
-                opened={confirmHide.showModal}
-                icon={<IconEyeOff />}
-                title="Hide pictures"
-                color={"green"}
-                close={() => setConfirmHide({ ...confirmHide, showModal: false })}
-                closeOnConfirm={false}
-                onConfirm={() => hidePicturesHandler()}
-                loading={confirmHide.loading}
+            <Modal
+                opened={removeTagsConfirm}
+                title={"Remove tags from pictures"}
+                onClose={() => setRemoveTagsConfirm(false)}
             >
-                Hiding these pictures will encrypt them, and they will be only available in the hidden picture section.
-            </ConfirmationModal>
+                {/* ==== Remove tags ==== */}
+                <RemoveTags
+                    selectedPictures={multiSelect}
+                    onUpdateGallery={searchImages}
+                    onClose={() => {
+                        setRemoveTagsConfirm(false);
+                        setMultiSelect(null);
+                    }}
+                />
+            </Modal>
 
-            <Title title={title} />
             {selectedImage && (
                 <PictureViewer
                     close={() => setSelectedImage(null)}
@@ -428,6 +408,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                     selected={selectedImage}
                     setSelected={setSelectedImage}
                     tags={userTags}
+                    hiddenImages
                 />
             )}
 
@@ -463,26 +444,23 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                                 >
                                     Remove tags
                                 </Menu.Item>
-                                <Menu.Item leftSection={<IconShare {...iconProps} />} onClick={sharePicturesHandler}>
-                                    Share
-                                </Menu.Item>
 
-                                <Menu.Item
-                                    leftSection={<IconEyeOff {...iconProps} />}
-                                    onClick={() => setHiddenModal(true)}
-                                >
-                                    Hide
-                                </Menu.Item>
                                 <Menu.Item
                                     leftSection={<IconDownload {...iconProps} />}
                                     onClick={() =>
                                         window.open(
-                                            route("download.multiple.images", JSON.stringify(multiSelect)),
+                                            route("download.multiple.hidden.images", JSON.stringify(multiSelect)),
                                             "_blank",
                                         )
                                     }
                                 >
                                     Download
+                                </Menu.Item>
+                                <Menu.Item
+                                    leftSection={<IconEye {...iconProps} />}
+                                    onClick={() => setRevealModal(true)}
+                                >
+                                    Reveal
                                 </Menu.Item>
                                 <Menu.Item
                                     color="red"
@@ -535,7 +513,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                                                 <LazyLoadImage
                                                     thumbnail={img.thumb}
                                                     id={img.id}
-                                                    src={route("get.half.image", img.id)}
+                                                    src={route("get.hidden.half.image", img.id)}
                                                     onClick={(id, thumb) =>
                                                         multiSelect !== null
                                                             ? onSelectHandler(id)

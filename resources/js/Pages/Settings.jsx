@@ -6,7 +6,7 @@ import Stats from "./Components/Settings/Stats";
 import General from "./Components/Settings/General";
 import { useMediaQuery } from "@mantine/hooks";
 
-export default function Settings({ auth, title = "" }) {
+export default function Settings({ auth, title = "", hasPin = false }) {
     const iconProps = {
         size: 20,
         strokeWidth: 1.5,
@@ -33,7 +33,7 @@ export default function Settings({ auth, title = "" }) {
                         <Stats />
                     </Tabs.Panel>
                     <Tabs.Panel value="general">
-                        <General />
+                        <General hasPin={hasPin} />
                     </Tabs.Panel>
                 </Tabs>
             </Container>

@@ -1,20 +1,21 @@
-import { Button, Checkbox, Fieldset, Flex, Input, Paper, Text, TextInput } from "@mantine/core";
+import { Button, Checkbox, Fieldset, Flex, Group, Input, Paper, Text, TextInput } from "@mantine/core";
 import { useEffect, useState } from "react";
 import checkDarkMode from "../../Functions/checkDarkMode";
 import { useMediaQuery } from "@mantine/hooks";
-import { IconFileShredder } from "@tabler/icons-react";
+import { IconCloudLock, IconFileShredder, IconLockOff } from "@tabler/icons-react";
 import "../../../../scss/Settings/General.scss";
 import { useForm } from "@inertiajs/inertia-react";
 import { IconCheck } from "@tabler/icons-react";
 import ConfirmationModal from "../ConfirmationModal";
 
-const FormInput = ({ useForm, name, label = "", placeholder = "", type = "text" }) => {
+const FormInput = ({ useForm, name, label = "", placeholder = "", type = "text", ...props }) => {
     let inputLabel = label;
-    if (useForm.hasErrors) inputLabel = useForm.errors[name];
+    if (useForm.hasErrors) inputLabel = useForm.errors[name] || label;
 
     return (
         <Input.Wrapper label={inputLabel} c={useForm.errors[name] ? "red" : ""}>
             <Input
+                maxLength={props.maxLength || null}
                 error={useForm.errors[name]}
                 value={useForm.data[name]}
                 onChange={(e) => useForm.setData(name, e.target.value)}
@@ -25,9 +26,11 @@ const FormInput = ({ useForm, name, label = "", placeholder = "", type = "text" 
     );
 };
 
-export default function General() {
+export default function General({ hasPin: hasPinDB }) {
+    const [hasPin, setHasPin] = useState(hasPinDB);
     const [darkMode, setDarkMode] = useState(checkDarkMode());
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showResetPin, setShowResetPin] = useState(false);
     const tablet = useMediaQuery("(max-width: 1130px)");
 
     const newPassword = useForm({
@@ -60,6 +63,35 @@ export default function General() {
         });
     }
 
+    const newPinForm = useForm({
+        current: "",
+        new: "",
+        new_confirmation: "",
+    });
+
+    function newPinFormHandler(e) {
+        e.preventDefault();
+        newPinForm.put(route("change.hidden.pin"), {
+            onSuccess: () => newPinForm.reset(),
+            onError: (err) => console.warn(err),
+        });
+    }
+
+    const resetPinForm = useForm({
+        password: "",
+    });
+
+    function resetPinHandler() {
+        resetPinForm.delete(route("delete.hidden.pin"), {
+            onSuccess: () => {
+                resetPinForm.reset();
+                setHasPin(false);
+                setShowResetPin(false);
+            },
+            onError: (err) => console.warn(err),
+        });
+    }
+
     useEffect(() => {
         if (darkMode) {
             localStorage.setItem("picuss-dark", true);
@@ -78,11 +110,7 @@ export default function General() {
     return (
         <Paper mx={tablet ? 0 : 16} my={tablet ? 16 : 0}>
             <Fieldset legend={"Theme"} p={16}>
-                <Checkbox
-                    onChange={(e) => setDarkMode(e.target.checked)}
-                    checked={darkMode}
-                    label={"Dark mode"}
-                />
+                <Checkbox onChange={(e) => setDarkMode(e.target.checked)} checked={darkMode} label={"Dark mode"} />
             </Fieldset>
 
             <Fieldset legend={"Change account password"} mt={16} p={16}>
@@ -94,12 +122,7 @@ export default function General() {
                             name={"current"}
                             type={"password"}
                         />
-                        <FormInput
-                            useForm={newPassword}
-                            placeholder="New password"
-                            name={"new"}
-                            type={"password"}
-                        />
+                        <FormInput useForm={newPassword} placeholder="New password" name={"new"} type={"password"} />
                         <FormInput
                             useForm={newPassword}
                             placeholder="Confirm new password"
@@ -109,6 +132,7 @@ export default function General() {
                         <div>
                             <Button
                                 onClick={newPasswordHandler}
+                                loading={newPassword.processing}
                                 leftSection={<IconCheck {...iconProps} />}
                                 variant="default"
                             >
@@ -117,6 +141,88 @@ export default function General() {
                         </div>
                     </Flex>
                 </form>
+            </Fieldset>
+
+            <Fieldset legend={"Change hidden image pin"} mt={16} p={16}>
+                <ConfirmationModal
+                    title={"Reset pin-code"}
+                    icon={<IconLockOff />}
+                    opened={showResetPin}
+                    color={"red"}
+                    childrenText={false}
+                    onConfirm={resetPinHandler}
+                    closeOnConfirm={false}
+                    close={() => {
+                        setShowResetPin(false);
+                        resetPinForm.reset();
+                    }}
+                    loading={resetPinForm.processing}
+                >
+                    <Text c={"dimmed"} mt={8}>
+                        Are you sure you wish to reset your hidden pin-code? All hidden images will be deleted.
+                    </Text>
+
+                    <Input.Wrapper error={resetPinForm.errors.password}>
+                        <Input
+                            value={resetPinForm.data.password}
+                            onChange={(e) => resetPinForm.setData("password", e.target.value)}
+                            autoFocus
+                            error
+                            type="password"
+                            mt={8}
+                            placeholder="Your password"
+                        />
+                    </Input.Wrapper>
+                </ConfirmationModal>
+
+                {hasPin ? (
+                    <form action="" onSubmit={newPinFormHandler}>
+                        <Group gap={8} grow>
+                            <FormInput
+                                maxLength={6}
+                                useForm={newPinForm}
+                                name={"current"}
+                                label="Current pin"
+                                placeholder="******"
+                                type="password"
+                            />
+                            <FormInput
+                                maxLength={6}
+                                useForm={newPinForm}
+                                name={"new"}
+                                label="New pin"
+                                placeholder="******"
+                                type="password"
+                            />
+                            <FormInput
+                                maxLength={6}
+                                useForm={newPinForm}
+                                name={"new_confirmation"}
+                                label="Confirm new pin"
+                                placeholder="******"
+                                type="password"
+                            />
+                        </Group>
+                        <Flex mt={8}>
+                            <Button
+                                loading={newPinForm.processing}
+                                onClick={newPinFormHandler}
+                                leftSection={<IconCloudLock {...iconProps} />}
+                            >
+                                Change pin
+                            </Button>
+                            <Button onClick={() => setShowResetPin(true)} variant="transparent">
+                                Forgot your pin
+                            </Button>
+                        </Flex>
+                    </form>
+                ) : (
+                    <Text>
+                        You can change your hidden picture pin-code when you create it. To create pin-code you need to
+                        hold on a picture to enter multi selection mode &rarr; select pictures &rarr; multi select
+                        dropdown &rarr; hide
+                    </Text>
+                )}
             </Fieldset>
 
             <Fieldset mt={16} p={16} className="danger-fieldset">
@@ -135,8 +241,7 @@ export default function General() {
                     loading={deleteAccount.processing}
                 >
                     <Text mt={16} c={"dimmed"}>
-                        Please enter your account password to verify that you want to delete your
-                        account.
+                        Please enter your account password to verify that you want to delete your account.
                     </Text>
                     <Input.Wrapper error={deleteAccount.errors.password}>
                         <Input
@@ -155,9 +260,8 @@ export default function General() {
                     Delete your account
                 </Text>
                 <Text c={"dimmed"}>
-                    If you delete your account, all of your data will be permanently deleted. And
-                    all the pictures you uploaded will be permanently lost, as well as your shared
-                    links.
+                    If you delete your account, all of your data will be permanently deleted. And all the pictures you
+                    uploaded will be permanently lost, as well as your shared links.
                 </Text>
 
                 <Button

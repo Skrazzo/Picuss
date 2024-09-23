@@ -113,11 +113,12 @@ export default function Upload({ auth, title = "" }) {
 
             if (fileSize > 500 && fileSize < 1000) {
                 imageQuality = 90;
-            } else if (fileSize < 4000) {
+            } else if (fileSize < 2000) {
                 // If image size is between 200KB and 4MB, we need to compress it 80%
                 imageQuality = 80;
+            } else if (fileSize > 4000) {
+                imageQuality = 40;
             } else {
-                // If image size is above 4MB, we need to compress it 20%
                 imageQuality = 20;
             }
 

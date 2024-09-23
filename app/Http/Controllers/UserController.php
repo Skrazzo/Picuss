@@ -10,6 +10,7 @@ class UserController extends Controller
 {
     public function logout(Request $req)
     {
+        $req->session()->invalidate(); // Clear session
         auth()->logout();
         return redirect(route("login"));
     }

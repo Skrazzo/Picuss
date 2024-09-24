@@ -198,12 +198,16 @@ class ShareTagsController extends Controller
     {
         if (auth()->check()) {
             // User is logged in
-            if ($tag->user_id !== auth()->id()) {
-                // User does not own the tag
-                return abort(404);
+
+            if (!$tag->share()->first()) {
+                // If tag isnt shared, check if it belongs to user
+                if ($tag->user_id !== auth()->id()) {
+                    // User does not own the tag
+                    return abort(404);
+                }
             }
 
-            // Proceed to download
+            // Tag is shared, continue to download
         } else {
             // User is not logged in
             // Check if tag is shared

@@ -19,7 +19,7 @@ class ShareTagsController extends Controller
         $tag->save();
 
         $tagName = $tag->tag()->value("name");
-        $username = User::find($tag->tag()->value("user_id"))->first()["username"];
+        $username = User::find($tag->tag()->value("user_id"))["username"];
 
         $pictureCount = Picture::whereJsonContains("tags", $tag->tags_id)
             ->where("hidden", false)
@@ -99,7 +99,7 @@ class ShareTagsController extends Controller
             "limit" => $maxZipSize,
         ];
         $info = [
-            "owner" => User::find($tag->user_id)->first()["username"],
+            "owner" => User::find($tag->user_id)["username"],
             "tag_name" => $tag->tag()->first("name")->name,
         ];
 

@@ -106,8 +106,10 @@ class SettingsController extends Controller
             $pic->delete();
         }
 
-        // Delete all tags
+        // Delete all data
         $user->tag()->delete();
+        $user->pin()->delete();
+        $user->sharedImage()->delete();
 
         // TODO: Send email to the user, about its account being deleted
 

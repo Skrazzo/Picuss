@@ -48,7 +48,7 @@ class GenerateAllPictures extends Command
         $createdCount = 0;
         $deletedCount = 0;
         $delLocalCount = 0; // Deleted locally
-        $pictures = Picture::all();
+        $pictures = Picture::where("hidden", false)->get();
 
         foreach ($pictures as $picture) {
             if (!$halfDisk->exists($picture->image)) {

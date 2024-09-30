@@ -16,14 +16,14 @@ class GenerateAllPictures extends Command
      *
      * @var string
      */
-    protected $signature = 'app:generate-all-pictures';
+    protected $signature = "app:generate-all-pictures";
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generates thumbnails and half images for all picture who dont have them';
+    protected $description = "Generates thumbnails and half images for all picture who dont have them, It also checks if images exist locally, or only in the database. Delets unnecessary images.";
 
     /**
      * Execute the console command.
@@ -32,28 +32,27 @@ class GenerateAllPictures extends Command
     {
         $ouputConsole = true;
 
-        $thumbWidth = env('thumbWidth', 40);
-        $scalePercent = env('scaledDownImages', 20);
-        
+        $thumbWidth = env("thumbWidth", 40);
+        $scalePercent = env("scaledDownImages", 20);
+
         // Get storage env variables
-        $imageEnv = env('SERVER_IMAGE_DISK', 'images');
-        $halfEnv = env('SERVER_IMAGE_HALF_DISK', 'half_images');
-        $thumbEnv = env('SERVER_THUMBNAILS_DISK', 'thumbnails');
-        
+        $imageEnv = env("SERVER_IMAGE_DISK", "images");
+        $halfEnv = env("SERVER_IMAGE_HALF_DISK", "half_images");
+        $thumbEnv = env("SERVER_THUMBNAILS_DISK", "thumbnails");
+
         // Get storage disks
         $imageDisk = Storage::disk($imageEnv);
         $halfDisk = Storage::disk($halfEnv);
         $thumbDisk = Storage::disk($thumbEnv);
-        
+
         $createdCount = 0;
         $deletedCount = 0;
         $delLocalCount = 0; // Deleted locally
         $pictures = Picture::all();
-        
-        
+
         foreach ($pictures as $picture) {
-            
-            if(!$halfDisk->exists($picture->image)) { // Create half image
+            if (!$halfDisk->exists($picture->image)) {
+                // Create half image
 
                 // Check if image exists
                 if (!$imageDisk->exists($picture->image)) {
@@ -69,8 +68,7 @@ class GenerateAllPictures extends Command
                 // Scale down original image
                 $path = $imageDisk->path($picture->image);
                 $imageSize = getimagesize($path);
-                $resultPixels = $scalePercent * $imageSize[0] / 100;
-                
+                $resultPixels = ($scalePercent * $imageSize[0]) / 100;
 
                 // Initiate scaling down, and save the image
                 $manager = new ImageManager(new Driver());
@@ -78,12 +76,14 @@ class GenerateAllPictures extends Command
                 $image->scaleDown(width: $resultPixels);
                 $image->save($halfDisk->path($picture->image));
 
-                if($ouputConsole) echo $picture->image . " created half image\n";
-                $createdCount ++;
+                if ($ouputConsole) {
+                    echo $picture->image . " created half image\n";
+                }
+                $createdCount++;
             }
 
-
-            if(!$thumbDisk->exists($picture->image)) { // Create thumbnail
+            if (!$thumbDisk->exists($picture->image)) {
+                // Create thumbnail
 
                 // Check if image exists
                 if (!$imageDisk->exists($picture->image)) {
@@ -102,19 +102,20 @@ class GenerateAllPictures extends Command
                 $image->scaleDown(width: $thumbWidth);
                 $image->save($thumbDisk->path($picture->image));
 
-                if($ouputConsole) echo $picture->image . " created thumbnail\n";
-                $createdCount ++;
+                if ($ouputConsole) {
+                    echo $picture->image . " created thumbnail\n";
+                }
+                $createdCount++;
             }
-
-        
         }
-        
+
         // Check images locally
         $allImages = $imageDisk->allfiles();
-        foreach($allImages as $img){
-            $pic = Picture::where('image', $img)->first();
-            if(!$pic) { // Picture is not found in database
-                
+        foreach ($allImages as $img) {
+            $pic = Picture::where("image", $img)->first();
+            if (!$pic) {
+                // Picture is not found in database
+
                 // Delete pictures from image, half, and thumbnails
                 $imageDisk->delete($img);
                 $halfDisk->delete($img);
@@ -123,11 +124,15 @@ class GenerateAllPictures extends Command
                 $delLocalCount++;
             }
         }
-        
 
-        if($ouputConsole) echo $createdCount . " Images were created, aka for ". $createdCount / 2 ." records\n";
-        if($ouputConsole) echo $deletedCount . " Images were deleted, because existed only in database \n";
-        if($ouputConsole) echo $delLocalCount . " Images were deleted, because existed only locally \n";
-
+        if ($ouputConsole) {
+            echo $createdCount . " Images were created, aka for " . $createdCount / 2 . " records\n";
+        }
+        if ($ouputConsole) {
+            echo $deletedCount . " Images were deleted, because existed only in database \n";
+        }
+        if ($ouputConsole) {
+            echo $delLocalCount . " Images were deleted, because existed only locally \n";
+        }
     }
 }

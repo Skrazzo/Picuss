@@ -1,27 +1,10 @@
 import React, { useEffect, useState } from "react";
 import AuthLayout from "./Layouts/AuthLayout";
-import {
-    Button,
-    Checkbox,
-    Container,
-    Flex,
-    Paper,
-    Progress,
-    Slider,
-    Transition,
-} from "@mantine/core";
+import { Button, Checkbox, Container, Flex, Paper, Progress, Slider, Transition } from "@mantine/core";
 
 // ------ for file dropping ------
 import { Group, Text, rem } from "@mantine/core";
-import {
-    IconUpload,
-    IconPhoto,
-    IconX,
-    IconTags,
-    IconDownload,
-    IconClearAll,
-    IconBug,
-} from "@tabler/icons-react";
+import { IconUpload, IconPhoto, IconX, IconTags, IconDownload, IconClearAll, IconBug } from "@tabler/icons-react";
 import { Dropzone } from "@mantine/dropzone";
 // -------------------------------
 
@@ -66,8 +49,7 @@ export default function Upload({ auth, title = "" }) {
 
         setUploadSize({
             ...uploadSize,
-            unCompressedSize:
-                uploadSize.unCompressedSize + Math.round((oldSize / 1024 ** 2) * 100) / 100,
+            unCompressedSize: uploadSize.unCompressedSize + Math.round((oldSize / 1024 ** 2) * 100) / 100,
         });
 
         if (compress) {
@@ -113,15 +95,14 @@ export default function Upload({ auth, title = "" }) {
 
             if (fileSize > 500 && fileSize < 1000) {
                 imageQuality = 90;
-            } else if (fileSize < 2000) {
+            } else if (fileSize > 2000) {
                 // If image size is between 200KB and 4MB, we need to compress it 80%
                 imageQuality = 80;
             } else if (fileSize > 4000) {
                 imageQuality = 40;
-            } else {
-                imageQuality = 20;
             }
 
+            console.log(`Compressing: ${x.name} (${fileSize}KB) - ${imageQuality}%`);
             let compressedImage = x;
             // Compress the image only if compression is needed for an image (Obove 0 image quality)
             if (imageQuality !== 0) {
@@ -335,12 +316,7 @@ export default function Upload({ auth, title = "" }) {
                         label="Compress pictures before upload"
                     />
 
-                    <Transition
-                        mounted={compressing}
-                        transition="fade-down"
-                        duration={250}
-                        timingFunction="ease"
-                    >
+                    <Transition mounted={compressing} transition="fade-down" duration={250} timingFunction="ease">
                         {(styles) => (
                             <Flex style={styles} mt={8} gap={16} align={"center"}>
                                 <Text>{compressingProgress}%</Text>
@@ -369,10 +345,8 @@ export default function Upload({ auth, title = "" }) {
                                     }}
                                 >
                                     {" "}
-                                    {Math.round(
-                                        (uploadSize.unCompressedSize - uploadSize.compressedSize) *
-                                            100,
-                                    ) / 100}{" "}
+                                    {Math.round((uploadSize.unCompressedSize - uploadSize.compressedSize) * 100) /
+                                        100}{" "}
                                     MB
                                 </b>
                             </Text>
@@ -389,11 +363,7 @@ export default function Upload({ auth, title = "" }) {
                         <div className={sty.photos}>
                             {uploadArr.map((x, i) => {
                                 return (
-                                    <UploadImagePreview
-                                        key={x.name}
-                                        blob={x}
-                                        onRemove={() => removeImageHandler(i)}
-                                    />
+                                    <UploadImagePreview key={x.name} blob={x} onRemove={() => removeImageHandler(i)} />
                                 );
                             })}
                         </div>
@@ -413,11 +383,7 @@ export default function Upload({ auth, title = "" }) {
                             <Paper withBorder mt={8} p={"sm"}>
                                 <Flex gap={8} wrap={"wrap"}>
                                     {selectedTags.map((tag, idx) => (
-                                        <TagPill
-                                            key={tag.name}
-                                            remove={() => removeTagHandler(idx)}
-                                            name={tag.name}
-                                        />
+                                        <TagPill key={tag.name} remove={() => removeTagHandler(idx)} name={tag.name} />
                                     ))}
                                 </Flex>
                             </Paper>

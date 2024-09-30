@@ -93,18 +93,25 @@ export default function Upload({ auth, title = "" }) {
             const fileSize = x.size / 1024; // Get file size in kiloBytes
             let imageQuality = 0;
 
-            if (fileSize > 500 && fileSize < 1000) {
-                imageQuality = 90;
-            } else if (fileSize > 2000) {
-                // If image size is between 200KB and 4MB, we need to compress it 80%
-                imageQuality = 80;
-            } else if (fileSize > 4000) {
-                imageQuality = 40;
-            } else if (fileSize > 6000) {
-                imageQuality = 20;
+            switch (true) {
+                case fileSize > 6000:
+                    imageQuality = 20;
+                    break;
+                case fileSize > 4000:
+                    imageQuality = 30;
+                    break;
+                case fileSize > 2000:
+                    imageQuality = 50;
+                    break;
+                case fileSize > 1000:
+                    imageQuality = 80;
+                    break;
+                default:
+                    break;
             }
 
             console.log(`Compressing: ${x.name} (${fileSize}KB) - ${imageQuality}%`);
+
             let compressedImage = x;
             // Compress the image only if compression is needed for an image (Obove 0 image quality)
             if (imageQuality !== 0) {

@@ -100,6 +100,8 @@ export default function Upload({ auth, title = "" }) {
                 imageQuality = 80;
             } else if (fileSize > 4000) {
                 imageQuality = 40;
+            } else if (fileSize > 6000) {
+                imageQuality = 20;
             }
 
             console.log(`Compressing: ${x.name} (${fileSize}KB) - ${imageQuality}%`);

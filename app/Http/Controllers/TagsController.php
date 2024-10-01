@@ -58,7 +58,7 @@ class TagsController extends Controller
     public function getVisibleTags(Request $req)
     {
         $tags = $this->getTags($req, ["name", "ASC"])->toArray();
-
+        return $tags;
         // Filter out tags that belong only to the hidden folder
         return array_filter($tags, function ($tag) {
             $hiddenPics = TagsHelper::OnlyHiddenPics($tag["id"]); // Return true if tag contains only hidden images

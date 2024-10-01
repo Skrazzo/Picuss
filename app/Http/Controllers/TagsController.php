@@ -57,15 +57,22 @@ class TagsController extends Controller
      */
     public function getVisibleTags(Request $req)
     {
-        $tags = $this->getTags($req, ["name", "ASC"])->toArray();
+        $tags = $this->getTags($req, ["name", "ASC"]);
+
+        // $filtered = array_filter($tags, function ($tag) {
+        //     $hiddenPics = TagsHelper::OnlyHiddenPics($tag["id"]); // Return true if tag contains only hidden images
+        //     return !$hiddenPics ? $tag : null;
+        // });
 
         // Filter out tags that belong only to the hidden folder
-        $filtered = array_filter($tags, function ($tag) {
-            $hiddenPics = TagsHelper::OnlyHiddenPics($tag["id"]); // Return true if tag contains only hidden images
-            return !$hiddenPics ? $tag : null;
-        });
+        $filtered = [];
+        foreach ($tags as $tag) {
+            if (!TagsHelper::OnlyHiddenPics($tag["id"])) {
+                $filtered[] = $tag;
+            }
+        }
 
-        return (array) $filtered;
+        return $filtered;
     }
 
     /**

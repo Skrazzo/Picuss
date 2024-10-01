@@ -28,4 +28,24 @@ class TagsHelper
 
         return true;
     }
+
+    /**
+     * Returns true if tag contains only hidden images, false otherwise
+     * @param int $tag_id
+     * @return bool
+     */
+    public static function OnlyHiddenPics($tag_id)
+    {
+        $tag = Tags::find($tag_id);
+        if (!$tag) {
+            return false;
+        }
+
+        $visiblePics = Picture::whereJsonContains("tags", $tag->id)
+            ->where("hidden", false)
+            ->count();
+
+        // Return true if tag contains only hidden images
+        return $visiblePics == 0;
+    }
 }

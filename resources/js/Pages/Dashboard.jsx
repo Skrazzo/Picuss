@@ -100,7 +100,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
         setProcessing(true);
 
         // get user tags
-        axios.get(route("tags.get")).then((res) => setUserTags(res.data));
+        axios.get(route("visible.tags.get")).then((res) => setUserTags(res.data));
 
         if (preSelected !== null) {
             // pre selected tag, we need to remove query params from url

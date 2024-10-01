@@ -5,7 +5,6 @@ import {
     Box,
     Burger,
     Button,
-    Chip,
     CloseButton,
     Divider,
     Drawer,
@@ -13,15 +12,12 @@ import {
     Modal,
     NumberInput,
     SegmentedControl,
-    SimpleGrid,
-    Skeleton,
     Text,
     Transition,
 } from "@mantine/core";
 import { useDisclosure, useWindowScroll } from "@mantine/hooks";
 import {
     IconArrowUp,
-    IconBrandOnedrive,
     IconEyeOff,
     IconLink,
     IconLogout2,
@@ -29,19 +25,15 @@ import {
     IconSeparatorVertical,
     IconSettings,
     IconSignLeft,
-    IconTag,
     IconTags,
     IconUpload,
-    IconUser,
 } from "@tabler/icons-react";
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import sty from "../../../scss/authLayout.module.scss";
-import DisabledInputInfo from "../Components/DisabledInputInfo";
 import Logo from "../Components/Logo";
 import MenuOption from "../Components/MenuOption";
 import SearchTags from "../Components/SearchTags";
-import checkDarkMode from "../Functions/checkDarkMode";
 import UserStats from "../Components/UserStats";
 
 export default function AuthLayout({
@@ -127,11 +119,7 @@ export default function AuthLayout({
     };
 
     return (
-        <div
-            className={className}
-            style={{ height: "100dvh", overflow: "auto" }}
-            id="auth-container"
-        >
+        <div className={className} style={{ height: "100dvh", overflow: "auto" }} id="auth-container">
             <section id="top-section"></section>
             <Modal opened={openedUserModal} onClose={userModal.close} title={auth.user.username}>
                 <UserStats data={userInfo} />
@@ -155,13 +143,7 @@ export default function AuthLayout({
                 </Flex>
             </Modal>
 
-            <Drawer
-                padding={0}
-                opened={openedDrawer}
-                withCloseButton={false}
-                onClose={drawer.close}
-                size={"sm"}
-            >
+            <Drawer padding={0} opened={openedDrawer} withCloseButton={false} onClose={drawer.close} size={"sm"}>
                 <div className={sty.menu_header}>
                     <span
                         onClick={() => {
@@ -287,21 +269,13 @@ export default function AuthLayout({
                     <Text fw={500}>Picuss</Text>
                 </div>
 
-                <Burger
-                    opened={openedDrawer}
-                    onClick={drawer.toggle}
-                    aria-label="Toggle navigation"
-                />
+                <Burger opened={openedDrawer} onClick={drawer.toggle} aria-label="Toggle navigation" />
             </nav>
 
             <Affix position={{ bottom: 20, right: 20 }}>
                 <Transition transition="slide-up" mounted={scroll.y > 0}>
                     {(transitionStyles) => (
-                        <ActionIcon
-                            variant="subtle"
-                            style={transitionStyles}
-                            onClick={() => scrollTo({ y: 0 })}
-                        >
+                        <ActionIcon variant="subtle" style={transitionStyles} onClick={() => scrollTo({ y: 0 })}>
                             <IconArrowUp strokeWidth={1.5} />
                         </ActionIcon>
                     )}

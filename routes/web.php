@@ -51,6 +51,7 @@ Route::middleware("auth")->group(function () {
         Route::controller(TagsController::class)->group(function () {
             Route::get("/", "index")->name("tags.index"); // Render manage tags page
             Route::get("/get", "get")->name("tags.get"); // Api Get all user tags in api format
+            Route::get("/get/visible", "getVisibleTags")->name("visible.tags.get"); // Api get all tags, that do not contain hidden images
             Route::post("/", "create")->name("tags.create"); // Api POST call to create a new tag
             Route::put("/name/{tag:id}", "editName")->name("tags.editName"); // Edit tag name
             Route::delete("/", "deleteTags")->name("tags.delete"); // Route for deleting tags

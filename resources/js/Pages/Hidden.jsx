@@ -92,7 +92,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
         setImages(null);
     }
 
-    function searchImages() {
+    function imageSearch() {
         resetStates();
         setProcessing(true);
 
@@ -128,7 +128,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
             if (page !== 1) {
                 setPage(1);
             } else {
-                searchImages();
+                imageSearch();
             }
         }, 2000);
         return () => clearTimeout(timeoutID);
@@ -141,7 +141,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
         }
 
         if (!openedPinModal) {
-            searchImages();
+            imageSearch();
         }
     }, [page]);
 
@@ -295,7 +295,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
             .delete(route("delete.pictures"), { params: { pictures: multiSelect } })
             .then((res) => {
                 setMultiSelect(null);
-                searchImages();
+                imageSearch();
             })
             .catch((err) => errorNotification(err));
     }
@@ -306,7 +306,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
         axios
             .post(route("reveal.pictures"), { pictures: multiSelect })
             .then((res) => {
-                searchImages();
+                imageSearch();
                 setMultiSelect(null);
             })
             .catch((err) => errorNotification(err));
@@ -342,7 +342,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
                 title=""
                 onSuccessAuth={() => {
                     setOpenedPinModal(false);
-                    searchImages();
+                    imageSearch();
                 }}
                 closeButton={false}
                 firstTime={!hasPin}
@@ -363,7 +363,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
                 {/* ==== Add tags ==== */}
                 <AddTags
                     selectedPictures={multiSelect}
-                    onUpdateGallery={searchImages}
+                    onUpdateGallery={imageSearch}
                     onClose={() => {
                         setAddTagsConfirm(false);
                         setMultiSelect(null);
@@ -392,7 +392,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
                 {/* ==== Remove tags ==== */}
                 <RemoveTags
                     selectedPictures={multiSelect}
-                    onUpdateGallery={searchImages}
+                    onUpdateGallery={imageSearch}
                     onClose={() => {
                         setRemoveTagsConfirm(false);
                         setMultiSelect(null);

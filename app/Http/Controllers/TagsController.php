@@ -50,6 +50,25 @@ class TagsController extends Controller
     }
 
     /**
+     * Return all tags that belong to at least one picture, that is not hidden
+     * This function returns array of tags, with the same structure as getTags
+     * @param Request $req
+     * @return array
+     */
+    public function getVisibleTags(Request $req)
+    {
+        $tags = $this->getTags($req, ["name", "ASC"])->toArray();
+
+        // Filter out tags that belong only to the hidden folder
+        return array_filter($tags, function ($tag) {
+            $hiddenPics = TagsHelper::OnlyHiddenPics($tag["id"]); // Return true if tag contains only hidden images
+            if (!$hiddenPics) {
+                return $tag;
+            }
+        });
+    }
+
+    /**
      * Renders the tags management page using the Inertia library.
      *
      * @param Request $request The HTTP request object.

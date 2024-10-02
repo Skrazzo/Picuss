@@ -1,11 +1,6 @@
 import React from "react";
-import { ActionIcon, Menu, Text } from "@mantine/core";
-import {
-    IconBug,
-    IconDotsVertical,
-    IconShare,
-    IconTrash,
-} from "@tabler/icons-react";
+import { ActionIcon, Flex, Menu, Text } from "@mantine/core";
+import { IconBug, IconDotsVertical, IconShare, IconTrash } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import axios from "axios";
@@ -47,29 +42,15 @@ export default function TagMenu({ selectedTags, setTags }) {
 
     return (
         <>
-            <Menu>
-                <Menu.Target>
-                    <ActionIcon variant="subtle">
-                        <IconDotsVertical strokeWidth={2} size={20} />
-                    </ActionIcon>
-                </Menu.Target>
+            <Flex gap={8} ml={3}>
+                <ActionIcon variant="subtle" color={"red"}>
+                    <IconTrash {...iconProps} onClick={() => setDeleteModal.open()} />
+                </ActionIcon>
 
-                <Menu.Dropdown>
-                    <Menu.Item
-                        leftSection={<IconShare {...iconProps} />}
-                        onClick={shareTags}
-                    >
-                        <Text size="sm">Share tags</Text>
-                    </Menu.Item>
-                    <Menu.Item
-                        color="red"
-                        leftSection={<IconTrash {...iconProps} />}
-                        onClick={() => setDeleteModal.open()}
-                    >
-                        <Text size="sm">Delete tags</Text>
-                    </Menu.Item>
-                </Menu.Dropdown>
-            </Menu>
+                <ActionIcon variant="subtle" color={"dimmed"}>
+                    <IconShare {...iconProps} onClick={shareTags} />
+                </ActionIcon>
+            </Flex>
 
             <DeleteConfirmModal
                 setTagsAndClose={setTagsAndClose}

@@ -28,14 +28,30 @@ $thumbnailScrollHeight: 106px;
         width: 460px;
         height: 100vh;
 
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        @include mixins.d-flex($dir: column, $justify: space-between, $align: stretch);
+
+        .found_elements {
+            @include mixins.d-flex($gap: 1rem);
+
+            .sub_tag {
+                @include mixins.d-flex($gap: 2px);
+
+                svg {
+                    @include mixins.svgIcon($color: $green, $size: 18px);
+                }
+            }
+        }
+
+        .sub_tag_error {
+            @include mixins.d-flex($dir: column);
+
+            svg {
+                @include mixins.svgIcon($color: $green, $size: 48px);
+            }
+        }
 
         .title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            @include mixins.d-flex();
 
             p {
                 overflow: hidden;
@@ -54,9 +70,7 @@ $thumbnailScrollHeight: 106px;
         .section_title {
             margin-top: 2rem;
 
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            @include mixins.d-flex($justify: space-between);
 
             p {
                 margin-top: 3px;

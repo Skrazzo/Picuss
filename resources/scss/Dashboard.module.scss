@@ -4,7 +4,7 @@
 .container {
     padding: 1rem;
     column-count: 7;
-    column-gap: 10px;
+    column-gap: 5px;
 
     .picture {
         border-radius: 0.3rem;
@@ -12,11 +12,11 @@
         /* border: 1px solid $border inset; */
 
         // Moved border to the inside
-        border: 1px solid $border;
-        box-shadow: 0 0 0 1px $border inset;
-        padding: 1px;
+        border: 2px solid $border;
+        // box-shadow: 0 0 0 1px $border inset;
+        // padding: 1px;
 
-        margin-bottom: 10px;
+        margin-bottom: 5px;
 
         &_selected {
             @extend .picture;
@@ -148,6 +148,10 @@
 @media (max-width: 800px) {
     .container {
         column-count: 3;
+
+        .picture {
+            border-width: 1px;
+        }
     }
 }
 

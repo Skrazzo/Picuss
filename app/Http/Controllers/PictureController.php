@@ -40,7 +40,10 @@ class PictureController extends Controller
         }
         // preSelected is null if tag doesnt belong to user, or doesnt exist
         // null means that tag is nott preselected
-        return Inertia::render("Dashboard", ["preSelected" => $preSelected]);
+        return Inertia::render("Dashboard", [
+            "preSelected" => $preSelected,
+            "sub_tags_enabled" => env("AISubTags", false),
+        ]);
     }
 
     public function get_image(Picture $picture)
@@ -226,6 +229,7 @@ class PictureController extends Controller
                         "width" => $pic->width,
                         "height" => $pic->height,
                         "aspectRatio" => round($pic->width / $pic->height, 2),
+                        "sub_tags" => json_decode($pic->sub_tags),
                     ];
 
                     continue;
@@ -234,7 +238,6 @@ class PictureController extends Controller
                 $thumbWidth = env("thumbWidth", 40);
                 $image = $manager->read($path);
                 $image->scaleDown(width: $thumbWidth);
-                // $image->pixelate(8);
 
                 $image->save($thumbDISK->path($pic->image)); // Save image to the local path
             }
@@ -251,6 +254,7 @@ class PictureController extends Controller
                 "width" => $pic->width,
                 "height" => $pic->height,
                 "aspectRatio" => round($pic->width / $pic->height, 2) . "/1",
+                "sub_tags" => json_decode($pic->sub_tags),
             ];
         }
 

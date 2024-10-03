@@ -32,7 +32,7 @@ import ConfirmationModal from "./Components/ConfirmationModal";
 import PinAuthenticate from "./Components/Hidden/PinAuthenticate";
 import segmentalSwitch from "./Functions/segmentalSwitch";
 
-export default function Dashboard({ auth, title = "", preSelected = null }) {
+export default function Dashboard({ auth, title = "", preSelected = null, sub_tags_enabled = false }) {
     const [page, setPage] = useState(1);
     const [images, setImages] = useState(null);
     const [totalPages, setTotalPages] = useState(1);
@@ -428,6 +428,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                     selected={selectedImage}
                     setSelected={setSelectedImage}
                     tags={userTags}
+                    sub_tags_enabled={sub_tags_enabled}
                 />
             )}
 

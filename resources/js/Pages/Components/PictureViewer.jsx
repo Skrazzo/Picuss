@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import sty from "../../../scss/PictureViewer.module.scss";
-import { ActionIcon, Button, Checkbox, Loader, Menu, Paper, Table, Text } from "@mantine/core";
+import { ActionIcon, Button, Checkbox, Loader, Menu, Paper, Table, Text, Tooltip } from "@mantine/core";
 import {
     IconBadgeHd,
     IconBadgeHdFilled,
@@ -12,7 +12,12 @@ import {
     IconDotsVertical,
     IconDownload,
     IconFileInfo,
+    IconHash,
+    IconInfoCircle,
     IconInfoCircleFilled,
+    IconInfoHexagon,
+    IconPhotoSearch,
+    IconRobot,
     IconShare,
     IconShareOff,
     IconTags,
@@ -32,8 +37,18 @@ import copyToClipboard from "../Functions/copyToClipboard";
 import calculateImageSize from "../Functions/calculateImageSize";
 import scrollDown from "../Functions/scrollDown";
 import { PhotoProvider, PhotoView } from "react-photo-view";
+import PictureViewerSubTags from "./PictureViewerSubTags";
 
-export default function PictureViewer({ selected, setSelected, images, tags, onDelete, close, hiddenImages = false }) {
+export default function PictureViewer({
+    selected,
+    setSelected,
+    images,
+    tags,
+    onDelete,
+    close,
+    hiddenImages = false,
+    sub_tags_enabled = false,
+}) {
     // Find image and recheck if it exists
     const image = images.filter((x) => x.id === selected[0])[0] || {};
     if (!("id" in image)) return <></>;
@@ -59,7 +74,6 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
 
     useEffect(() => {
         firstLoad.current = true; // set this to true, so selected tags useeffect does not refresh
-
         setShared(image.shared);
     }, [image]);
 
@@ -366,6 +380,28 @@ export default function PictureViewer({ selected, setSelected, images, tags, onD
                             ))}
                         </Paper>
                     </div>
+
+                    {!hiddenImages && sub_tags_enabled && (
+                        <>
+                            <SectionTitle
+                                text={"Found elements"}
+                                icon={<IconRobot />}
+                                rightSection={
+                                    <Tooltip
+                                        withArrow
+                                        label="Found elements are sub-tags that were found using AI model, you can find these images by searching these tags"
+                                        maw={300}
+                                        multiline
+                                        openDelay={1000}
+                                    >
+                                        <IconInfoHexagon {...iconProps} />
+                                    </Tooltip>
+                                }
+                            />
+
+                            <PictureViewerSubTags style={sty} sub_tags={image.sub_tags} />
+                        </>
+                    )}
                 </div>
 
                 <div className={sty.buttons}>

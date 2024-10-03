@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table("pictures", function (Blueprint $table) {
-            $table->json("sub_tags")->default(json_encode([]));
+            $table->json("sub_tags")->nullable()->default(null);
         });
     }
 

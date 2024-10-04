@@ -31,7 +31,8 @@ $thumbnailScrollHeight: 106px;
         @include mixins.d-flex($dir: column, $justify: space-between, $align: stretch);
 
         .found_elements {
-            @include mixins.d-flex($gap: 1rem);
+            @include mixins.d-flex($gap: 0.25rem 1rem);
+            flex-wrap: wrap;
 
             .sub_tag {
                 @include mixins.d-flex($gap: 2px);
@@ -51,7 +52,7 @@ $thumbnailScrollHeight: 106px;
         }
 
         .title {
-            @include mixins.d-flex();
+            @include mixins.d-flex($justify: space-between);
 
             p {
                 overflow: hidden;

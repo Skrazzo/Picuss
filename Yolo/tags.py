@@ -26,8 +26,8 @@ try:
 except sqlite3.Error as e:
     print(f"Error connecting to database: {e}")
 
-# Load the YOLOv8 classification model
-model = YOLO('yolov8x-cls.pt') 
+# Load the YOLOv11 classification model
+model = YOLO('yolo11x-cls.pt') 
 
 # Connect to the database
 conn = sqlite3.connect(DATABASE_PATH)

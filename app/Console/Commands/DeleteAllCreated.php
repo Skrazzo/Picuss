@@ -12,7 +12,7 @@ class DeleteAllCreated extends Command
      *
      * @var string
      */
-    protected $signature = "app:delete-all-created";
+    protected $signature = "pictures:delete-generated";
 
     /**
      * The console command description.

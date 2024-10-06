@@ -7,14 +7,13 @@ use App\Helpers\Encrypt;
 use App\Helpers\ValidateApi;
 use App\Models\Picture;
 use App\Models\Tags;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use ZipArchive;
+use Illuminate\Support\Str;
 
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Imagick\Driver;
@@ -168,6 +167,11 @@ class PictureController extends Controller
             $queryTags = json_decode($data["queryTags"]);
         }
 
+        $subQuery = ""; // Query to search sub_tags
+        if (isset($data["subQuery"])) {
+            $subQuery = Str::trim($data["subQuery"]);
+        }
+
         // Picture per page
         $perPage = env("perPage", 40);
         $skip = ($page - 1) * $perPage;
@@ -179,6 +183,12 @@ class PictureController extends Controller
                 // This function searches for tags in json
                 foreach ($queryTags as $tagId) {
                     $query->orWhereJsonContains("tags", $tagId);
+                }
+            })
+            ->where(function ($query) use ($subQuery) {
+                // If sub query isn't empty, apply this where clause
+                if ($subQuery != "") {
+                    $query->where("sub_tags", "like", "%{$subQuery}%");
                 }
             })
             ->where("hidden", false)
@@ -197,6 +207,12 @@ class PictureController extends Controller
                         // This function searches for tags in json
                         foreach ($queryTags as $tagId) {
                             $query->orWhereJsonContains("tags", $tagId);
+                        }
+                    })
+                    ->where(function ($query) use ($subQuery) {
+                        // If sub query isn't empty, apply this where clause
+                        if ($subQuery != "") {
+                            $query->where("sub_tags", "like", "%{$subQuery}%");
                         }
                     })
                     ->where("hidden", false)

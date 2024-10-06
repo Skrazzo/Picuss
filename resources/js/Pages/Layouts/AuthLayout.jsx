@@ -9,6 +9,7 @@ import {
     Divider,
     Drawer,
     Flex,
+    Input,
     Modal,
     NumberInput,
     SegmentedControl,
@@ -35,6 +36,7 @@ import Logo from "../Components/Logo";
 import MenuOption from "../Components/MenuOption";
 import SearchTags from "../Components/SearchTags";
 import UserStats from "../Components/UserStats";
+import SubTagsSearch from "../Components/SubTagsSearch";
 
 export default function AuthLayout({
     auth,
@@ -56,6 +58,10 @@ export default function AuthLayout({
     const firstLoad = useRef(true);
     const [pageError, setPageError] = useState(null);
     const [selectedPage, setSelectedPage] = useState(page);
+
+    // This string will contain the query string for searching images
+    // [0] -> value [1] -> set value
+    const subQuery = useState("");
 
     useEffect(() => {
         if (openedUserModal) {
@@ -269,7 +275,10 @@ export default function AuthLayout({
                     <Text fw={500}>Picuss</Text>
                 </div>
 
-                <Burger opened={openedDrawer} onClick={drawer.toggle} aria-label="Toggle navigation" />
+                <Flex align={"center"} gap={8}>
+                    <SubTagsSearch subQuery={subQuery} />
+                    <Burger opened={openedDrawer} onClick={drawer.toggle} aria-label="Toggle navigation" />
+                </Flex>
             </nav>
 
             <Affix position={{ bottom: 20, right: 20 }}>

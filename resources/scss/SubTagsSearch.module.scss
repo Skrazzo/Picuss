@@ -1,0 +1,25 @@
+@use "./_mixins";
+@import "./variables.scss";
+
+.container {
+    position: relative;
+}
+
+.dropdown {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    width: 100%;
+    background-color: var(--mantine-color-default);
+    border: 1px solid var(--mantine-color-default-border);
+    border-radius: 0.25rem;
+}
+
+.dropdownItem {
+    padding: 0.5rem 0.75rem;
+    transition: 50ms;
+
+    &:hover {
+        background-color: var(--mantine-color-default-hover);
+    }
+}

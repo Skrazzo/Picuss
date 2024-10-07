@@ -22,6 +22,13 @@ export default function SubTagsSearch({ subQuery, onSearch = (search) => {} }) {
             });
     };
 
+    const previousSearch = useRef("");
+    const searchHandler = (search) => {
+        if (previousSearch.current === search) return;
+        previousSearch.current = search;
+        onSearch(search);
+    };
+
     useEffect(() => {
         fetchAvailableSearch();
 
@@ -32,9 +39,10 @@ export default function SubTagsSearch({ subQuery, onSearch = (search) => {} }) {
                     setInSearch(false);
                     subQuery[1]("");
                     inputRef.current.blur();
+                    searchHandler("");
                     break;
                 case "Enter":
-                    onSearch(inputRef.current.value);
+                    searchHandler(inputRef.current.value);
                     break;
                 default:
                     break;

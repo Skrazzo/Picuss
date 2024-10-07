@@ -22,8 +22,6 @@ export default function AddTags({ selectedPictures, onUpdateGallery, onClose }) 
     }, []);
 
     function submitTags() {
-        // TODO: Remove console.log
-        console.log(selectedPictures, selectedTags);
         axios
             .post(route("tags.images.set"), { pictures: selectedPictures, tags: selectedTags })
             .then((res) => {

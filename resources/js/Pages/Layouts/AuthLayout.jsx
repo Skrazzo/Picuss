@@ -48,7 +48,8 @@ export default function AuthLayout({
     setPage = (page) => console.log(`Page set to ${page}`),
     maxPage = 0,
     userTags = [],
-    onSubSearch = (search) => {},
+    onSubSearchHandler = (search) => {},
+    subQuery = ["", (search) => {}],
 }) {
     const [openedDrawer, drawer] = useDisclosure();
     const [openedUserModal, userModal] = useDisclosure();
@@ -59,10 +60,6 @@ export default function AuthLayout({
     const firstLoad = useRef(true);
     const [pageError, setPageError] = useState(null);
     const [selectedPage, setSelectedPage] = useState(page);
-
-    // This string will contain the query string for searching images
-    // [0] -> value [1] -> set value
-    const subQuery = useState("");
 
     useEffect(() => {
         if (openedUserModal) {
@@ -119,23 +116,6 @@ export default function AuthLayout({
     }, [selectedPage]);
 
     useEffect(() => setSelectedPage(page), [page]);
-
-    // Sub query
-    const previousSearch = useRef("");
-    const subSearchHandler = (value) => {
-        if (previousSearch.current === value) return;
-        previousSearch.current = value;
-        onSubSearch(value);
-    };
-
-    // When subQuery changes, and stays for 5 seconds fetch query
-    // useEffect(() => {
-    //     const timeoutID = setTimeout(() => {
-    //         subSearchHandler(subQuery[0]);
-    //     }, 5000);
-
-    //     return () => clearTimeout(timeoutID);
-    // }, [subQuery[0]]);
 
     const iconProps = {
         size: 20,
@@ -295,7 +275,7 @@ export default function AuthLayout({
 
                 <Flex align={"center"} gap={8}>
                     {auth.route === "dashboard" && (
-                        <SubTagsSearch subQuery={subQuery} onSearch={(search) => subSearchHandler(search)} />
+                        <SubTagsSearch subQuery={subQuery} onSearch={(search) => onSubSearchHandler(search)} />
                     )}
                     <Burger opened={openedDrawer} onClick={drawer.toggle} aria-label="Toggle navigation" />
                 </Flex>

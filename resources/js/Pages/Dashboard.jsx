@@ -73,7 +73,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             if (page !== 1) {
                 setPage(1);
             } else {
-                imageSearch({});
+                imageSearch({ subSearch: subQuery[0] });
             }
         }, 2000);
         return () => clearTimeout(timeoutID);
@@ -87,7 +87,8 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
 
     useEffect(() => {
         // TODO: Fix issue, search for someting in subSearch, and then switch pages, it resets the search
-        imageSearch({});
+        console.log(`Testing subquery ${subQuery[0]}`);
+        imageSearch({ subSearch: subQuery[0] });
     }, [page]);
 
     useEffect(() => {
@@ -337,6 +338,12 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
     // ----------- Multi select menu functions end ---------
     //#endregion
 
+    // --------------- Sub query ---------------------------
+
+    // This string will contain the query string for searching images
+    // [0] -> value [1] -> set value
+    const subQuery = useState("");
+
     const iconProps = {
         strokeWidth: 1.25,
         size: 20,
@@ -357,9 +364,8 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             setPage={setPage}
             maxPage={totalPages}
             className={selectedImage ? sty.no_scroll : ""}
-            onSubSearch={(search) => {
-                imageSearch({ subSearch: search });
-            }}
+            onSubSearchHandler={(search) => imageSearch({ subSearch: search })}
+            subQuery={subQuery}
         >
             <PinAuthenticate
                 opened={hiddenModal}
@@ -374,7 +380,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
                 {/* ==== Add tags ==== */}
                 <AddTags
                     selectedPictures={multiSelect}
-                    onUpdateGallery={imageSearch}
+                    onUpdateGallery={() => imageSearch({})}
                     onClose={() => {
                         setAddTagsConfirm(false);
                         setMultiSelect(null);
@@ -390,7 +396,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
                 {/* ==== Remove tags ==== */}
                 <RemoveTags
                     selectedPictures={multiSelect}
-                    onUpdateGallery={imageSearch}
+                    onUpdateGallery={() => imageSearch({})}
                     onClose={() => {
                         setRemoveTagsConfirm(false);
                         setMultiSelect(null);

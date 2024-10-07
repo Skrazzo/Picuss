@@ -167,9 +167,10 @@ class PictureController extends Controller
             $queryTags = json_decode($data["queryTags"]);
         }
 
-        $subQuery = ""; // Query to search sub_tags
-        if (isset($data["subQuery"])) {
-            $subQuery = Str::trim($data["subQuery"]);
+        $subSearch = ""; // Query to search sub_tags
+        if (isset($data["subSearch"])) {
+            \Log::info($data["subSearch"]);
+            $subSearch = Str::trim($data["subSearch"]);
         }
 
         // Picture per page
@@ -185,10 +186,10 @@ class PictureController extends Controller
                     $query->orWhereJsonContains("tags", $tagId);
                 }
             })
-            ->where(function ($query) use ($subQuery) {
+            ->where(function ($query) use ($subSearch) {
                 // If sub query isn't empty, apply this where clause
-                if ($subQuery != "") {
-                    $query->where("sub_tags", "like", "%{$subQuery}%");
+                if ($subSearch != "") {
+                    $query->where("sub_tags", "like", "%{$subSearch}%");
                 }
             })
             ->where("hidden", false)
@@ -209,10 +210,10 @@ class PictureController extends Controller
                             $query->orWhereJsonContains("tags", $tagId);
                         }
                     })
-                    ->where(function ($query) use ($subQuery) {
+                    ->where(function ($query) use ($subSearch) {
                         // If sub query isn't empty, apply this where clause
-                        if ($subQuery != "") {
-                            $query->where("sub_tags", "like", "%{$subQuery}%");
+                        if ($subSearch != "") {
+                            $query->where("sub_tags", "like", "%{$subSearch}%");
                         }
                     })
                     ->where("hidden", false)

@@ -73,7 +73,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             if (page !== 1) {
                 setPage(1);
             } else {
-                imageSearch();
+                imageSearch({});
             }
         }, 2000);
         return () => clearTimeout(timeoutID);
@@ -86,7 +86,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
     }
 
     useEffect(() => {
-        imageSearch();
+        imageSearch({});
     }, [page]);
 
     useEffect(() => {
@@ -95,7 +95,8 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
         setImages(segmentalSwitch(null, images, segmentControl));
     }, [segmentControl[0]]);
 
-    function imageSearch() {
+    // Sub search, is a parameter for search sub tags found by image recognition
+    function imageSearch({ subSearch = "" }) {
         resetStates();
         setProcessing(true);
 
@@ -113,7 +114,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
 
         axios
             .get(route("get.resized.images", page), {
-                params: { queryTags: JSON.stringify(queryTags[0]) },
+                params: { queryTags: JSON.stringify(queryTags[0]), subSearch: subSearch },
             })
             .then((res) => {
                 // Checks the switch, to see what images to display
@@ -304,7 +305,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
                     icon: <IconShare />,
                 });
                 setMultiSelect(null);
-                imageSearch();
+                imageSearch({});
             })
             .catch((err) => errorNotification(err));
     }
@@ -314,7 +315,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             .delete(route("delete.pictures"), { params: { pictures: multiSelect } })
             .then((res) => {
                 setMultiSelect(null);
-                imageSearch();
+                imageSearch({});
             })
             .catch((err) => errorNotification(err));
     }
@@ -326,7 +327,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             .post(route("hide.pictures"), { pictures: multiSelect })
             .then(() => {
                 setConfirmHide({ showModal: false, loading: false });
-                imageSearch();
+                imageSearch({});
                 setMultiSelect(null);
             })
             .catch((err) => console.error(err));
@@ -355,6 +356,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             setPage={setPage}
             maxPage={totalPages}
             className={selectedImage ? sty.no_scroll : ""}
+            onSubSearch={(search) => imageSearch({ subSearch: search })}
         >
             <PinAuthenticate
                 opened={hiddenModal}

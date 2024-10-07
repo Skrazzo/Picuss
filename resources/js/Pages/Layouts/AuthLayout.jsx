@@ -48,6 +48,7 @@ export default function AuthLayout({
     setPage = (page) => console.log(`Page set to ${page}`),
     maxPage = 0,
     userTags = [],
+    onSubSearch = () => {},
 }) {
     const [openedDrawer, drawer] = useDisclosure();
     const [openedUserModal, userModal] = useDisclosure();
@@ -118,6 +119,17 @@ export default function AuthLayout({
     }, [selectedPage]);
 
     useEffect(() => setSelectedPage(page), [page]);
+
+    // When subQuery changes, and stays for 5 seconds fetch query
+    useEffect(() => {
+        if (subQuery[0] === "") return;
+        const timeoutID = setTimeout(() => {
+            console.log(subQuery[0]);
+            onSubSearch(subQuery[0]);
+        }, 5000);
+
+        return () => clearTimeout(timeoutID);
+    }, [subQuery[0]]);
 
     const iconProps = {
         size: 20,
@@ -276,7 +288,9 @@ export default function AuthLayout({
                 </div>
 
                 <Flex align={"center"} gap={8}>
-                    <SubTagsSearch subQuery={subQuery} />
+                    {auth.route === "dashboard" && (
+                        <SubTagsSearch subQuery={subQuery} onSearch={(search) => console.log(search)} />
+                    )}
                     <Burger opened={openedDrawer} onClick={drawer.toggle} aria-label="Toggle navigation" />
                 </Flex>
             </nav>

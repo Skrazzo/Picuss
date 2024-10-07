@@ -21,16 +21,27 @@ export default function SubTagsSearch({ subQuery, availableSearch = ["test", "pe
                 value={subQuery[0]}
                 onChange={(e) => subQuery[1](e.target.value)}
                 onFocus={() => setInSearch(true)}
-                onBlur={() => setInSearch(false)}
+                onBlur={() => {
+                    setTimeout(() => {
+                        // I need this timeout onBlur, otherwise it sets state to false, and drop down closes before onClick is executed
+                        setInSearch(false);
+                    }, 100);
+                }}
             />
 
-            {inSearch && (
+            {inSearch && availableSearch.filter((tag) => tag.includes(subQuery[0])).length > 0 && (
                 <div className={sty.dropdown}>
-                    {availableSearch.map((tag) => (
-                        <div key={tag} className={sty.dropdownItem} onClick={(e) => console.log(tag)}>
-                            <Text onClick={() => console.log(tag)}>{tag}</Text>
-                        </div>
-                    ))}
+                    {availableSearch.map((tag) => {
+                        if (!tag.includes(subQuery[0])) {
+                            return;
+                        }
+
+                        return (
+                            <div key={tag} className={sty.dropdownItem} onClick={() => subQuery[1](tag)}>
+                                <Text>{tag}</Text>
+                            </div>
+                        );
+                    })}
                 </div>
             )}
         </div>

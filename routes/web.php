@@ -60,6 +60,7 @@ Route::middleware("auth")->group(function () {
             Route::delete("/images/remove", "removeImagesTags")->name("tags.images.remove"); // Remove multiple tags for multiple pictures
             Route::delete("/softDelete", "softDeleteTag")->name("tags.softDelete"); // Delete tag without deleting it's picturess
             Route::get("/hidden", "hidden_get_tags")->name("hidden.get.tags"); // Get tags of hidden images
+            Route::get("/subtags", "get_sub_tags")->name("get.sub.tags");
         });
 
         Route::controller(ShareTagsController::class)->group(function () {

@@ -410,4 +410,24 @@ class TagsController extends Controller
 
         return response()->json($tags);
     }
+
+    public function get_sub_tags()
+    {
+        // Get only sub_tags from users pictures
+        $tags = auth()->user()->picture()->select("sub_tags")->where("hidden", false)->get()->pluck("sub_tags");
+        $uniqueTags = [];
+
+        foreach ($tags as $jsonStr) {
+            $json = json_decode($jsonStr);
+            if ($json == null) {
+                continue;
+            }
+
+            $uniqueTags = array_merge($uniqueTags, $json);
+        }
+
+        // Remove duplicates, and then reindex the array, so there's not missing indexes
+        $rtn = array_values(array_unique($uniqueTags));
+        return response()->json((array) $rtn);
+    }
 }

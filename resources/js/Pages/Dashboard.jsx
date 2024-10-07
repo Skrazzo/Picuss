@@ -86,6 +86,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
     }
 
     useEffect(() => {
+        // TODO: Fix issue, search for someting in subSearch, and then switch pages, it resets the search
         imageSearch({});
     }, [page]);
 
@@ -356,7 +357,9 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             setPage={setPage}
             maxPage={totalPages}
             className={selectedImage ? sty.no_scroll : ""}
-            onSubSearch={(search) => imageSearch({ subSearch: search })}
+            onSubSearch={(search) => {
+                imageSearch({ subSearch: search });
+            }}
         >
             <PinAuthenticate
                 opened={hiddenModal}

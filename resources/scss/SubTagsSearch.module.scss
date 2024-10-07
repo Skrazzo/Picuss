@@ -13,6 +13,10 @@
     background-color: var(--mantine-color-default);
     border: 1px solid var(--mantine-color-default-border);
     border-radius: 0.25rem;
+
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1;
 }
 
 .dropdownItem {

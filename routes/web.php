@@ -79,7 +79,6 @@ Route::middleware("auth")->group(function () {
         });
     });
 
-    // TODO: Finish hidden routes
     Route::prefix("/hidden")->group(function () {
         Route::controller(HiddenPinController::class)->group(function () {
             Route::get("/", "index")->name("hidden.index");

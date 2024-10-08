@@ -32,9 +32,6 @@ export default function AddTags({ selectedPictures, onUpdateGallery, onClose }) 
             .catch((err) => errorNotification(err));
     }
 
-    // TODO: Remove useeffect
-    useEffect(() => console.log("selected", selectedTags), [selectedTags]);
-
     return (
         <>
             <TagCheckBoxList tags={tags} selectedTags={selectedTags} onChange={setSelectedTags} />

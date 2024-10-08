@@ -23,12 +23,6 @@ export default function PinAuthenticate({
         error: null,
     });
 
-    // TODO: remove if nott needed
-    // const iconProps = {
-    //     strokeWidth: 1.25,
-    //     size: 20,
-    // };
-
     const closeModal = () => {
         setModal.close();
         setTimeout(() => onClose(), 300);

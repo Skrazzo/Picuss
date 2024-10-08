@@ -36,17 +36,9 @@ export default function RemoveTags({ selectedPictures, onUpdateGallery, onClose 
             .catch((err) => errorNotification(err));
     }
 
-    // TODO: Remove useeffect
-    useEffect(() => console.log("selected", selectedTags), [selectedTags]);
-
     return (
         <>
-            <TagCheckBoxList
-                tags={tags}
-                selectedTags={selectedTags}
-                onChange={setSelectedTags}
-                color="red"
-            />
+            <TagCheckBoxList tags={tags} selectedTags={selectedTags} onChange={setSelectedTags} color="red" />
             <Button
                 mt={8}
                 leftSection={<IconTrash {...iconProps} />}

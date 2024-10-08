@@ -208,9 +208,6 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
                 // User pressed and held image for 500ms
                 // Enter multi select mode
 
-                // TODO: Remoove console log
-                console.log("Entering select mode ", holding[1]);
-
                 if (!checkIfMobile()) {
                     // We are creating empty array, because when pc clicks, it will add the image into the select array
                     setMultiSelect([]);
@@ -225,10 +222,6 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
         return () => clearTimeout(timeoutID);
     }, [holding]);
 
-    // TODO: Remove useEffect that were created for testing purposes
-    // For testing purposes
-    // useEffect(() => console.log(multiSelect), [multiSelect]);
-
     // sticky behaviour for multi select header
     const multiSelectRef = useRef(null);
 
@@ -238,18 +231,15 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
         }
 
         const scrollHandler = (e) => {
-            // TODO: Remove console log
             const fixedClassName = "fixed-position";
 
             if (e.target.scrollTop >= e.target.querySelector("nav").offsetHeight) {
                 if (!multiSelectRef.current.classList.contains(fixedClassName)) {
                     multiSelectRef.current.classList.add(fixedClassName);
-                    console.log("class added");
                 }
             } else {
                 if (multiSelectRef.current.classList.contains(fixedClassName)) {
                     multiSelectRef.current.classList.remove(fixedClassName);
-                    console.log("class removed");
                 }
             }
         };

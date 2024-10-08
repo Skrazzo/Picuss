@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 export default function SubTagsSearch({ subQuery, onSearch = (search) => {} }) {
-    // TODO: Make component that has an search input, and dropdown search suggestions
     const [inSearch, setInSearch] = useState(false);
     const [availableSearch, setAvailableSearch] = useState([]);
     const keySelect = useRef(0);
@@ -104,14 +103,16 @@ export default function SubTagsSearch({ subQuery, onSearch = (search) => {} }) {
     const handleKeyDown = (event) => {
         switch (event.key) {
             case "Escape":
-                setInSearch(false); // Close dropdown
                 subQuery[1](""); // Clear input
                 inputRef.current.blur(); // out focus the input
                 searchHandler(""); // Clear search
-                moveKey({ direction: "reset" }); // Reset marker
+                // moveKey({ direction: "reset" }); // Reset marker
+
+                setTimeout(() => {
+                    setInSearch(false); // Close dropdown
+                }, 100);
                 break;
             case "Enter":
-                // TODO: When pressed enter, we need to check on which index keySelect is currently on
                 if (keySelect.current !== 0 && dropDownRef.current !== null) {
                     dropDownRef.current.querySelector(`div:nth-child(${keySelect.current})`).click();
                 } else {

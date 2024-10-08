@@ -1,6 +1,7 @@
-import { ActionIcon, Center, Menu, Modal, Pagination, Skeleton, Text } from "@mantine/core";
+import { ActionIcon, Center, Menu, Modal, Pagination, Skeleton, Text, Tooltip } from "@mantine/core";
 import {
     IconCheck,
+    IconDeselect,
     IconDotsVertical,
     IconDownload,
     IconEye,
@@ -228,7 +229,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
                 }
                 setHolding([false, null]);
             }
-        }, 750);
+        }, 1000);
         return () => clearTimeout(timeoutID);
     }, [holding]);
 
@@ -442,9 +443,17 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
                     </Text>
 
                     <div className={sty.actions}>
-                        <ActionIcon variant="light" size={"lg"} onClick={selectAll}>
-                            <IconSelectAll {...multiSelectIcons} />
-                        </ActionIcon>
+                        <Tooltip label="Deselect all" openDelay={1000} withArrow>
+                            <ActionIcon variant="light" size={"lg"} onClick={() => setMultiSelect(null)}>
+                                <IconDeselect {...multiSelectIcons} />
+                            </ActionIcon>
+                        </Tooltip>
+
+                        <Tooltip label="Select all" openDelay={1000} withArrow>
+                            <ActionIcon variant="light" size={"lg"} onClick={selectAll}>
+                                <IconSelectAll {...multiSelectIcons} />
+                            </ActionIcon>
+                        </Tooltip>
 
                         <Menu>
                             <Menu.Target>

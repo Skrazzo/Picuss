@@ -4,12 +4,11 @@ import GuestLayout from "../../Layouts/GuestLayout";
 import axios from "axios";
 import { IconDownload, IconDownloadOff, IconHash } from "@tabler/icons-react";
 import capitalizeFirstLetter from "../../Functions/capitalizeFirstLetter";
-import { ActionIcon, Container, Pagination, Text, Tooltip } from "@mantine/core";
-import useElementSize from "../../Functions/useElementSize";
+import { ActionIcon, Pagination, Text, Tooltip } from "@mantine/core";
 import LazyLoadImage from "../LazyLoadImage";
-import { useDisclosure } from "@mantine/hooks";
-import SinglePictureViewer from "./SinglePictureViewer";
 import scrollUp from "../../Functions/scrollUp";
+import { PhotoProvider, PhotoView } from "react-photo-view";
+import useElementSize from "../../Functions/useElementSize";
 
 export default function Index({ id, db_id }) {
     const [page, setPage] = useState(1);
@@ -21,10 +20,7 @@ export default function Index({ id, db_id }) {
         info: { owner: "unknown", tag_name: "unknown" },
     });
     const [processing, setProcessing] = useState(true);
-
-    // For picture viewer
-    const [selectedId, setSelectedId] = useState(null);
-    const [onTopId, setOnTopId] = useState(null);
+    const [viewingIndex, setViewingIndex] = useState(null);
 
     const [containerSize, containerRef] = useElementSize();
 
@@ -43,14 +39,6 @@ export default function Index({ id, db_id }) {
         scrollUp({ timeout: false });
     }, [page]);
 
-    useEffect(() => console.log(data), [data]);
-
-    // So images do not render under other images
-    useEffect(() => {
-        if (!selectedId) return;
-        setOnTopId(selectedId[0]);
-    }, [selectedId]);
-
     const iconProps = {
         strokeWidth: 1.25,
         size: 40,
@@ -59,15 +47,6 @@ export default function Index({ id, db_id }) {
     return (
         <GuestLayout>
             <section id="top-section"></section>
-
-            {selectedId && (
-                <SinglePictureViewer
-                    opened={selectedId === null ? false : true}
-                    close={() => setSelectedId(null)}
-                    pictures={data.pictures}
-                    selected={selectedId}
-                />
-            )}
 
             <div className="share-tag-header">
                 <div className="info">
@@ -92,9 +71,7 @@ export default function Index({ id, db_id }) {
                                 <IconDownload
                                     {...iconProps}
                                     color="green"
-                                    onClick={() =>
-                                        window.open(route("share.tag.download", db_id), "_blank")
-                                    }
+                                    onClick={() => window.open(route("share.tag.download", db_id), "_blank")}
                                 />
                             ) : (
                                 <IconDownloadOff {...iconProps} />
@@ -103,22 +80,36 @@ export default function Index({ id, db_id }) {
                     </ActionIcon>
                 </div>
             </div>
-            <div className="picture-main-container">
-                {data.pictures.map((pic) => (
-                    <LazyLoadImage
-                        key={pic.id}
-                        id={pic.id}
-                        src={route("share.get.half", pic.id)}
-                        style={{ aspectRatio: `1/${pic.height / pic.width}` }}
-                        thumbnail={pic.thumb}
-                        rounded
-                        onClick={(id, url) => setSelectedId([id, url])}
-                        className={onTopId === pic.id ? "onTop" : ""}
-                        useLayoutId={true}
-                    />
-                ))}
-            </div>
 
+            <PhotoProvider
+                onIndexChange={(e) => setViewingIndex(e)}
+                toolbarRender={() => (
+                    <IconDownload
+                        strokeWidth={2}
+                        size={20}
+                        color="#BFBFBF"
+                        onClick={() =>
+                            window.open(route("share.download.image", data.pictures[viewingIndex].id), "_blank")
+                        }
+                    />
+                )}
+            >
+                <div className="picture-main-container">
+                    {data.pictures.map((pic, idx) => (
+                        <PhotoView key={pic.id} src={route("share.tags.get.picture", pic.id)}>
+                            <LazyLoadImage
+                                id={pic.id}
+                                src={route("share.get.half", pic.id)}
+                                style={{ aspectRatio: `1/${pic.height / pic.width}` }}
+                                thumbnail={pic.thumb}
+                                rounded
+                                onClick={() => setViewingIndex(idx)}
+                                useLayoutId={true}
+                            />
+                        </PhotoView>
+                    ))}
+                </div>
+            </PhotoProvider>
             <div className="center" ref={containerRef}>
                 <Pagination
                     siblings={containerSize.width < 600 ? 1 : 3}

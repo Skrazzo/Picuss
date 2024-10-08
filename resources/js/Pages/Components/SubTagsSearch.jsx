@@ -94,7 +94,7 @@ export default function SubTagsSearch({ subQuery, onSearch = (search) => {} }) {
                                 className={sty.dropdownItem}
                                 onClick={() => {
                                     subQuery[1](tag);
-                                    onSearch(tag);
+                                    searchHandler(tag);
                                 }}
                             >
                                 <Text>{tag}</Text>

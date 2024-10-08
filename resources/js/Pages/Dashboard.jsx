@@ -73,7 +73,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             if (page !== 1) {
                 setPage(1);
             } else {
-                imageSearch({ subSearch: subQuery[0] });
+                imageSearch({});
             }
         }, 2000);
         return () => clearTimeout(timeoutID);
@@ -86,9 +86,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
     }
 
     useEffect(() => {
-        // TODO: Fix issue, search for someting in subSearch, and then switch pages, it resets the search
-        console.log(`Testing subquery ${subQuery[0]}`);
-        imageSearch({ subSearch: subQuery[0] });
+        imageSearch({});
     }, [page]);
 
     useEffect(() => {
@@ -98,7 +96,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
     }, [segmentControl[0]]);
 
     // Sub search, is a parameter for search sub tags found by image recognition
-    function imageSearch({ subSearch = "" }) {
+    function imageSearch({ subSearch = null }) {
         resetStates();
         setProcessing(true);
 
@@ -116,7 +114,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
 
         axios
             .get(route("get.resized.images", page), {
-                params: { queryTags: JSON.stringify(queryTags[0]), subSearch: subSearch },
+                params: { queryTags: JSON.stringify(queryTags[0]), subSearch: subSearch ? subSearch : subQuery[0] },
             })
             .then((res) => {
                 // Checks the switch, to see what images to display

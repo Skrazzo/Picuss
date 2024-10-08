@@ -1,24 +1,33 @@
 import JSZip from "jszip";
 
-
 async function handleZip({ images, download = true }) {
     const zip = new JSZip();
 
     // Add Images to the zip file
     for (let i = 0; i < images.length; i++) {
-        const filename = images[i].name;
+        let filename = images[i].name;
 
         // Find the last dot index
-        const lastDotIndex = filename.lastIndexOf('.');
-        
+        let lastDotIndex = filename.lastIndexOf(".");
+
         // Extract file name without extension
-        const filenameWithoutExtension = lastDotIndex !== -1 ? filename.slice(0, lastDotIndex) : filename;
-        
+        let filenameWithoutExtension = lastDotIndex !== -1 ? filename.slice(0, lastDotIndex) : filename;
+
         // Extract file extension
-        const fileExtension = lastDotIndex !== -1 ? filename.slice(lastDotIndex + 1) : '';
+        let fileExtension = lastDotIndex !== -1 ? filename.slice(lastDotIndex + 1) : "";
 
         // add timestamp to the name
-        const finalName = filenameWithoutExtension + '_' + Date.now() + '.' + fileExtension;
+        let zipFiles = Object.keys(zip.files);
+        let duplicateCount = 0;
+        let finalName;
+        // Ensure the file name is unique
+        do {
+            finalName =
+                duplicateCount === 0 ? filenameWithoutExtension : `${filenameWithoutExtension} (${duplicateCount})`;
+            finalName += ` ${Date.now()}.${fileExtension}`;
+            duplicateCount++;
+        } while (zipFiles.includes(finalName));
+
         zip.file(finalName, images[i]);
     }
 
@@ -34,7 +43,7 @@ async function handleZip({ images, download = true }) {
         link.href = window.URL.createObjectURL(zipData);
         link.download = "Compressed pictures.zip";
         link.click();
-    }else{
+    } else {
         return zipData;
     }
 }

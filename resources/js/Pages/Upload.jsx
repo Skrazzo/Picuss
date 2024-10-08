@@ -64,11 +64,18 @@ export default function Upload({ auth, title = "" }) {
     useEffect(() => {
         const handlePaste = (e) => {
             const items = e.clipboardData.items;
+            let blobs = [];
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf("image") !== -1) {
                     const blob = items[i].getAsFile();
-                    dropHandler([blob]); // Pass the image blob to your function
+
+                    console.log(blob);
+                    blobs.push(blob);
                 }
+            }
+
+            if (blobs.length !== 0) {
+                dropHandler(blobs); // Pass the image blob to your function
             }
         };
 

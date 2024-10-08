@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../../../../scss/LinkList.scss";
-import {
-    IconSparkles,
-    IconTrash,
-    IconTrashFilled,
-    IconTrashX,
-    IconUnlink,
-} from "@tabler/icons-react";
+import { IconSparkles, IconTrash, IconTrashFilled, IconTrashX, IconUnlink } from "@tabler/icons-react";
 import { ActionIcon, Checkbox, Text } from "@mantine/core";
 import CheckLink from "./CheckLink";
 import { useDisclosure } from "@mantine/hooks";
@@ -23,15 +17,9 @@ export default function LinkList({ links: propLink }) {
 
     const empty_list_children = (
         <div className="no-links">
-            <IconSparkles
-                style={{ opacity: 0.9 }}
-                color="var(--mantine-primary-color-filled-hover)"
-                stroke={1.25}
-            />
+            <IconSparkles style={{ opacity: 0.9 }} color="var(--mantine-primary-color-filled-hover)" stroke={1.25} />
             <Text className={"main"}>NO PICTURES SHARED</Text>
-            <Text className={"desc"}>
-                Cmon show the world how beautiful you are
-            </Text>
+            <Text className={"desc"}>Cmon show the world how beautiful you are</Text>
         </div>
     );
 
@@ -61,9 +49,7 @@ export default function LinkList({ links: propLink }) {
         // backup incase we get errror on our optimistic request
         // And set new links
         const oldLinks = links;
-        setLinks([
-            ...links.filter((link) => !selected.includes(link.picture_id)),
-        ]);
+        setLinks([...links.filter((link) => !selected.includes(link.picture_id))]);
         setSelected([]);
 
         axios
@@ -90,6 +76,11 @@ export default function LinkList({ links: propLink }) {
             });
     }
 
+    const iconProps = {
+        strokeWidth: 1.25,
+        size: 20,
+    };
+
     return (
         <div className="linkList-container">
             <DeleteConfirmModal
@@ -113,12 +104,8 @@ export default function LinkList({ links: propLink }) {
                     </Text>
                 </div>
 
-                <ActionIcon
-                    variant="light"
-                    color="red"
-                    onClick={() => setDeleteModal.open()}
-                >
-                    <IconTrash strokeWidth={1.25} />
+                <ActionIcon variant="subtle" color="red" onClick={() => setDeleteModal.open()}>
+                    <IconTrash {...iconProps} />
                 </ActionIcon>
             </div>
 

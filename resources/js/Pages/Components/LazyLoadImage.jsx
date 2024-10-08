@@ -17,6 +17,7 @@ const LazyLoadImage = React.memo(
         onClick = (id, image) => console.log(`Clicked on ${id} - ${image}`),
         useLayoutId = true,
         setLoading = () => {},
+        animation = false,
     }) => {
         // useStates
         const [image, setImage] = useState(null);
@@ -70,6 +71,26 @@ const LazyLoadImage = React.memo(
                 controller.abort();
             };
         }, [src]);
+
+        // Use effect to prevent dragging on all .no-drag images
+        useEffect(() => {
+            // Add event listener to all images, that prevents dragging
+            const preventDrag = (e) => {
+                console.log("asd");
+                e.preventDefault();
+            };
+            const images = document.querySelectorAll(".no-drag");
+
+            images.forEach((image) => {
+                image.addEventListener("dragstart", preventDrag);
+            });
+
+            return () => {
+                images.forEach((image) => {
+                    image.removeEventListener("dragstart", preventDrag);
+                });
+            };
+        }, []);
 
         // useEffect(() => console.log(image), [image]);
 

@@ -1,6 +1,7 @@
-import { ActionIcon, Center, Menu, Modal, Pagination, Skeleton, Text } from "@mantine/core";
+import { ActionIcon, Center, Menu, Modal, Pagination, Skeleton, Text, Tooltip } from "@mantine/core";
 import {
     IconCheck,
+    IconDeselect,
     IconDotsVertical,
     IconDownload,
     IconEye,
@@ -32,7 +33,7 @@ import ConfirmationModal from "./Components/ConfirmationModal";
 import PinAuthenticate from "./Components/Hidden/PinAuthenticate";
 import segmentalSwitch from "./Functions/segmentalSwitch";
 
-export default function Dashboard({ auth, title = "", preSelected = null }) {
+export default function Dashboard({ auth, title = "", preSelected = null, sub_tags_enabled = false }) {
     const [page, setPage] = useState(1);
     const [images, setImages] = useState(null);
     const [totalPages, setTotalPages] = useState(1);
@@ -73,7 +74,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
             if (page !== 1) {
                 setPage(1);
             } else {
-                imageSearch();
+                imageSearch({});
             }
         }, 2000);
         return () => clearTimeout(timeoutID);
@@ -86,7 +87,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
     }
 
     useEffect(() => {
-        imageSearch();
+        imageSearch({});
     }, [page]);
 
     useEffect(() => {
@@ -95,7 +96,8 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
         setImages(segmentalSwitch(null, images, segmentControl));
     }, [segmentControl[0]]);
 
-    function imageSearch() {
+    // Sub search, is a parameter for search sub tags found by image recognition
+    function imageSearch({ subSearch = null }) {
         resetStates();
         setProcessing(true);
 
@@ -113,7 +115,10 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
 
         axios
             .get(route("get.resized.images", page), {
-                params: { queryTags: JSON.stringify(queryTags[0]) },
+                params: {
+                    queryTags: JSON.stringify(queryTags[0]),
+                    subSearch: subSearch === null ? subQuery[0] : subSearch,
+                },
             })
             .then((res) => {
                 // Checks the switch, to see what images to display
@@ -214,9 +219,6 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                 // User pressed and held image for 500ms
                 // Enter multi select mode
 
-                // TODO: Remoove console log
-                console.log("Entering select mode ", holding[1]);
-
                 if (!checkIfMobile()) {
                     // We are creating empty array, because when pc clicks, it will add the image into the select array
                     setMultiSelect([]);
@@ -227,13 +229,9 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                 }
                 setHolding([false, null]);
             }
-        }, 750);
+        }, 1000);
         return () => clearTimeout(timeoutID);
     }, [holding]);
-
-    // TODO: Remove useEffect that were created for testing purposes
-    // For testing purposes
-    // useEffect(() => console.log(multiSelect), [multiSelect]);
 
     // sticky behaviour for multi select header
     const multiSelectRef = useRef(null);
@@ -244,18 +242,15 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
         }
 
         const scrollHandler = (e) => {
-            // TODO: Remove console log
             const fixedClassName = "fixed-position";
 
             if (e.target.scrollTop >= e.target.querySelector("nav").offsetHeight) {
                 if (!multiSelectRef.current.classList.contains(fixedClassName)) {
                     multiSelectRef.current.classList.add(fixedClassName);
-                    console.log("class added");
                 }
             } else {
                 if (multiSelectRef.current.classList.contains(fixedClassName)) {
                     multiSelectRef.current.classList.remove(fixedClassName);
-                    console.log("class removed");
                 }
             }
         };
@@ -304,7 +299,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                     icon: <IconShare />,
                 });
                 setMultiSelect(null);
-                imageSearch();
+                imageSearch({});
             })
             .catch((err) => errorNotification(err));
     }
@@ -314,7 +309,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
             .delete(route("delete.pictures"), { params: { pictures: multiSelect } })
             .then((res) => {
                 setMultiSelect(null);
-                imageSearch();
+                imageSearch({});
             })
             .catch((err) => errorNotification(err));
     }
@@ -326,7 +321,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
             .post(route("hide.pictures"), { pictures: multiSelect })
             .then(() => {
                 setConfirmHide({ showModal: false, loading: false });
-                imageSearch();
+                imageSearch({});
                 setMultiSelect(null);
             })
             .catch((err) => console.error(err));
@@ -334,6 +329,12 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
 
     // ----------- Multi select menu functions end ---------
     //#endregion
+
+    // --------------- Sub query ---------------------------
+
+    // This string will contain the query string for searching images
+    // [0] -> value [1] -> set value
+    const subQuery = useState("");
 
     const iconProps = {
         strokeWidth: 1.25,
@@ -355,6 +356,8 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
             setPage={setPage}
             maxPage={totalPages}
             className={selectedImage ? sty.no_scroll : ""}
+            onSubSearchHandler={(search) => imageSearch({ subSearch: search })}
+            subQuery={subQuery}
         >
             <PinAuthenticate
                 opened={hiddenModal}
@@ -369,7 +372,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                 {/* ==== Add tags ==== */}
                 <AddTags
                     selectedPictures={multiSelect}
-                    onUpdateGallery={imageSearch}
+                    onUpdateGallery={() => imageSearch({})}
                     onClose={() => {
                         setAddTagsConfirm(false);
                         setMultiSelect(null);
@@ -385,7 +388,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                 {/* ==== Remove tags ==== */}
                 <RemoveTags
                     selectedPictures={multiSelect}
-                    onUpdateGallery={imageSearch}
+                    onUpdateGallery={() => imageSearch({})}
                     onClose={() => {
                         setRemoveTagsConfirm(false);
                         setMultiSelect(null);
@@ -428,6 +431,7 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                     selected={selectedImage}
                     setSelected={setSelectedImage}
                     tags={userTags}
+                    sub_tags_enabled={sub_tags_enabled}
                 />
             )}
 
@@ -439,9 +443,17 @@ export default function Dashboard({ auth, title = "", preSelected = null }) {
                     </Text>
 
                     <div className={sty.actions}>
-                        <ActionIcon variant="light" size={"lg"} onClick={selectAll}>
-                            <IconSelectAll {...multiSelectIcons} />
-                        </ActionIcon>
+                        <Tooltip label="Deselect all" openDelay={1000} withArrow>
+                            <ActionIcon variant="light" size={"lg"} onClick={() => setMultiSelect(null)}>
+                                <IconDeselect {...multiSelectIcons} />
+                            </ActionIcon>
+                        </Tooltip>
+
+                        <Tooltip label="Select all" openDelay={1000} withArrow>
+                            <ActionIcon variant="light" size={"lg"} onClick={selectAll}>
+                                <IconSelectAll {...multiSelectIcons} />
+                            </ActionIcon>
+                        </Tooltip>
 
                         <Menu>
                             <Menu.Target>

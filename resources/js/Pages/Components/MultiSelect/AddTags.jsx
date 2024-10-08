@@ -22,8 +22,6 @@ export default function AddTags({ selectedPictures, onUpdateGallery, onClose }) 
     }, []);
 
     function submitTags() {
-        // TODO: Remove console.log
-        console.log(selectedPictures, selectedTags);
         axios
             .post(route("tags.images.set"), { pictures: selectedPictures, tags: selectedTags })
             .then((res) => {
@@ -33,9 +31,6 @@ export default function AddTags({ selectedPictures, onUpdateGallery, onClose }) 
             })
             .catch((err) => errorNotification(err));
     }
-
-    // TODO: Remove useeffect
-    useEffect(() => console.log("selected", selectedTags), [selectedTags]);
 
     return (
         <>

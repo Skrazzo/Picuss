@@ -21,13 +21,14 @@
     flex-direction: $dir;
 }
 
-@mixin overlay(
-    $opacity: 0.2,
-    $color: black,
-    $blur: 2px,
-    $center: true,
-    $zIndex: 100
-) {
+@mixin svgIcon($strokeWidth: 1.25px, $size: 20px, $color: white) {
+    stroke-width: $strokeWidth;
+    width: $size;
+    height: $size;
+    color: $color;
+}
+
+@mixin overlay($opacity: 0.2, $color: black, $blur: 2px, $center: true, $zIndex: 100) {
     top: 0;
     left: 0;
     position: absolute;

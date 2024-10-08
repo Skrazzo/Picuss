@@ -9,6 +9,7 @@ import {
     Divider,
     Drawer,
     Flex,
+    Input,
     Modal,
     NumberInput,
     SegmentedControl,
@@ -35,6 +36,7 @@ import Logo from "../Components/Logo";
 import MenuOption from "../Components/MenuOption";
 import SearchTags from "../Components/SearchTags";
 import UserStats from "../Components/UserStats";
+import SubTagsSearch from "../Components/SubTagsSearch";
 
 export default function AuthLayout({
     auth,
@@ -46,6 +48,8 @@ export default function AuthLayout({
     setPage = (page) => console.log(`Page set to ${page}`),
     maxPage = 0,
     userTags = [],
+    onSubSearchHandler = (search) => {},
+    subQuery = ["", (search) => {}],
 }) {
     const [openedDrawer, drawer] = useDisclosure();
     const [openedUserModal, userModal] = useDisclosure();
@@ -269,7 +273,12 @@ export default function AuthLayout({
                     <Text fw={500}>Picuss</Text>
                 </div>
 
-                <Burger opened={openedDrawer} onClick={drawer.toggle} aria-label="Toggle navigation" />
+                <Flex align={"center"} gap={8}>
+                    {auth.route === "dashboard" && (
+                        <SubTagsSearch subQuery={subQuery} onSearch={(search) => onSubSearchHandler(search)} />
+                    )}
+                    <Burger opened={openedDrawer} onClick={drawer.toggle} aria-label="Toggle navigation" />
+                </Flex>
             </nav>
 
             <Affix position={{ bottom: 20, right: 20 }}>

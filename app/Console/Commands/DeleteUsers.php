@@ -13,7 +13,7 @@ class DeleteUsers extends Command
      *
      * @var string
      */
-    protected $signature = "users:delete {user}";
+    protected $signature = "users:delete {users}";
 
     /**
      * The console command description.
@@ -27,7 +27,7 @@ class DeleteUsers extends Command
      */
     public function handle()
     {
-        $users = $this->argument("user");
+        $users = $this->argument("users");
         $ids = explode(",", $users);
 
         $disks = Disks::allDisks();

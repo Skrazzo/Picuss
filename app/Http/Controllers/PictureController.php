@@ -7,14 +7,13 @@ use App\Helpers\Encrypt;
 use App\Helpers\ValidateApi;
 use App\Models\Picture;
 use App\Models\Tags;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use ZipArchive;
+use Illuminate\Support\Str;
 
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Imagick\Driver;
@@ -40,7 +39,10 @@ class PictureController extends Controller
         }
         // preSelected is null if tag doesnt belong to user, or doesnt exist
         // null means that tag is nott preselected
-        return Inertia::render("Dashboard", ["preSelected" => $preSelected]);
+        return Inertia::render("Dashboard", [
+            "preSelected" => $preSelected,
+            "sub_tags_enabled" => env("AISubTags", false),
+        ]);
     }
 
     public function get_image(Picture $picture)
@@ -165,6 +167,12 @@ class PictureController extends Controller
             $queryTags = json_decode($data["queryTags"]);
         }
 
+        $subSearch = ""; // Query to search sub_tags
+        if (isset($data["subSearch"])) {
+            \Log::info($data["subSearch"]);
+            $subSearch = Str::trim($data["subSearch"]);
+        }
+
         // Picture per page
         $perPage = env("perPage", 40);
         $skip = ($page - 1) * $perPage;
@@ -176,6 +184,12 @@ class PictureController extends Controller
                 // This function searches for tags in json
                 foreach ($queryTags as $tagId) {
                     $query->orWhereJsonContains("tags", $tagId);
+                }
+            })
+            ->where(function ($query) use ($subSearch) {
+                // If sub query isn't empty, apply this where clause
+                if ($subSearch != "") {
+                    $query->where("sub_tags", "like", "%{$subSearch}%");
                 }
             })
             ->where("hidden", false)
@@ -194,6 +208,12 @@ class PictureController extends Controller
                         // This function searches for tags in json
                         foreach ($queryTags as $tagId) {
                             $query->orWhereJsonContains("tags", $tagId);
+                        }
+                    })
+                    ->where(function ($query) use ($subSearch) {
+                        // If sub query isn't empty, apply this where clause
+                        if ($subSearch != "") {
+                            $query->where("sub_tags", "like", "%{$subSearch}%");
                         }
                     })
                     ->where("hidden", false)
@@ -226,6 +246,7 @@ class PictureController extends Controller
                         "width" => $pic->width,
                         "height" => $pic->height,
                         "aspectRatio" => round($pic->width / $pic->height, 2),
+                        "sub_tags" => json_decode($pic->sub_tags),
                     ];
 
                     continue;
@@ -234,7 +255,6 @@ class PictureController extends Controller
                 $thumbWidth = env("thumbWidth", 40);
                 $image = $manager->read($path);
                 $image->scaleDown(width: $thumbWidth);
-                // $image->pixelate(8);
 
                 $image->save($thumbDISK->path($pic->image)); // Save image to the local path
             }
@@ -251,6 +271,7 @@ class PictureController extends Controller
                 "width" => $pic->width,
                 "height" => $pic->height,
                 "aspectRatio" => round($pic->width / $pic->height, 2) . "/1",
+                "sub_tags" => json_decode($pic->sub_tags),
             ];
         }
 
@@ -260,7 +281,7 @@ class PictureController extends Controller
     public function upload(Request $req)
     {
         $data = $req->validate([
-            "zip" => "required|file|mimes:zip|max:512000", // 500MB
+            "zip" => "required|file|mimes:zip|max:2048000", // 2000MB
             "tags" => "required|json",
         ]);
 

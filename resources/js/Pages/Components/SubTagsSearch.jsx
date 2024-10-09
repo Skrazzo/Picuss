@@ -140,7 +140,6 @@ export default function SubTagsSearch({ subQuery, onSearch = (search) => {} }) {
         <div className={sty.container}>
             <Input
                 ref={inputRef}
-                w={250}
                 leftSection={<IconSearch {...iconProps} />}
                 placeholder="Search pictures"
                 value={subQuery[0]}

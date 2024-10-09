@@ -4,7 +4,6 @@ import {
     IconDeselect,
     IconDotsVertical,
     IconDownload,
-    IconEye,
     IconEyeOff,
     IconPhotoOff,
     IconSelectAll,
@@ -358,6 +357,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             className={selectedImage ? sty.no_scroll : ""}
             onSubSearchHandler={(search) => imageSearch({ subSearch: search })}
             subQuery={subQuery}
+            subTagsEnabled={sub_tags_enabled}
         >
             <PinAuthenticate
                 opened={hiddenModal}

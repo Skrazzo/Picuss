@@ -9,20 +9,21 @@ import {
     Divider,
     Drawer,
     Flex,
-    Input,
     Modal,
     NumberInput,
     SegmentedControl,
     Text,
     Transition,
 } from "@mantine/core";
-import { useDisclosure, useWindowScroll } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery, useWindowScroll } from "@mantine/hooks";
 import {
     IconArrowUp,
     IconEyeOff,
     IconLink,
     IconLogout2,
     IconPhoto,
+    IconSearch,
+    IconSearchOff,
     IconSeparatorVertical,
     IconSettings,
     IconSignLeft,
@@ -50,6 +51,7 @@ export default function AuthLayout({
     userTags = [],
     onSubSearchHandler = (search) => {},
     subQuery = ["", (search) => {}],
+    subTagsEnabled = false,
 }) {
     const [openedDrawer, drawer] = useDisclosure();
     const [openedUserModal, userModal] = useDisclosure();
@@ -60,6 +62,11 @@ export default function AuthLayout({
     const firstLoad = useRef(true);
     const [pageError, setPageError] = useState(null);
     const [selectedPage, setSelectedPage] = useState(page);
+
+    // For ai search bar
+    const [openSearchBar, setOpenSearchBar] = useState(false);
+
+    const mobile = useMediaQuery("(max-width: 540px)");
 
     useEffect(() => {
         if (openedUserModal) {
@@ -268,15 +275,30 @@ export default function AuthLayout({
             </Drawer>
 
             <nav className={sty.nav}>
-                <div className={sty.logo} onClick={() => drawer.open()}>
-                    <Logo size={50} />
-                    <Text fw={500}>Picuss</Text>
-                </div>
+                {mobile && openSearchBar ? (
+                    <></>
+                ) : (
+                    <div className={sty.logo} onClick={() => drawer.open()}>
+                        <Logo size={50} />
+                        <Text fw={500}>Picuss</Text>
+                    </div>
+                )}
 
-                <Flex align={"center"} gap={8}>
-                    {auth.route === "dashboard" && (
+                <Flex align={"center"} gap={8} w={mobile && openSearchBar && "100%"}>
+                    {auth.route === "dashboard" && subTagsEnabled && (!mobile || openSearchBar) && (
                         <SubTagsSearch subQuery={subQuery} onSearch={(search) => onSubSearchHandler(search)} />
                     )}
+
+                    {mobile && auth.route === "dashboard" && subTagsEnabled && (
+                        <ActionIcon
+                            variant="transparent"
+                            color="var(--mantine-color-text)"
+                            onClick={() => setOpenSearchBar((prev) => !prev)}
+                        >
+                            {openSearchBar ? <IconSearchOff /> : <IconSearch />}
+                        </ActionIcon>
+                    )}
+
                     <Burger opened={openedDrawer} onClick={drawer.toggle} aria-label="Toggle navigation" />
                 </Flex>
             </nav>

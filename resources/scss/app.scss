@@ -155,7 +155,7 @@ a {
     height: min-content;
 
     img {
-        transition: 500ms;
+        transition: filter 500ms;
 
         filter: blur(0px);
     }
@@ -164,7 +164,7 @@ a {
         @extend .lazy-load-image;
 
         img {
-            filter: blur(2px);
+            filter: blur(5px);
         }
     }
 }

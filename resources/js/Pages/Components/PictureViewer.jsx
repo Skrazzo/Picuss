@@ -427,6 +427,7 @@ export default function PictureViewer({
                         <PhotoProvider bannerVisible={false}>
                             <PhotoView src={route(hiddenImages ? "get.hidden.full.image" : "get.image", image.id)}>
                                 <LazyLoadImage
+                                    useLayoutId={false}
                                     blur={false}
                                     src={route(hiddenImages ? "get.hidden.full.image" : "get.image", image.id)}
                                     thumbnail={selected[1]}

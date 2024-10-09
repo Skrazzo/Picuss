@@ -1,7 +1,6 @@
 import axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import errorNotification from "../Functions/errorNotification";
-import { motion } from "framer-motion";
 
 const LazyLoadImage = React.memo(
     ({
@@ -15,9 +14,7 @@ const LazyLoadImage = React.memo(
         rounded = false,
         blur = true,
         onClick = (id, image) => console.log(`Clicked on ${id} - ${image}`),
-        useLayoutId = true,
         setLoading = () => {},
-        animation = false,
     }) => {
         // useStates
         const [image, setImage] = useState(null);
@@ -92,17 +89,14 @@ const LazyLoadImage = React.memo(
             };
         }, []);
 
-        // useEffect(() => console.log(image), [image]);
-
         return (
-            <motion.div
-                layoutId={useLayoutId ? id : null}
+            <div
                 style={containerStyle}
                 className={`lazy-load-image${blur ? (image ? "" : "-blur") : ""} ${className}`}
                 onClick={() => onClick(id, image)}
             >
                 <img className="no-drag" style={style} src={image ? image : thumbnail} alt={alt} />
-            </motion.div>
+            </div>
         );
     },
 );

@@ -10,9 +10,12 @@
     justify-content: space-between;
     align-items: center;
 
-    padding: 1rem;
-
     box-shadow: 0 0 10px -2px rgba($color: #000000, $alpha: 0.25);
+
+    padding: 1rem;
+    // Height of a logo (50px) plus padding
+    // We need this because when search input changes on mobile, layout content shift happens too
+    min-height: calc(50px + (1rem * 2));
 
     .logo {
         display: flex;

@@ -1,13 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import GuestLayout from "./Layouts/GuestLayout";
 import "../../scss/ViewSharedImage.scss";
-import { ActionIcon, AspectRatio, Button, Container, Flex, Paper, Text } from "@mantine/core";
-import { IconDownload, IconX } from "@tabler/icons-react";
-// import { LazyLoadImage } from "react-lazy-load-image-component";
-import { AnimatePresence } from "framer-motion";
-import { motion } from "framer-motion";
+import { Button, Container, Flex, Paper, Text } from "@mantine/core";
+import { IconDownload } from "@tabler/icons-react";
 import LazyLoadImage from "./Components/LazyLoadImage";
-import calculateImageSize from "./Functions/calculateImageSize";
 import { PhotoProvider, PhotoView } from "react-photo-view";
 
 export default function ViewSharedImage({ thumb, picture }) {
@@ -15,17 +11,6 @@ export default function ViewSharedImage({ thumb, picture }) {
         size: 20,
         strokeWidth: 1.25,
     };
-
-    // const calcAvailSize = () => {
-    //     setFullSize(calculateImageSize([window.innerWidth, window.innerHeight], [picture.width, picture.height]));
-    // };
-
-    // useEffect(() => {
-    //     window.addEventListener("resize", calcAvailSize);
-    //     return () => {
-    //         window.removeEventListener("scroll", calcAvailSize);
-    //     };
-    // }, []);
 
     return (
         <GuestLayout>

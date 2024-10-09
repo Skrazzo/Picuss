@@ -40,3 +40,9 @@
         }
     }
 }
+
+@media (max-width: 560px) {
+    .container {
+        flex-grow: 1;
+    }
+}

@@ -6,3 +6,4 @@ share
 pyvenv.cfg
 tags.env
 *.pt
+log.txt

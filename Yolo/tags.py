@@ -2,12 +2,17 @@ import os
 import sqlite3
 import json
 from dotenv import load_dotenv
-
+import datetime
 
 # Load variables
 load_dotenv("tags.env")
 IMAGE_PATH = os.getenv("IMAGE_PATH")
 DATABASE_PATH = os.getenv("DATABASE_PATH")
+LOG = os.getenv("LOG")
+
+if LOG.lower() == "true":
+    with open("log.txt", "a") as file:
+        file.write(f"Last run: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
 try:
     CONFIDENCE = float(os.getenv("CONFIDENCE"))

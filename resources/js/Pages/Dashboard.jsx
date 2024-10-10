@@ -355,7 +355,10 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             setPage={setPage}
             maxPage={totalPages}
             className={selectedImage ? sty.no_scroll : ""}
-            onSubSearchHandler={(search) => imageSearch({ subSearch: search })}
+            onSubSearchHandler={(search) => {
+                imageSearch({ subSearch: search });
+                setPage(1);
+            }}
             subQuery={subQuery}
             subTagsEnabled={sub_tags_enabled}
         >

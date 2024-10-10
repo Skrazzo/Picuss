@@ -45,4 +45,14 @@ class Disks
             Storage::disk($thumbEnv), // thumbnail
         ];
     }
+
+    public static function userUsedSpace()
+    {
+        // TODO: Create function that counts up user used space from real images
+    }
+
+    public static function totalUsedSpace()
+    {
+        // TODO: Create function that counts up total used space from real images
+    }
 }

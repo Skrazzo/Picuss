@@ -65,4 +65,28 @@ class User extends Authenticatable
 
         return false;
     }
+
+    protected $appends = ["created_ago", "images_count", "images_size", "tags_count"];
+    #region attribute functions
+    public function getCreatedAgoAttribute()
+    {
+        return $this->created_at->diffForHumans();
+    }
+
+    public function getImagesCountAttribute()
+    {
+        return $this->picture()->count();
+    }
+
+    public function getImagesSizeAttribute()
+    {
+        return round($this->picture()->sum("size"), 3); // In megabytes
+    }
+
+    public function getTagsCountAttribute()
+    {
+        return $this->tag()->count();
+    }
+
+    #endregion
 }

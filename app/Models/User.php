@@ -16,7 +16,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = ["username", "password"];
+    protected $fillable = ["username", "password", "is_admin"];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -55,5 +55,14 @@ class User extends Authenticatable
     public function pin()
     {
         return $this->hasOne(\App\Models\HiddenPin::class);
+    }
+
+    public function isAdmin()
+    {
+        if ($this->is_admin) {
+            return true;
+        }
+
+        return false;
     }
 }

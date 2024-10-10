@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HiddenPinController;
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\SettingsController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\ShareImagesController;
 use App\Http\Controllers\ShareTagsController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -116,7 +118,6 @@ Route::prefix("/s")->group(function () {
         Route::middleware("auth")->group(function () {
             Route::get("/", "manage_index")->name("share.links.manage");
             Route::delete("/delete", "delete")->name("share.links.delete");
-
             Route::post("/create", "create")->name("share.image.create");
         });
     });
@@ -127,6 +128,14 @@ Route::prefix("/s")->group(function () {
             Route::get("/full/{picture:public_id}", "get_full_image")->name("share.tags.get.picture"); // get full size image
             Route::get("/download/{tag}", "download")->name("share.tag.download"); // Download all images belonging to a tag
             Route::get("/{tag:tag_public_id}/{page}", "get")->name("share.tags.api"); // Get shared tag pictures in api format
+        });
+    });
+});
+
+Route::middleware(AdminMiddleware::class)->group(function () {
+    Route::prefix("admin")->group(function () {
+        Route::controller(AdminController::class)->group(function () {
+            Route::get("/", "index")->name("admin.index");
         });
     });
 });

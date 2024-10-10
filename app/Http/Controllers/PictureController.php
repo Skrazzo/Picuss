@@ -281,7 +281,7 @@ class PictureController extends Controller
     public function upload(Request $req)
     {
         $data = $req->validate([
-            "zip" => "required|file|mimes:zip|max:2048000", // 2000MB
+            "zip" => "required|file|mimes:zip|max:10240000", // 10000MB
             "tags" => "required|json",
         ]);
 

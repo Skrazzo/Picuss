@@ -361,6 +361,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             }}
             subQuery={subQuery}
             subTagsEnabled={sub_tags_enabled}
+            isAdmin={auth.user.is_admin}
         >
             <PinAuthenticate
                 opened={hiddenModal}

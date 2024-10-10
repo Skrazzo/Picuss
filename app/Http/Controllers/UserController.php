@@ -22,7 +22,11 @@ class UserController extends Controller
             "password" => "required|min:8",
         ]);
 
-        User::create($data);
+        // If user is first, then make him an admin user
+        $isFirstUser = User::count() == 0;
+        \Log::info("Is first user: " . $isFirstUser);
+        User::create(array_merge($data, ["is_admin" => $isFirstUser]));
+        \Log::info("User created: " . print_r(array_merge($data, ["is_admin" => $isFirstUser]), true));
 
         $this->login($req);
         return redirect(route("dashboard"));
@@ -99,11 +103,7 @@ class UserController extends Controller
             "last_tag_created" =>
                 $tag_count == 0
                     ? "Never created"
-                    : str_replace(
-                        "before",
-                        "ago",
-                        $user->tag()->latest()->first()->created_at->diffForHumans(now())
-                    ),
+                    : str_replace("before", "ago", $user->tag()->latest()->first()->created_at->diffForHumans(now())),
             "user_created" => str_replace("before", "ago", $user->created_at->diffForHumans(now())),
             "disk_usage" => $diskUsage,
         ];

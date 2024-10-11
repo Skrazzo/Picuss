@@ -230,33 +230,15 @@ class PictureController extends Controller
                 // need to create new thumbnail and save it to the disk
                 $manager = new ImageManager(new Driver());
 
-                // Check if image's resolution is too big, then skip making thumbnail for it
-                $imageSize = getimagesize($path);
-                if ($imageSize[0] > 6800 || $imageSize[1] > 6800) {
-                    // Add image without a thumbnail
-                    $rtn_arr["images"][] = [
-                        "id" => $pic->public_id,
-                        "name" => $pic->image,
-                        "size" => round($pic->size, 3),
-                        "tags" => $pic->tags,
-                        "uploaded" => $pic->created_at,
-                        "shared" => $pic->sharedImage()->count() >= 1 ? true : false,
-                        "uploaded_ago" => str_replace("before", "ago", $pic->created_at->diffForHumans(now())),
-                        "thumb" => "data:image/webp;base64,",
-                        "width" => $pic->width,
-                        "height" => $pic->height,
-                        "aspectRatio" => round($pic->width / $pic->height, 2),
-                        "sub_tags" => json_decode($pic->sub_tags),
-                    ];
+                try {
+                    $thumbWidth = env("thumbWidth", 40);
+                    $image = $manager->read($path);
+                    $image->scaleDown(width: $thumbWidth);
 
+                    $image->save($thumbDISK->path($pic->image)); // Save image to the local path
+                } catch (Exception $err) {
                     continue;
                 }
-
-                $thumbWidth = env("thumbWidth", 40);
-                $image = $manager->read($path);
-                $image->scaleDown(width: $thumbWidth);
-
-                $image->save($thumbDISK->path($pic->image)); // Save image to the local path
             }
 
             $rtn_arr["images"][] = [

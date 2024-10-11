@@ -10,9 +10,13 @@ IMAGE_PATH = os.getenv("IMAGE_PATH")
 DATABASE_PATH = os.getenv("DATABASE_PATH")
 LOG = os.getenv("LOG")
 
-if LOG.lower() == "true":
-    with open("log.txt", "a") as file:
-        file.write(f"Last run: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+
+def log(txt):
+    if LOG.lower() == "true":
+        with open("log.txt", "a") as file:
+            file.write(txt)
+
+
 
 try:
     CONFIDENCE = float(os.getenv("CONFIDENCE"))
@@ -48,10 +52,14 @@ try:
     count = cur.execute("SELECT COUNT(*) FROM pictures WHERE hidden = false AND sub_tags IS NULL").fetchone()[0]
     if count == 0:
         print("No images to process")
+        log(f"No images to process: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         exit(0)
 except sqlite3.Error as e:
     print(f"Error selecting images: {e}")
     exit(1)
+
+# Log the start of the process
+log(f"Last run: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
 # Loading models
 print("Loading models...")
@@ -133,3 +141,5 @@ for picture in pictures:
 conn.commit()
 conn.close()
 print("Processing complete. Database updated with combined classification and detection results.")
+
+log(f"Last end: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")

@@ -8,7 +8,6 @@ import {
     IconDotsVertical,
     IconDownload,
     IconEye,
-    IconEyeOff,
     IconPhotoOff,
     IconSelectAll,
     IconTags,
@@ -17,7 +16,6 @@ import {
 } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import Dashboard from "./Dashboard";
 import PictureDivider from "./Components/PictureDivider";
 import LazyLoadImage from "./Components/LazyLoadImage";
 import generateRandomBetween from "./Functions/randomNumberBetween";
@@ -218,7 +216,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
                 }
                 setHolding([false, null]);
             }
-        }, 750);
+        }, 600);
         return () => clearTimeout(timeoutID);
     }, [holding]);
 

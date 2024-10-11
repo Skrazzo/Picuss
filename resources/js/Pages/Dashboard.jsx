@@ -228,7 +228,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
                 }
                 setHolding([false, null]);
             }
-        }, 1000);
+        }, 600);
         return () => clearTimeout(timeoutID);
     }, [holding]);
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AuthLayout from "./Layouts/AuthLayout";
-import { Button, Checkbox, Container, Flex, Paper, Progress, Slider, Transition } from "@mantine/core";
+import { Button, Checkbox, Container, Flex, Paper, Progress, Transition } from "@mantine/core";
 
 // ------ for file dropping ------
 import { Group, Text, rem } from "@mantine/core";
@@ -9,7 +9,7 @@ import { Dropzone } from "@mantine/dropzone";
 // -------------------------------
 
 import sty from "../../scss/upload.module.scss";
-import { compressAndAppendImage, imageCompressor } from "@mbs-dev/react-image-compressor";
+import { imageCompressor } from "@mbs-dev/react-image-compressor";
 import SelectCreatableTags from "./Components/SelectCreatableTags";
 import TagPill from "./Components/TagPill";
 import { handleZip } from "./Functions/handleZip";

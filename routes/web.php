@@ -133,10 +133,11 @@ Route::prefix("/s")->group(function () {
 });
 
 Route::middleware(AdminMiddleware::class)->group(function () {
-    Route::prefix("admin")->group(function () {
+    Route::prefix("admin-panel")->group(function () {
         Route::controller(AdminController::class)->group(function () {
             Route::get("/", "index")->name("admin.index");
             Route::delete("/user", "delete_user")->name("admin.delete.user");
+            Route::post("/user/password", "change_user_password")->name("admin.change.password");
         });
     });
 });

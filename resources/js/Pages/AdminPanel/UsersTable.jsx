@@ -1,6 +1,6 @@
-import { useForm } from "@inertiajs/react";
-import { ActionIcon, Menu, Table } from "@mantine/core";
-import { IconDotsVertical, IconTrash } from "@tabler/icons-react";
+import { useForm } from "@inertiajs/inertia-react";
+import { ActionIcon, Input, InputWrapper, Menu, Table, Text } from "@mantine/core";
+import { IconDotsVertical, IconPasswordUser, IconTrash } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import UsersDropDown from "./UsersDropDown";
 import ConfirmationModal from "../Components/ConfirmationModal";
@@ -17,12 +17,27 @@ function UserTableRow({ user }) {
         deleteForm.delete(route("admin.delete.user"));
     };
 
+    const changePasswordForm = useForm({
+        open: false,
+        user_id: user.id,
+        new_password: "",
+    });
+
+    const changeConfirm = () => {
+        changePasswordForm.post(route("admin.change.password"), {
+            onSuccess: () => changePasswordForm.reset(),
+            onError: (err) => console.warn(err),
+        });
+    };
+
     return (
         <>
+            {/* Delete user modal */}
             <ConfirmationModal
                 opened={deleteForm.data.open}
                 close={() => deleteForm.setData("open", false)}
                 onConfirm={deleteConfirm}
+                closeOnConfirm={false}
                 icon={<IconTrash />}
                 color={"red"}
                 title={"Delete user?"}
@@ -31,6 +46,32 @@ function UserTableRow({ user }) {
                 Are you sure you want to delete <b>{user.username}</b> account?
             </ConfirmationModal>
 
+            {/* Change password modal */}
+            <ConfirmationModal
+                opened={changePasswordForm.data.open}
+                close={() => changePasswordForm.setData("open", false)}
+                onConfirm={changeConfirm}
+                icon={<IconPasswordUser />}
+                color={"green"}
+                title={"Change password"}
+                childrenText={false}
+                confirmBtnText="Change password"
+                closeOnConfirm={false}
+                loading={changePasswordForm.processing}
+            >
+                <Text c={"dimmed"} mt={8}>
+                    Select new password for {user.username}
+                </Text>
+                <InputWrapper mt={8} error={changePasswordForm.errors.new_password}>
+                    <Input
+                        placeholder="New password"
+                        onChange={(e) => changePasswordForm.setData("new_password", e.target.value)}
+                        value={changePasswordForm.data.new_password}
+                        name="new_password"
+                        error={changePasswordForm.errors.new_password}
+                    />
+                </InputWrapper>
+            </ConfirmationModal>
             <Table.Tr onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
                 <Table.Td>{user.id}</Table.Td>
                 <Table.Td>{user.username}</Table.Td>
@@ -48,7 +89,11 @@ function UserTableRow({ user }) {
                             </ActionIcon>
                         </Menu.Target>
                         <Menu.Dropdown title={`${user.username} options`}>
-                            <UsersDropDown user={user} deleteForm={deleteForm} />
+                            <UsersDropDown
+                                user={user}
+                                deleteForm={deleteForm}
+                                changePasswordForm={changePasswordForm}
+                            />
                         </Menu.Dropdown>
                     </Menu>
                 </Table.Td>

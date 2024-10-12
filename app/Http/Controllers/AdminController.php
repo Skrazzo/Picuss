@@ -6,6 +6,7 @@ use App\Helpers\Users;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class AdminController extends Controller
@@ -25,6 +26,25 @@ class AdminController extends Controller
         $data = $req->validate(["user_id" => "required|numeric|exists:users,id"]);
         try {
             Users::delete($data["user_id"]);
+        } catch (Exception $err) {
+            return response($err->getMessage(), 500);
+        }
+
+        return back();
+    }
+
+    public function change_user_password(Request $req)
+    {
+        $data = $req->validate([
+            "user_id" => "required|numeric|exists:users,id",
+            "new_password" => "required|min:8",
+        ]);
+
+        $user = User::find($data["user_id"]);
+
+        try {
+            $user->password = $data["new_password"];
+            $user->save();
         } catch (Exception $err) {
             return response($err->getMessage(), 500);
         }

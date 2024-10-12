@@ -11,7 +11,12 @@ export default function UsersDropDown(props) {
         <>
             <Menu.Label>{props.user.username} options</Menu.Label>
 
-            <Menu.Item leftSection={<IconPasswordUser {...iconProps} />}>Change password</Menu.Item>
+            <Menu.Item
+                leftSection={<IconPasswordUser {...iconProps} />}
+                onClick={() => props.changePasswordForm.setData("open", true)}
+            >
+                Change password
+            </Menu.Item>
             <Menu.Item leftSection={<IconCloud {...iconProps} />}>Change storage limit</Menu.Item>
             <Menu.Divider />
             <Menu.Item

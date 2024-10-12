@@ -500,6 +500,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
                                 >
                                     Download
                                 </Menu.Item>
+                                <Menu.Divider />
                                 <Menu.Item
                                     color="red"
                                     leftSection={<IconTrash {...iconProps} />}

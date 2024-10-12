@@ -45,6 +45,9 @@ class GetUsers extends Command
             // Go through every picture and storage
             foreach ($pictures as $picture) {
                 foreach ($storages as $storage) {
+                    if (!$storage->exists($picture->image)) {
+                        continue;
+                    }
                     $fileSize += $storage->size($picture->image);
                 }
             }

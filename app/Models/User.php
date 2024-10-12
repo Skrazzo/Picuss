@@ -80,7 +80,7 @@ class User extends Authenticatable
 
     public function getImagesSizeAttribute()
     {
-        return round($this->picture()->sum("size"), 3); // In megabytes
+        return round($this->picture()->sum("size"), 2); // In megabytes
     }
 
     public function getTagsCountAttribute()

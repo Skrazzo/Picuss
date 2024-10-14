@@ -22,7 +22,9 @@ class PictureController extends Controller
 {
     public function upload_index(Request $req)
     {
-        return Inertia::render("Upload", ["title" => "Upload"]);
+        $title = "Upload";
+        $used_space = Disks::totalUsedSpace(auth()->id());
+        return Inertia::render("Upload", compact("title", "used_space"));
     }
 
     public function dashboard_index(Request $req)

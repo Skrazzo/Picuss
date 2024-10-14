@@ -19,7 +19,7 @@ import showNotification from "./Functions/showNotification";
 import TitleWithIcon from "./Components/TitleWithIcon";
 import Title from "./Components/Title";
 
-export default function Upload({ auth, title = "" }) {
+export default function Upload({ auth, title = "", used_space = null }) {
     const [compress, setCompress] = useState(true);
     const [compressing, setCompressing] = useState(false);
     const [compressingProgress, setCompressingProgress] = useState(0);
@@ -37,7 +37,6 @@ export default function Upload({ auth, title = "" }) {
     const [uploadProgress, setUploadProgress] = useState(0);
 
     function dropHandler(files) {
-        console.log(files);
         /*
             We need need to count uncompressed file size, so we can compare how much
             data we have saved

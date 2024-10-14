@@ -6,7 +6,6 @@ use App\Helpers\Users;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class AdminController extends Controller
@@ -14,7 +13,7 @@ class AdminController extends Controller
     public function index(Request $req)
     {
         // User data
-        $users = User::select(["id", "username", "is_admin", "created_at"])->get();
+        $users = User::select(["id", "username", "is_admin", "created_at", "limit"])->get();
 
         // Return variables
         $title = "Admin panel";

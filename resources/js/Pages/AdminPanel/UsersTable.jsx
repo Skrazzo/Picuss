@@ -1,5 +1,5 @@
 import { useForm } from "@inertiajs/inertia-react";
-import { ActionIcon, Input, InputWrapper, Menu, Table, Text } from "@mantine/core";
+import { ActionIcon, Flex, Input, InputWrapper, Menu, Progress, Table, Text } from "@mantine/core";
 import { IconDotsVertical, IconPasswordUser, IconTrash } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import UsersDropDown from "./UsersDropDown";
@@ -77,7 +77,15 @@ function UserTableRow({ user }) {
                 <Table.Td>{user.username}</Table.Td>
                 <Table.Td>{user.images_count}</Table.Td>
                 <Table.Td>
-                    {user.images_size > 1000 ? `${user.images_size / 1000} GB` : `${user.images_size} MB`}
+                    <Flex justify={"space-between"}>
+                        <Text size="sm">
+                            {user.images_size > 1000 ? `${user.images_size / 1000} GB` : `${user.images_size} MB`}
+                        </Text>
+
+                        {user.limit && <Text size="sm">{user.limit} GB</Text>}
+                    </Flex>
+
+                    {user.limit && <Progress value={(user.images_size * 100) / (user.limit * 1024)} />}
                 </Table.Td>
                 <Table.Td>{user.tags_count}</Table.Td>
                 <Table.Td>{user.created_ago}</Table.Td>

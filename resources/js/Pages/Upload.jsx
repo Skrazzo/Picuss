@@ -4,7 +4,16 @@ import { Button, Checkbox, Container, Flex, Paper, Progress, Transition } from "
 
 // ------ for file dropping ------
 import { Group, Text, rem } from "@mantine/core";
-import { IconUpload, IconPhoto, IconX, IconTags, IconDownload, IconClearAll, IconBug } from "@tabler/icons-react";
+import {
+    IconUpload,
+    IconPhoto,
+    IconX,
+    IconTags,
+    IconDownload,
+    IconClearAll,
+    IconBug,
+    IconCloud,
+} from "@tabler/icons-react";
 import { Dropzone } from "@mantine/dropzone";
 // -------------------------------
 
@@ -35,6 +44,8 @@ export default function Upload({ auth, title = "", used_space = null }) {
     });
     const [selectedTags, setSelectedTags] = useState([]);
     const [uploadProgress, setUploadProgress] = useState(0);
+
+    const [leftMBs, setLeftMBs] = useState(null);
 
     function dropHandler(files) {
         /*
@@ -77,6 +88,13 @@ export default function Upload({ auth, title = "", used_space = null }) {
                 dropHandler(blobs); // Pass the image blob to your function
             }
         };
+
+        // Calculate left MB
+        if (auth.user.limit !== undefined && auth.user.limit !== null && auth.user.limit !== 0) {
+            // Auth.user.limit is in GB
+            let mbLeft = auth.user.limit * 1024 - used_space;
+            setLeftMBs(Math.round(mbLeft * 100) / 100);
+        }
 
         window.addEventListener("paste", handlePaste);
 
@@ -259,6 +277,9 @@ export default function Upload({ auth, title = "", used_space = null }) {
         strokeWidth: 1.25,
     };
 
+    console.log(used_space);
+    console.log(auth.user.limit);
+
     return (
         <AuthLayout auth={auth}>
             <Title title={title} />
@@ -268,6 +289,18 @@ export default function Upload({ auth, title = "", used_space = null }) {
                     order={3}
                     icon={<IconUpload size={28} strokeWidth={1.5} />}
                     my={16}
+                    rightSection={{
+                        element: leftMBs && (
+                            <Flex mx={16} gap={8} align="center">
+                                <IconCloud color="var(--mantine-color-text)" {...iconProps} size={20} />
+                                <Text c={"var(--mantine-color-text)"}>
+                                    {leftMBs > 1024 ? Math.round((leftMBs / 1024) * 100) / 100 : leftMBs}{" "}
+                                    {leftMBs > 1024 ? "GB" : "MB"} left
+                                </Text>
+                            </Flex>
+                        ),
+                        alignLeft: true,
+                    }}
                 />
                 <Dropzone
                     loading={compressing}

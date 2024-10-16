@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AuthLayout from "./Layouts/AuthLayout";
 import { Button, Checkbox, Container, Flex, Paper, Progress, Transition } from "@mantine/core";
 
@@ -13,6 +13,7 @@ import {
     IconClearAll,
     IconBug,
     IconCloud,
+    IconCloudOff,
 } from "@tabler/icons-react";
 import { Dropzone } from "@mantine/dropzone";
 // -------------------------------
@@ -177,6 +178,14 @@ export default function Upload({ auth, title = "", used_space = null }) {
     }
 
     function uploadHandler() {
+        if (uploadSize.compressedSize > leftMBs) {
+            showNotification({
+                title: "Exceeded limit",
+                icon: <IconCloud color="var(--mantine-color-text)" {...iconProps} size={20} />,
+                color: "red",
+            });
+            return;
+        }
         /*
             We need to create zip file with all compressed pictures
             put tags into form data
@@ -272,13 +281,33 @@ export default function Upload({ auth, title = "", used_space = null }) {
         }
     }, [compressArr]);
 
+    const previousUploadSize = useRef(0);
+    function showLimitExceeded() {
+        if (previousUploadSize.current < uploadSize.compressedSize) {
+            showNotification({
+                title: "Exceeded limit",
+                message: `You have exceeded the limit of ${leftMBs} MB. You need to remove ${Math.round((uploadSize.compressedSize - leftMBs) * 100) / 100} MB of images`,
+                icon: <IconCloud color="var(--mantine-color-text)" {...iconProps} size={20} />,
+                color: "red",
+            });
+        }
+        previousUploadSize.current = uploadSize.compressedSize;
+    }
+
+    useEffect(() => {
+        if (uploadSize.compressedSize === 0) {
+            return;
+        }
+
+        if (leftMBs < uploadSize.compressedSize) {
+            showLimitExceeded();
+        }
+    }, [uploadSize]);
+
     const iconProps = {
         size: 20,
         strokeWidth: 1.25,
     };
-
-    console.log(used_space);
-    console.log(auth.user.limit);
 
     return (
         <AuthLayout auth={auth}>
@@ -292,7 +321,7 @@ export default function Upload({ auth, title = "", used_space = null }) {
                     rightSection={{
                         element: leftMBs && (
                             <Flex mx={16} gap={8} align="center">
-                                <IconCloud color="var(--mantine-color-text)" {...iconProps} size={20} />
+                                <IconCloud color={"var(--mantine-color-text)"} {...iconProps} size={20} />
                                 <Text c={"var(--mantine-color-text)"}>
                                     {leftMBs > 1024 ? Math.round((leftMBs / 1024) * 100) / 100 : leftMBs}{" "}
                                     {leftMBs > 1024 ? "GB" : "MB"} left
@@ -443,8 +472,15 @@ export default function Upload({ auth, title = "", used_space = null }) {
                     <Button
                         loading={uploading}
                         onClick={uploadHandler}
-                        leftSection={<IconUpload {...iconProps} />}
+                        leftSection={
+                            uploadSize.compressedSize > leftMBs ? (
+                                <IconCloudOff {...iconProps} />
+                            ) : (
+                                <IconUpload {...iconProps} />
+                            )
+                        }
                         disabled={selectedTags.length == 0}
+                        color={uploadSize.compressedSize > leftMBs ? "red" : ""}
                     >
                         Upload
                     </Button>

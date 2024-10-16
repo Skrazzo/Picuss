@@ -286,6 +286,13 @@ class PictureController extends Controller
             return response()->json(["message" => "Temporary zip file does not exist!"], 404);
         }
 
+        $zipFileSize = Storage::disk($SERVER_TMP_ZIP_DISK)->size($tmpZipFile) / 1024 / 1024; // Get size in MB
+        $user = auth()->user();
+        if (Disks::totalUsedSpace($user->id) > $zipFileSize) {
+            Storage::delete($tmpZipFile);
+            return response()->json(["message" => "Zip file exceeds user limit!"], 409);
+        }
+
         // Open zip file
         $zipPath = Storage::disk($SERVER_TMP_ZIP_DISK)->path($tmpZipFile);
 

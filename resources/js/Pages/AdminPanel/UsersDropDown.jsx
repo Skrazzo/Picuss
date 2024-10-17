@@ -17,7 +17,12 @@ export default function UsersDropDown(props) {
             >
                 Change password
             </Menu.Item>
-            <Menu.Item leftSection={<IconCloud {...iconProps} />}>Change storage limit</Menu.Item>
+            <Menu.Item
+                leftSection={<IconCloud {...iconProps} />}
+                onClick={() => props.changeLimitForm.setData("open", true)}
+            >
+                Change storage limit
+            </Menu.Item>
             <Menu.Divider />
             <Menu.Item
                 c={"red"}

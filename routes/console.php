@@ -9,3 +9,7 @@ Artisan::command("inspire", function () {
 })
     ->purpose("Display an inspiring quote")
     ->hourly();
+
+Artisan::command("t", function () {
+    $this->info(Disks::totalUsedSpace(31));
+});

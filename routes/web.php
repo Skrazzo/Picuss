@@ -17,6 +17,10 @@ Route::get("/auth", function () {
     return Inertia::render("Auth", ["title" => "Login"]);
 })->name("login");
 
+Route::get("/version", function () {
+    return response()->json(["version" => config("app.version")]);
+});
+
 // api routes for auth
 Route::post("/login", [UserController::class, "login"])->name("post.login");
 Route::post("/register", [UserController::class, "register"])->name("post.register");
@@ -138,6 +142,7 @@ Route::middleware(AdminMiddleware::class)->group(function () {
             Route::get("/", "index")->name("admin.index");
             Route::delete("/user", "delete_user")->name("admin.delete.user");
             Route::post("/user/password", "change_user_password")->name("admin.change.password");
+            Route::put("/user/limit", "change_user_limit")->name("admin.change.limit");
         });
     });
 });

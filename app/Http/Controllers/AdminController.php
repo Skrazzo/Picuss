@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Disks;
 use App\Helpers\Users;
 use App\Models\User;
 use Exception;
@@ -46,6 +47,39 @@ class AdminController extends Controller
             $user->save();
         } catch (Exception $err) {
             return response($err->getMessage(), 500);
+        }
+
+        return back();
+    }
+
+    public function change_user_limit(Request $req)
+    {
+        $data = $req->validate([
+            "user_id" => "required|numeric|exists:users,id",
+            "limit" => "required|numeric|min:0",
+        ]);
+        // Limit user used storage + 1 MB and then converted into GB
+
+        $user = User::find($data["user_id"]);
+        if (!$user) {
+            return response("User does not exist", 404);
+        }
+
+        try {
+            if (floatval($data["limit"]) === 0.0) {
+                $user->limit = null;
+            } else {
+                // Check if I can set limit this low
+                $minLimit = round((Disks::totalUsedSpace($req->user_id) + 1) / 1024, 2);
+                if ($minLimit > $data["limit"]) {
+                    return back()->withErrors(["limit" => "Limit has to be at least $minLimit GB"]);
+                }
+
+                $user->limit = $data["limit"];
+            }
+            $user->save();
+        } catch (Exception $e) {
+            return response($e->getMessage(), 500);
         }
 
         return back();

@@ -1,6 +1,6 @@
 import { useForm } from "@inertiajs/inertia-react";
 import { ActionIcon, Flex, Input, InputWrapper, Menu, Progress, Table, Text } from "@mantine/core";
-import { IconDotsVertical, IconPasswordUser, IconTrash } from "@tabler/icons-react";
+import { IconCloud, IconDotsVertical, IconPasswordUser, IconTrash } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import UsersDropDown from "./UsersDropDown";
 import ConfirmationModal from "../Components/ConfirmationModal";
@@ -30,6 +30,19 @@ function UserTableRow({ user }) {
         });
     };
 
+    const changeLimitForm = useForm({
+        open: false,
+        user_id: user.id,
+        limit: user.limit ? user.limit : "",
+    });
+
+    const changeLimitConfirm = () => {
+        changeLimitForm.put(route("admin.change.limit"), {
+            onSuccess: () => changeLimitForm.reset("open"),
+            onError: (err) => console.warn(err),
+        });
+    };
+
     return (
         <>
             {/* Delete user modal */}
@@ -44,6 +57,32 @@ function UserTableRow({ user }) {
                 loading={deleteForm.processing}
             >
                 Are you sure you want to delete <b>{user.username}</b> account?
+            </ConfirmationModal>
+
+            {/* Change user limit modal */}
+            <ConfirmationModal
+                opened={changeLimitForm.data.open}
+                close={() => changeLimitForm.setData("open", false)}
+                onConfirm={changeLimitConfirm}
+                icon={<IconCloud />}
+                color={"green"}
+                title={"Change limit"}
+                childrenText={false}
+                confirmBtnText="Change limit"
+                closeOnConfirm={false}
+                loading={changeLimitForm.processing}
+            >
+                <Text c={"dimmed"} mt={8}>
+                    Select new limit for {user.username}. Write limit in <b>GB</b>. <b>Write 0 to remove limit</b>
+                </Text>
+                <InputWrapper mt={8} error={changeLimitForm.errors.limit}>
+                    <Input
+                        placeholder="New password"
+                        onChange={(e) => changeLimitForm.setData("limit", e.target.value)}
+                        value={changeLimitForm.data.limit}
+                        error={changeLimitForm.errors.limit}
+                    />
+                </InputWrapper>
             </ConfirmationModal>
 
             {/* Change password modal */}
@@ -72,6 +111,7 @@ function UserTableRow({ user }) {
                     />
                 </InputWrapper>
             </ConfirmationModal>
+
             <Table.Tr onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
                 <Table.Td>{user.id}</Table.Td>
                 <Table.Td>{user.username}</Table.Td>
@@ -79,10 +119,17 @@ function UserTableRow({ user }) {
                 <Table.Td>
                     <Flex justify={"space-between"}>
                         <Text size="sm">
-                            {user.images_size > 1000 ? `${user.images_size / 1000} GB` : `${user.images_size} MB`}
+                            {user.images_size > 1024
+                                ? `${Math.round((user.images_size / 1024) * 100) / 100} GB`
+                                : `${user.images_size} MB`}
                         </Text>
 
-                        {user.limit && <Text size="sm">{user.limit} GB</Text>}
+                        {user.limit && (
+                            <Text size="sm">
+                                {user.limit < 1 ? Math.round(user.limit * 1024 * 100) / 100 : user.limit}{" "}
+                                {user.limit < 1 ? "MB" : "GB"}
+                            </Text>
+                        )}
                     </Flex>
 
                     {user.limit && <Progress value={(user.images_size * 100) / (user.limit * 1024)} />}
@@ -101,6 +148,7 @@ function UserTableRow({ user }) {
                                 user={user}
                                 deleteForm={deleteForm}
                                 changePasswordForm={changePasswordForm}
+                                changeLimitForm={changeLimitForm}
                             />
                         </Menu.Dropdown>
                     </Menu>

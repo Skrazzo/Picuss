@@ -135,7 +135,7 @@ export default function Upload({ auth, title = "", used_space = null }) {
                     break;
             }
 
-            console.log(`Compressing: ${x.name} (${fileSize}KB) - ${imageQuality}%`);
+            // console.log(`Compressing: ${x.name} (${fileSize}KB) - ${imageQuality}%`);
 
             let compressedImage = x;
             // Compress the image only if compression is needed for an image (Obove 0 image quality)
@@ -283,6 +283,10 @@ export default function Upload({ auth, title = "", used_space = null }) {
 
     const previousUploadSize = useRef(0);
     function showLimitExceeded() {
+        if (auth.user.limit === null) {
+            return;
+        }
+
         if (previousUploadSize.current < uploadSize.compressedSize) {
             showNotification({
                 title: "Exceeded limit",

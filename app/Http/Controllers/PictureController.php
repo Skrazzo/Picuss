@@ -273,6 +273,8 @@ class PictureController extends Controller
         $SERVER_IMAGE_DISK = env("SERVER_IMAGE_DISK", "images");
         $tmpZipFile = "";
 
+        $user = auth()->user();
+
         if ($req->file("zip")->isValid()) {
             $file = $req->file("zip");
             $tmpZipFile = Storage::disk($SERVER_TMP_ZIP_DISK)->put("", $file);
@@ -288,9 +290,10 @@ class PictureController extends Controller
 
         $zipFileSize = Storage::disk($SERVER_TMP_ZIP_DISK)->size($tmpZipFile) / 1024 / 1024; // Get size in MB
         $user = auth()->user();
-        if (Disks::totalUsedSpace($user->id) > $zipFileSize) {
-            Storage::delete($tmpZipFile);
-            return response()->json(["message" => "Zip file exceeds user limit!"], 409);
+
+        if ($user->limit * 1024 - Disks::totalUsedSpace($user->id) < $zipFileSize) {
+            Storage::disk($SERVER_TMP_ZIP_DISK)->delete($tmpZipFile);
+            return response()->json(["message" => "Upload exceeds user limit!"], 409);
         }
 
         // Open zip file

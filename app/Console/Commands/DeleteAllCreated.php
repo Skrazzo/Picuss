@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\Disks;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,45 +14,58 @@ class DeleteAllCreated extends Command
      *
      * @var string
      */
-    protected $signature = "pictures:delete-generated";
+    protected $signature = "pictures:delete-generated {--user=}";
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = "Deletes all previously created images, thumbnails and scaled down images";
+    protected $description = "Deletes all previously created images, thumbnails and scaled down images, write --user=1 to select user by id";
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        // Get storage env variables
-        $imageEnv = env("SERVER_IMAGE_DISK", "images");
-        $halfEnv = env("SERVER_IMAGE_HALF_DISK", "half_images");
-        $thumbEnv = env("SERVER_THUMBNAILS_DISK", "thumbnails");
+        $user_id = $this->option("user");
 
         // Get storage disks
-        // $imageDisk = Storage::disk($imageEnv);
-        $halfDisk = Storage::disk($halfEnv);
-        $thumbDisk = Storage::disk($thumbEnv);
+        $halfDisk = Disks::half();
+        $thumbDisk = Disks::thumb();
 
         $thumbs = $thumbDisk->allFiles();
         $halfs = $halfDisk->allFiles();
 
         $count = 0;
 
-        // Delete thumbnails
-        foreach ($thumbs as $name) {
-            $thumbDisk->delete($name);
-            $count++;
-        }
+        if ($user_id) {
+            $user = User::find($user_id);
 
-        // Delete scaled down pictures
-        foreach ($halfs as $name) {
-            $halfDisk->delete($name);
-            $count++;
+            if (!$user) {
+                $this->error("Could not find specified user");
+                die();
+            }
+
+            $pictures = $user->picture()->where("hidden", false)->pluck("image");
+
+            foreach ($pictures as $pic) {
+                $thumbDisk->delete($pic);
+                $halfDisk->delete($pic);
+                $count += 2;
+            }
+        } else {
+            // Delete thumbnails
+            foreach ($thumbs as $name) {
+                $thumbDisk->delete($name);
+                $count++;
+            }
+
+            // Delete scaled down pictures
+            foreach ($halfs as $name) {
+                $halfDisk->delete($name);
+                $count++;
+            }
         }
 
         echo $count . " pictures were deleted\n";

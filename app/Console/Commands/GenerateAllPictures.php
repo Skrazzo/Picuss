@@ -45,6 +45,10 @@ class GenerateAllPictures extends Command
         $halfDisk = Storage::disk($halfEnv);
         $thumbDisk = Storage::disk($thumbEnv);
 
+        if ($ouputConsole) {
+            \Log::channel("console")->info("Run started");
+        }
+
         $createdCount = 0;
         $deletedCount = 0;
         $delLocalCount = 0; // Deleted locally
@@ -127,12 +131,19 @@ class GenerateAllPictures extends Command
 
         if ($ouputConsole) {
             echo $createdCount . " Images were created, aka for " . $createdCount / 2 . " records\n";
+            \Log::channel("console")->info("Images were created, aka for " . $createdCount / 2 . " records");
         }
         if ($ouputConsole) {
             echo $deletedCount . " Images were deleted, because existed only in database \n";
+            \Log::channel("console")->info("Images were deleted, because existed only in database");
         }
         if ($ouputConsole) {
             echo $delLocalCount . " Images were deleted, because existed only locally \n";
+            \Log::channel("console")->info("Images were deleted, because existed only locally");
+        }
+
+        if ($ouputConsole) {
+            \Log::channel("console")->info("Run finished");
         }
     }
 }

@@ -77,7 +77,7 @@ function UserTableRow({ user }) {
                 </Text>
                 <InputWrapper mt={8} error={changeLimitForm.errors.limit}>
                     <Input
-                        placeholder="New password"
+                        placeholder="New limit"
                         onChange={(e) => changeLimitForm.setData("limit", e.target.value)}
                         value={changeLimitForm.data.limit}
                         error={changeLimitForm.errors.limit}

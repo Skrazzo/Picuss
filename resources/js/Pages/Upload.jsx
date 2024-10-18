@@ -388,7 +388,6 @@ export default function Upload({ auth, title = "", used_space = null }) {
                         </div>
                     </Group>
                 </Dropzone>
-
                 <Paper my={16} withBorder p={"sm"}>
                     <Checkbox
                         disabled={compressing}
@@ -406,7 +405,6 @@ export default function Upload({ auth, title = "", used_space = null }) {
                         )}
                     </Transition>
                 </Paper>
-
                 {uploadArr.length !== 0 && (
                     <Paper mt={16} withBorder p={"xs"}>
                         <Flex gap={8} align={"center"} justify={"space-between"} my={8}>
@@ -450,7 +448,6 @@ export default function Upload({ auth, title = "", used_space = null }) {
                         </div>
                     </Paper>
                 )}
-
                 {uploadArr.length !== 0 && (
                     <Paper withBorder mt={16} p={"xs"} mb={16}>
                         <Flex align={"center"} gap={8} mb={16}>
@@ -471,7 +468,7 @@ export default function Upload({ auth, title = "", used_space = null }) {
                         )}
                     </Paper>
                 )}
-
+                // TODO: change buttons so that upload without limit is possible
                 <Flex mb={128} gap={8} align={"center"}>
                     <Button
                         loading={uploading}

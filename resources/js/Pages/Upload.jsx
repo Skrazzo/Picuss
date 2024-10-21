@@ -47,6 +47,7 @@ export default function Upload({ auth, title = "", used_space = null }) {
     const [uploadProgress, setUploadProgress] = useState(0);
 
     const [leftMBs, setLeftMBs] = useState(null);
+    const [canUpload, setCanUpload] = useState(false);
 
     function dropHandler(files) {
         /*
@@ -70,6 +71,25 @@ export default function Upload({ auth, title = "", used_space = null }) {
             setUploadArr([...uploadArr, ...files]);
         }
     }
+
+    // Handle size changes, and if the website can upload files
+    useEffect(() => {
+        // uploadSize.compressedSize > leftMBs
+        if (uploadSize.compressedSize > leftMBs) {
+            console.log("Limit exceeded");
+            setCanUpload(false);
+        } else {
+            console.log("Can upload");
+            setCanUpload(true);
+            return;
+        }
+
+        if (auth.user.limit === null) {
+            console.log("Can upload 2");
+            setCanUpload(true);
+            return;
+        }
+    }, [uploadSize.compressedSize, leftMBs]);
 
     // Handle pasting images
     useEffect(() => {
@@ -178,7 +198,7 @@ export default function Upload({ auth, title = "", used_space = null }) {
     }
 
     function uploadHandler() {
-        if (uploadSize.compressedSize > leftMBs) {
+        if (!canUpload) {
             showNotification({
                 title: "Exceeded limit",
                 icon: <IconCloud color="var(--mantine-color-text)" {...iconProps} size={20} />,
@@ -468,20 +488,14 @@ export default function Upload({ auth, title = "", used_space = null }) {
                         )}
                     </Paper>
                 )}
-                // TODO: change buttons so that upload without limit is possible
+
                 <Flex mb={128} gap={8} align={"center"}>
                     <Button
                         loading={uploading}
                         onClick={uploadHandler}
-                        leftSection={
-                            uploadSize.compressedSize > leftMBs ? (
-                                <IconCloudOff {...iconProps} />
-                            ) : (
-                                <IconUpload {...iconProps} />
-                            )
-                        }
+                        leftSection={!canUpload ? <IconCloudOff {...iconProps} /> : <IconUpload {...iconProps} />}
                         disabled={selectedTags.length == 0}
-                        color={uploadSize.compressedSize > leftMBs ? "red" : ""}
+                        color={!canUpload ? "red" : ""}
                     >
                         Upload
                     </Button>

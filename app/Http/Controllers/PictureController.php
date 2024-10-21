@@ -291,9 +291,11 @@ class PictureController extends Controller
         $zipFileSize = Storage::disk($SERVER_TMP_ZIP_DISK)->size($tmpZipFile) / 1024 / 1024; // Get size in MB
         $user = auth()->user();
 
-        if ($user->limit * 1024 - Disks::totalUsedSpace($user->id) < $zipFileSize) {
-            Storage::disk($SERVER_TMP_ZIP_DISK)->delete($tmpZipFile);
-            return response()->json(["message" => "Upload exceeds user limit!"], 409);
+        if ($user->limit !== null) {
+            if ($user->limit * 1024 - Disks::totalUsedSpace($user->id) < $zipFileSize) {
+                Storage::disk($SERVER_TMP_ZIP_DISK)->delete($tmpZipFile);
+                return response()->json(["message" => "Upload exceeds user limit!"], 409);
+            }
         }
 
         // Open zip file

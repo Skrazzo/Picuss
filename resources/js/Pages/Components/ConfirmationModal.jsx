@@ -77,11 +77,7 @@ export default function ConfirmationModal({
 
                                     <div className={"content"}>
                                         <p className={"label"}>{title}</p>
-                                        {childrenText ? (
-                                            <p className={"description"}>{text}</p>
-                                        ) : (
-                                            text
-                                        )}
+                                        {childrenText ? <p className={"description"}>{text}</p> : text}
                                     </div>
                                 </div>
 

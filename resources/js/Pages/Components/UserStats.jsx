@@ -1,15 +1,10 @@
 import { SimpleGrid, Skeleton } from "@mantine/core";
 import DisabledInputInfo from "./DisabledInputInfo";
-import {
-    IconBrandOnedrive,
-    IconPhoto,
-    IconTag,
-    IconTags,
-    IconUpload,
-    IconUser,
-} from "@tabler/icons-react";
+import { IconBrandOnedrive, IconPhoto, IconTag, IconTags, IconUpload, IconUser } from "@tabler/icons-react";
 
 export default function UserStats({ data }) {
+    console.log(data);
+
     const iconProps = {
         size: 20,
         strokeWidth: 1.5,
@@ -47,7 +42,7 @@ export default function UserStats({ data }) {
                     <DisabledInputInfo
                         tooltip={"Used storage on the server"}
                         icon={<IconBrandOnedrive {...iconProps} />}
-                        value={data.disk_usage}
+                        value={`${data.disk_usage} of ${data.user_limit} GB`}
                     />
                 </>
             ) : (

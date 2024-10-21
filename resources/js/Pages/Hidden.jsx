@@ -5,6 +5,7 @@ import { ActionIcon, Center, Menu, Modal, Pagination, Skeleton, Text } from "@ma
 import sty from "../../scss/Dashboard.module.scss";
 import {
     IconCheck,
+    IconDeselect,
     IconDotsVertical,
     IconDownload,
     IconEye,
@@ -408,6 +409,10 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
                     </Text>
 
                     <div className={sty.actions}>
+                        <ActionIcon variant="light" size={"lg"} onClick={() => setMultiSelect(null)}>
+                            <IconDeselect {...multiSelectIcons} />
+                        </ActionIcon>
+
                         <ActionIcon variant="light" size={"lg"} onClick={selectAll}>
                             <IconSelectAll {...multiSelectIcons} />
                         </ActionIcon>
@@ -450,6 +455,7 @@ export default function Hidden({ allowed, title, auth, hasPin }) {
                                 >
                                     Reveal
                                 </Menu.Item>
+                                <Menu.Divider />
                                 <Menu.Item
                                     color="red"
                                     leftSection={<IconTrash {...iconProps} />}

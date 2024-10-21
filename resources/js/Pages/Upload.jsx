@@ -1,10 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AuthLayout from "./Layouts/AuthLayout";
 import { Button, Checkbox, Container, Flex, Paper, Progress, Transition } from "@mantine/core";
 
 // ------ for file dropping ------
 import { Group, Text, rem } from "@mantine/core";
-import { IconUpload, IconPhoto, IconX, IconTags, IconDownload, IconClearAll, IconBug } from "@tabler/icons-react";
+import {
+    IconUpload,
+    IconPhoto,
+    IconX,
+    IconTags,
+    IconDownload,
+    IconClearAll,
+    IconBug,
+    IconCloud,
+    IconCloudOff,
+} from "@tabler/icons-react";
 import { Dropzone } from "@mantine/dropzone";
 // -------------------------------
 
@@ -19,7 +29,7 @@ import showNotification from "./Functions/showNotification";
 import TitleWithIcon from "./Components/TitleWithIcon";
 import Title from "./Components/Title";
 
-export default function Upload({ auth, title = "" }) {
+export default function Upload({ auth, title = "", used_space = null }) {
     const [compress, setCompress] = useState(true);
     const [compressing, setCompressing] = useState(false);
     const [compressingProgress, setCompressingProgress] = useState(0);
@@ -36,8 +46,10 @@ export default function Upload({ auth, title = "" }) {
     const [selectedTags, setSelectedTags] = useState([]);
     const [uploadProgress, setUploadProgress] = useState(0);
 
+    const [leftMBs, setLeftMBs] = useState(null);
+    const [canUpload, setCanUpload] = useState(false);
+
     function dropHandler(files) {
-        console.log(files);
         /*
             We need need to count uncompressed file size, so we can compare how much
             data we have saved
@@ -60,6 +72,25 @@ export default function Upload({ auth, title = "" }) {
         }
     }
 
+    // Handle size changes, and if the website can upload files
+    useEffect(() => {
+        // uploadSize.compressedSize > leftMBs
+        if (uploadSize.compressedSize > leftMBs) {
+            console.log("Limit exceeded");
+            setCanUpload(false);
+        } else {
+            console.log("Can upload");
+            setCanUpload(true);
+            return;
+        }
+
+        if (auth.user.limit === null) {
+            console.log("Can upload 2");
+            setCanUpload(true);
+            return;
+        }
+    }, [uploadSize.compressedSize, leftMBs]);
+
     // Handle pasting images
     useEffect(() => {
         const handlePaste = (e) => {
@@ -78,6 +109,13 @@ export default function Upload({ auth, title = "" }) {
                 dropHandler(blobs); // Pass the image blob to your function
             }
         };
+
+        // Calculate left MB
+        if (auth.user.limit !== undefined && auth.user.limit !== null && auth.user.limit !== 0) {
+            // Auth.user.limit is in GB
+            let mbLeft = auth.user.limit * 1024 - used_space;
+            setLeftMBs(Math.round(mbLeft * 100) / 100);
+        }
 
         window.addEventListener("paste", handlePaste);
 
@@ -117,7 +155,7 @@ export default function Upload({ auth, title = "" }) {
                     break;
             }
 
-            console.log(`Compressing: ${x.name} (${fileSize}KB) - ${imageQuality}%`);
+            // console.log(`Compressing: ${x.name} (${fileSize}KB) - ${imageQuality}%`);
 
             let compressedImage = x;
             // Compress the image only if compression is needed for an image (Obove 0 image quality)
@@ -160,6 +198,14 @@ export default function Upload({ auth, title = "" }) {
     }
 
     function uploadHandler() {
+        if (!canUpload) {
+            showNotification({
+                title: "Exceeded limit",
+                icon: <IconCloud color="var(--mantine-color-text)" {...iconProps} size={20} />,
+                color: "red",
+            });
+            return;
+        }
         /*
             We need to create zip file with all compressed pictures
             put tags into form data
@@ -255,6 +301,33 @@ export default function Upload({ auth, title = "" }) {
         }
     }, [compressArr]);
 
+    const previousUploadSize = useRef(0);
+    function showLimitExceeded() {
+        if (auth.user.limit === null) {
+            return;
+        }
+
+        if (previousUploadSize.current < uploadSize.compressedSize) {
+            showNotification({
+                title: "Exceeded limit",
+                message: `You have exceeded the limit of ${leftMBs} MB. You need to remove ${Math.round((uploadSize.compressedSize - leftMBs) * 100) / 100} MB of images`,
+                icon: <IconCloud color="var(--mantine-color-text)" {...iconProps} size={20} />,
+                color: "red",
+            });
+        }
+        previousUploadSize.current = uploadSize.compressedSize;
+    }
+
+    useEffect(() => {
+        if (uploadSize.compressedSize === 0) {
+            return;
+        }
+
+        if (leftMBs < uploadSize.compressedSize) {
+            showLimitExceeded();
+        }
+    }, [uploadSize]);
+
     const iconProps = {
         size: 20,
         strokeWidth: 1.25,
@@ -269,6 +342,18 @@ export default function Upload({ auth, title = "" }) {
                     order={3}
                     icon={<IconUpload size={28} strokeWidth={1.5} />}
                     my={16}
+                    rightSection={{
+                        element: leftMBs && (
+                            <Flex mx={16} gap={8} align="center">
+                                <IconCloud color={"var(--mantine-color-text)"} {...iconProps} size={20} />
+                                <Text c={"var(--mantine-color-text)"}>
+                                    {leftMBs > 1024 ? Math.round((leftMBs / 1024) * 100) / 100 : leftMBs}{" "}
+                                    {leftMBs > 1024 ? "GB" : "MB"} left
+                                </Text>
+                            </Flex>
+                        ),
+                        alignLeft: true,
+                    }}
                 />
                 <Dropzone
                     loading={compressing}
@@ -323,7 +408,6 @@ export default function Upload({ auth, title = "" }) {
                         </div>
                     </Group>
                 </Dropzone>
-
                 <Paper my={16} withBorder p={"sm"}>
                     <Checkbox
                         disabled={compressing}
@@ -341,7 +425,6 @@ export default function Upload({ auth, title = "" }) {
                         )}
                     </Transition>
                 </Paper>
-
                 {uploadArr.length !== 0 && (
                     <Paper mt={16} withBorder p={"xs"}>
                         <Flex gap={8} align={"center"} justify={"space-between"} my={8}>
@@ -385,7 +468,6 @@ export default function Upload({ auth, title = "" }) {
                         </div>
                     </Paper>
                 )}
-
                 {uploadArr.length !== 0 && (
                     <Paper withBorder mt={16} p={"xs"} mb={16}>
                         <Flex align={"center"} gap={8} mb={16}>
@@ -411,8 +493,9 @@ export default function Upload({ auth, title = "" }) {
                     <Button
                         loading={uploading}
                         onClick={uploadHandler}
-                        leftSection={<IconUpload {...iconProps} />}
+                        leftSection={!canUpload ? <IconCloudOff {...iconProps} /> : <IconUpload {...iconProps} />}
                         disabled={selectedTags.length == 0}
+                        color={!canUpload ? "red" : ""}
                     >
                         Upload
                     </Button>

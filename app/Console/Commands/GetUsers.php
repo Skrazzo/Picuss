@@ -37,7 +37,7 @@ class GetUsers extends Command
 
         $storages = Disks::allDisks();
 
-        $tableHeaders = ["ID", "USERNAME", "IMAGE COUNT", "TAGS COUNT", "USED STORAGE (MB)"];
+        $tableHeaders = ["ID", "USERNAME", "IMAGE COUNT", "TAGS COUNT", "USED STORAGE (MB)", "ADMIN"];
         $tableData = $users->map(function ($user) use ($storages) {
             $pictures = Picture::where("user_id", $user->id)->get();
 
@@ -55,12 +55,16 @@ class GetUsers extends Command
             // Convert to MB
             $fileSize = round($fileSize / 1024 / 1024, 2);
 
+            // Check if user is admin
+            $isAdmin = User::find($user->id)->isAdmin() ? "yes" : "";
+
             return [
                 $user->id,
                 $user->username,
                 $pictures->count(),
                 Tags::where("user_id", $user->id)->count(),
                 $fileSize,
+                $isAdmin,
             ];
         });
 

@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\Storage;
 
 class Disks
@@ -44,5 +46,44 @@ class Disks
             Storage::disk($halfEnv), // half
             Storage::disk($thumbEnv), // thumbnail
         ];
+    }
+
+    /**
+     * Calculate how much space a user has used in MB. From database
+     *
+     * @param int $id
+     * @return float
+     * @throws Exception
+     */
+    public static function userUsedSpace($id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            throw new Exception("User not found");
+        }
+
+        return round($user->picture()->sum("size"), 3);
+    }
+
+    public static function totalUsedSpace($id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            throw new Exception("User not found");
+        }
+
+        $storages = self::allDisks();
+        $pictures = $user->picture()->get();
+
+        $fileSize = 0;
+        foreach ($storages as $storage) {
+            foreach ($pictures as $pic) {
+                if ($storage->exists($pic->image)) {
+                    $fileSize += $storage->size($pic->image);
+                }
+            }
+        }
+
+        return round($fileSize / 1024 / 1024, 3);
     }
 }

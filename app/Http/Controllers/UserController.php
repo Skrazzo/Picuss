@@ -22,7 +22,9 @@ class UserController extends Controller
             "password" => "required|min:8",
         ]);
 
-        User::create($data);
+        // If user is first, then make him an admin user
+        $isFirstUser = User::count() == 0;
+        User::create(array_merge($data, ["is_admin" => $isFirstUser]));
 
         $this->login($req);
         return redirect(route("dashboard"));
@@ -52,31 +54,12 @@ class UserController extends Controller
         $picture_count = $user->picture()->get()->count();
         $tag_count = $user->tag()->get()->count();
 
-        // Get users disk usage
-        [$imageDisk, $halfDisk, $thumbDisk] = Disks::allDisks();
-
-        $diskUsage = 0; // In bytes
-        $pictures = $user->picture()->get();
-
-        // Loop through every user picture in every disk, and get their size
-        foreach ($pictures as $pic) {
-            $img = $pic->image;
-
-            if ($imageDisk->exists($img)) {
-                $diskUsage += $imageDisk->size($img);
-            }
-
-            if ($halfDisk->exists($img)) {
-                $diskUsage += $halfDisk->size($img);
-            }
-
-            if ($thumbDisk->exists($img)) {
-                $diskUsage += $thumbDisk->size($img);
-            }
+        $diskUsage = 0;
+        try {
+            $diskUsage = Disks::totalUsedSpace($user->id);
+        } catch (\Exception $e) {
+            \Log::error($e->getMessage());
         }
-
-        // Convert to MB
-        $diskUsage = $diskUsage / (1024 * 1024);
 
         // Convert to GB if needed
         if ($diskUsage > 1000) {
@@ -99,13 +82,10 @@ class UserController extends Controller
             "last_tag_created" =>
                 $tag_count == 0
                     ? "Never created"
-                    : str_replace(
-                        "before",
-                        "ago",
-                        $user->tag()->latest()->first()->created_at->diffForHumans(now())
-                    ),
+                    : str_replace("before", "ago", $user->tag()->latest()->first()->created_at->diffForHumans(now())),
             "user_created" => str_replace("before", "ago", $user->created_at->diffForHumans(now())),
             "disk_usage" => $diskUsage,
+            "user_limit" => $user->limit,
         ];
 
         return response()->json($rtn);

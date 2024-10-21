@@ -361,6 +361,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             }}
             subQuery={subQuery}
             subTagsEnabled={sub_tags_enabled}
+            isAdmin={auth.user.is_admin}
         >
             <PinAuthenticate
                 opened={hiddenModal}
@@ -499,6 +500,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
                                 >
                                     Download
                                 </Menu.Item>
+                                <Menu.Divider />
                                 <Menu.Item
                                     color="red"
                                     leftSection={<IconTrash {...iconProps} />}

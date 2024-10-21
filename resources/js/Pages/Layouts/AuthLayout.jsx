@@ -29,6 +29,7 @@ import {
     IconSignLeft,
     IconTags,
     IconUpload,
+    IconUserCog,
 } from "@tabler/icons-react";
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
@@ -197,6 +198,14 @@ export default function AuthLayout({
                         text={"Shared links"}
                         hrefRoute={"share.links.manage"}
                     />
+                    {auth.user.is_admin === 1 && (
+                        <MenuOption
+                            currentRoute={auth.route}
+                            icon={<IconUserCog {...defaultIconProps} />}
+                            text={"Admin panel"}
+                            hrefRoute={"admin.index"}
+                        />
+                    )}
                 </div>
 
                 {(auth.route === "dashboard" || auth.route === "hidden.index") && (

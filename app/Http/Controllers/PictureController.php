@@ -22,7 +22,9 @@ class PictureController extends Controller
 {
     public function upload_index(Request $req)
     {
-        return Inertia::render("Upload", ["title" => "Upload"]);
+        $title = "Upload";
+        $used_space = Disks::totalUsedSpace(auth()->id());
+        return Inertia::render("Upload", compact("title", "used_space"));
     }
 
     public function dashboard_index(Request $req)
@@ -263,13 +265,15 @@ class PictureController extends Controller
     public function upload(Request $req)
     {
         $data = $req->validate([
-            "zip" => "required|file|mimes:zip|max:2048000", // 2000MB
+            "zip" => "required|file|mimes:zip|max:10240000", // 10000MB
             "tags" => "required|json",
         ]);
 
         $SERVER_TMP_ZIP_DISK = env("SERVER_TMP_ZIP_DISK", "tmp");
         $SERVER_IMAGE_DISK = env("SERVER_IMAGE_DISK", "images");
         $tmpZipFile = "";
+
+        $user = auth()->user();
 
         if ($req->file("zip")->isValid()) {
             $file = $req->file("zip");
@@ -282,6 +286,16 @@ class PictureController extends Controller
         if (!Storage::disk($SERVER_TMP_ZIP_DISK)->exists($tmpZipFile)) {
             // This error really shouldn't appear, but im making it just in case
             return response()->json(["message" => "Temporary zip file does not exist!"], 404);
+        }
+
+        $zipFileSize = Storage::disk($SERVER_TMP_ZIP_DISK)->size($tmpZipFile) / 1024 / 1024; // Get size in MB
+        $user = auth()->user();
+
+        if ($user->limit !== null) {
+            if ($user->limit * 1024 - Disks::totalUsedSpace($user->id) < $zipFileSize) {
+                Storage::disk($SERVER_TMP_ZIP_DISK)->delete($tmpZipFile);
+                return response()->json(["message" => "Upload exceeds user limit!"], 409);
+            }
         }
 
         // Open zip file

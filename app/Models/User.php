@@ -3,10 +3,14 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Observers\UserObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+#[ObservedBy(UserObserver::class)]
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -16,7 +20,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = ["username", "password"];
+    protected $fillable = ["username", "password", "is_admin"];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -56,4 +60,37 @@ class User extends Authenticatable
     {
         return $this->hasOne(\App\Models\HiddenPin::class);
     }
+
+    public function isAdmin()
+    {
+        if ($this->is_admin) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected $appends = ["created_ago", "images_count", "images_size", "tags_count"];
+    #region attribute functions
+    public function getCreatedAgoAttribute()
+    {
+        return $this->created_at->diffForHumans();
+    }
+
+    public function getImagesCountAttribute()
+    {
+        return $this->picture()->count();
+    }
+
+    public function getImagesSizeAttribute()
+    {
+        return round($this->picture()->sum("size"), 2); // In megabytes
+    }
+
+    public function getTagsCountAttribute()
+    {
+        return $this->tag()->count();
+    }
+
+    #endregion
 }

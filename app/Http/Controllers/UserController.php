@@ -62,7 +62,7 @@ class UserController extends Controller
         }
 
         // Convert to GB if needed
-        if ($diskUsage > 1000) {
+        if ($diskUsage > 1024) {
             $diskUsage = round($diskUsage / 1024, 2) . " GB";
         } else {
             $diskUsage = round($diskUsage, 2) . " MB";

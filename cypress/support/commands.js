@@ -23,3 +23,21 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add("login", (user = "cypress", pass = "cypress123") => {
+    cy.session([user, pass], () => {
+        cy.visit("/auth");
+        let sumbitBtn = cy.get("button[data-with-left-section='true']");
+        sumbitBtn.should("be.visible").should("have.text", "Login");
+
+        let username = cy.get("input[test='username-input']");
+        let password = cy.get("input[test='password-input']");
+
+        username.type(user);
+        password.type(pass);
+
+        sumbitBtn.click();
+        cy.url().should("be.string", "/");
+        cy.get("p[test='logo-text']").should("be.visible").should("have.text", "Picuss");
+    });
+});

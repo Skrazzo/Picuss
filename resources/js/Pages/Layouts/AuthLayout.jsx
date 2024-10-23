@@ -289,7 +289,9 @@ export default function AuthLayout({
                 ) : (
                     <div className={sty.logo} onClick={() => drawer.open()}>
                         <Logo size={50} />
-                        <Text fw={500}>Picuss</Text>
+                        <Text test="logo-text" fw={500}>
+                            Picuss
+                        </Text>
                     </div>
                 )}
 

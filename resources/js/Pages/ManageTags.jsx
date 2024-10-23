@@ -53,13 +53,12 @@ export default function ManageTags({ auth, tags, title = "" }) {
                         description="Search or create new tags"
                         error=""
                         w={"100%"}
+                        test="search-input"
                     >
                         <form onSubmit={formSubmitHandler}>
                             <Input
                                 value={form.data.name}
-                                onChange={(e) =>
-                                    form.setData("name", e.currentTarget.value)
-                                }
+                                onChange={(e) => form.setData("name", e.currentTarget.value)}
                                 leftSection={<IconSearch size={18} />}
                                 placeholder="Search tag name"
                                 maxLength={20}
@@ -69,11 +68,7 @@ export default function ManageTags({ auth, tags, title = "" }) {
                     </Input.Wrapper>
                 </Flex>
 
-                <TagList
-                    tags={useTags}
-                    search={form.data.name}
-                    setTags={(tags) => sortAndSetTags(tags)}
-                />
+                <TagList tags={useTags} search={form.data.name} setTags={(tags) => sortAndSetTags(tags)} />
             </Container>
         </AuthLayout>
     );

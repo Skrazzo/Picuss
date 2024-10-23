@@ -1,4 +1,4 @@
-# Picuss
+# Picuss ![Static Badge](https://img.shields.io/badge/Krigga-approved-lightgreen?style=flat-square)
 Picuss is a tag based photo gallery, made with **Laravel** and **React**
 
 # Main focus for the project

@@ -28,25 +28,25 @@ const openFirstImage = () => {
     cy.get("div.lazy-load-image").first().click();
 };
 
-// describe("Upload image to the dashboard", () => {
-//     beforeEach(() => {
-//         cy.login();
-//         cy.visit("/upload");
-//         cy.get("h3").should("be.visible").should("have.text", "Upload pictures");
-//     });
+describe("Upload image to the dashboard", () => {
+    beforeEach(() => {
+        cy.login();
+        cy.visit("/upload");
+        cy.get("h3").should("be.visible").should("have.text", "Upload pictures");
+    });
 
-//     it("Uploads a file compressed file", () => {
-//         uploadTest(["wall.webp"], true);
-//     });
+    it("Uploads a file compressed file", () => {
+        uploadTest(["wall.webp"], true);
+    });
 
-//     it("Uploads uncompressed file", () => {
-//         uploadTest(["castle.jpg"]);
-//     });
+    it("Uploads uncompressed file", () => {
+        uploadTest(["castle.jpg"]);
+    });
 
-//     it("Uploads multiple images to the dashboard", () => {
-//         uploadTest(["wall.webp", "castle.jpg"]);
-//     });
-// });
+    it("Uploads multiple images to the dashboard", () => {
+        uploadTest(["wall.webp", "castle.jpg"]);
+    });
+});
 
 describe("View uploaded image", () => {
     beforeEach(() => {

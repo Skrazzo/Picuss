@@ -291,7 +291,7 @@ export default function PictureViewer({
             <div className={sty.side}>
                 <div>
                     <div className={sty.title}>
-                        <Text size={"20px"} fw={600} className={`${sty.green_text}`}>
+                        <Text test="image-name" size={"20px"} fw={600} className={`${sty.green_text}`}>
                             {image.name}
                         </Text>
 

@@ -43,3 +43,9 @@ Cypress.Commands.add("login", (user = "cypress", pass = "cypress123") => {
         cy.get("p[test='logo-text']").should("be.visible").should("have.text", "Picuss");
     });
 });
+
+Cypress.Commands.add("getClipboard", () => {
+    return cy.window().then((win) => {
+        return win.navigator.clipboard.readText();
+    });
+});

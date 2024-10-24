@@ -481,7 +481,12 @@ export default function Upload({ auth, title = "", used_space = null }) {
                             <Paper withBorder mt={8} p={"sm"}>
                                 <Flex gap={8} wrap={"wrap"}>
                                     {selectedTags.map((tag, idx) => (
-                                        <TagPill key={tag.name} remove={() => removeTagHandler(idx)} name={tag.name} />
+                                        <TagPill
+                                            test="tag-pill"
+                                            key={tag.name}
+                                            remove={() => removeTagHandler(idx)}
+                                            name={tag.name}
+                                        />
                                     ))}
                                 </Flex>
                             </Paper>

@@ -3,7 +3,7 @@ describe("Can visit the login page and login", () => {
         cy.visit("/auth");
     });
 
-    it("Visits the website", () => {
+    it("Visits the website | And logs in", () => {
         let sumbitBtn = cy.get("button[data-with-left-section='true']");
         sumbitBtn.should("be.visible").should("have.text", "Login");
 

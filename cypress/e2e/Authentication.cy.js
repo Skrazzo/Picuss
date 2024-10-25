@@ -6,7 +6,7 @@ describe("Can visit the login page", () => {
         cy.get("button[data-with-left-section='true']").should("be.visible").should("have.text", "Login");
     });
 
-    it("Registration section working correctly", () => {
+    it("Registration and login section working correctly", () => {
         let registerSectionBtn = cy.get("button[test='register-btn']");
         registerSectionBtn.should("be.visible").should("have.text", "REGISTER");
         registerSectionBtn.click();

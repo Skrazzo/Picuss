@@ -105,6 +105,7 @@ class HiddenPinController extends Controller
 
         $user = auth()->user();
         $disks = Disks::allDisks();
+        $pin = session("pin");
 
         foreach ($data["pictures"] as $picId) {
             $pic = $user->picture()->where("public_id", $picId)->first();
@@ -120,10 +121,12 @@ class HiddenPinController extends Controller
                 $shared->delete();
             }
 
-            $pin = session("pin");
             // Encrypt the picture
-
-            Encrypt::encryptFiles($disks, [$pic->image], $pin);
+            try {
+                Encrypt::encryptFiles($disks, [$pic->image], $pin);
+            } catch (Exception $e) {
+                \Log::info("ERROR while hiding picture: " . $e->getMessage());
+            }
 
             $pic->hidden = true;
             $pic->save();
@@ -146,6 +149,7 @@ class HiddenPinController extends Controller
 
         $user = auth()->user();
         $disks = Disks::allDisks();
+        $pin = session("pin");
 
         foreach ($data["pictures"] as $picId) {
             $pic = $user->picture()->where("public_id", $picId)->first();
@@ -155,10 +159,12 @@ class HiddenPinController extends Controller
                 continue;
             }
 
-            $pin = session("pin");
-
             // Decrypt the picture
-            Encrypt::decryptFiles($disks, [$pic->image], $pin);
+            try {
+                Encrypt::decryptFiles($disks, [$pic->image], $pin);
+            } catch (Exception $e) {
+                \Log::info("ERROR while revealing picture: " . $e->getMessage());
+            }
 
             $pic->hidden = false;
             $pic->save();
@@ -250,7 +256,26 @@ class HiddenPinController extends Controller
             return response("Not found", 404);
         }
 
-        $halfImage = Encrypt::decrypt($disk, $picture->image, session("pin"));
+        // $halfImage = Encrypt::decrypt($disk, $picture->image, session("pin"));
+        if (Encrypt::isEncrypted($disk, $picture->image)) {
+            $halfImage = Encrypt::decrypt($disk, $picture->image, session("pin"));
+
+            return response($halfImage, 200);
+        } else {
+            $decryptedImage = $disk->get($picture->image);
+
+            // Encrypt the thumbnail if it is not encrypted because of the permission bug
+            try {
+                $out = Encrypt::encrypt($disk, $picture->image, session("pin"));
+                $disk->put($picture->image, $out);
+            } catch (Exception $e) {
+                \Log::info(
+                    "ERROR while viewing full image in hidden section " . $picture->image . ": " . $e->getMessage()
+                );
+            }
+
+            return response($decryptedImage, 200);
+        }
         return response($halfImage, 200);
     }
 
@@ -273,13 +298,24 @@ class HiddenPinController extends Controller
         }
 
         // Check if image is encrypted, decrypt it (Sometimes it isn't because of a bug I had in the past)
-        // $halfImage = $disk->get($picture->image);
         if (Encrypt::isEncrypted($disk, $picture->image)) {
             $halfImage = Encrypt::decrypt($disk, $picture->image, session("pin"));
 
             return response($halfImage, 200);
         } else {
-            return response($disk->get($picture->image), 200);
+            $decryptedImage = $disk->get($picture->image);
+
+            // Encrypt the thumbnail if it is not encrypted because of the permission bug
+            try {
+                $out = Encrypt::encrypt($disk, $picture->image, session("pin"));
+                $disk->put($picture->image, $out);
+            } catch (Exception $e) {
+                \Log::info(
+                    "ERROR while viewing half image in hidden section " . $picture->image . ": " . $e->getMessage()
+                );
+            }
+
+            return response($decryptedImage, 200);
         }
     }
 
@@ -345,9 +381,22 @@ class HiddenPinController extends Controller
         foreach ($pictures as $pic) {
             // Have to check if thumbnail is encrypted, in case permission bug has happened, and didnt encrypt the tumbnail
             // TODO: Make sure that when automatic script for thumbnail generation launches, the thumbnails have correct file owner (www-data), this probably would be a good idea to specify in the .env file :)
-            $thumbBase64 = "data:image/jpeg;base64," . base64_encode($thumb->get($pic->image));
+            $thumbBase64 = "data:image/jpeg;base64,";
             if (Encrypt::isEncrypted($thumb, $pic->image)) {
+                // Already includes 'data:image/jpeg;base64,'
                 $thumbBase64 = Encrypt::decrypt2Base64($thumb, $pic->image, session("pin"));
+            } else {
+                $thumbBase64 .= base64_encode($thumb->get($pic->image));
+
+                // Try to encrypt if not already encrypted
+                try {
+                    $out = Encrypt::encrypt($thumb, $pic->image, session("pin"));
+                    $thumb->put($pic->image, $out);
+                } catch (Exception $e) {
+                    \Log::info(
+                        "ERROR while viewing thumbnail in hidden section " . $pic->image . ": " . $e->getMessage()
+                    );
+                }
             }
 
             $rtn_arr["images"][] = [
@@ -409,8 +458,14 @@ class HiddenPinController extends Controller
                 }
 
                 // Decrypt and add images to the zip file
-                $zip->addFromString($picture->image, Encrypt::decrypt($imageDisk, $picture->image, session("pin")));
-                // $zip->addFile($imageDisk->path($picture->image), $picture->image);
+                // Check if image is encrypted
+                if (Encrypt::isEncrypted($imageDisk, $picture->image)) {
+                    $image = Encrypt::decrypt($imageDisk, $picture->image, session("pin"));
+                    $zip->addFromString($picture->image, $image);
+                } else {
+                    // Add image to the zip without decryption
+                    $zip->addFromString($picture->image, $imageDisk->get($picture->image));
+                }
             }
 
             // Close the archive

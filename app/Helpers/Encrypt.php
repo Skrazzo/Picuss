@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use Exception;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
@@ -46,6 +47,10 @@ class Encrypt
      */
     public static function encrypt($storage, string $file, string $password)
     {
+        if (self::isEncrypted($storage, $file)) {
+            throw new Exception("File $file is already encrypted");
+        }
+
         $encrypted = openssl_encrypt(
             $storage->get($file),
             "AES-256-CBC",
@@ -67,6 +72,10 @@ class Encrypt
      */
     public static function decrypt($storage, string $file, string $password)
     {
+        if (!self::isEncrypted($storage, $file)) {
+            throw new Exception("File $file is already decrypted");
+        }
+
         $encrypted = $storage->get($file);
         $decrypted = openssl_decrypt(
             $encrypted,
@@ -93,7 +102,7 @@ class Encrypt
             $decrypted = self::decrypt($storage, $fileName, $password);
             return "data:image/jpeg;base64," . base64_encode($decrypted);
         } catch (\Exception $e) {
-            throw new \Exception("Error decrypting $fileName");
+            throw new \Exception("Error decrypting $fileName " . $e->getMessage());
         }
     }
     /**
@@ -107,21 +116,41 @@ class Encrypt
      */
     public static function encryptFiles(array $storages, array $files, string $password)
     {
+        // Catch errors in array if any appear
+        $errors = [];
         foreach ($storages as $storage) {
             foreach ($files as $file) {
-                $encrypted = self::encrypt($storage, $file, $password);
-                $storage->put($file, $encrypted);
+                try {
+                    $encrypted = self::encrypt($storage, $file, $password);
+                    $storage->put($file, $encrypted);
+                } catch (Exception $e) {
+                    $errors[] = $e->getMessage();
+                }
             }
+        }
+
+        if (!empty($errors)) {
+            throw new Exception(implode("\n", $errors));
         }
     }
 
     public static function decryptFiles(array $storages, array $files, string $password)
     {
+        // Array of errors if any appear
+        $errors = [];
         foreach ($storages as $storage) {
             foreach ($files as $file) {
-                $decrypted = self::decrypt($storage, $file, $password);
-                $storage->put($file, $decrypted);
+                try {
+                    $decrypted = self::decrypt($storage, $file, $password);
+                    $storage->put($file, $decrypted);
+                } catch (Exception $e) {
+                    $errors[] = $e->getMessage();
+                }
             }
+        }
+
+        if (!empty($errors)) {
+            throw new Exception(implode("\n", $errors));
         }
     }
 

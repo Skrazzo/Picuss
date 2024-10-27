@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\Disks;
 use App\Models\Picture;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -35,24 +36,20 @@ class GenerateAllPictures extends Command
         $thumbWidth = env("thumbWidth", 40);
         $scalePercent = env("scaledDownImages", 20);
 
-        // Get storage env variables
-        $imageEnv = env("SERVER_IMAGE_DISK", "images");
-        $halfEnv = env("SERVER_IMAGE_HALF_DISK", "half_images");
-        $thumbEnv = env("SERVER_THUMBNAILS_DISK", "thumbnails");
-
-        // Get storage disks
-        $imageDisk = Storage::disk($imageEnv);
-        $halfDisk = Storage::disk($halfEnv);
-        $thumbDisk = Storage::disk($thumbEnv);
+        // Get storages
+        [$imageDisk, $halfDisk, $thumbDisk] = Disks::allDisks();
 
         if ($ouputConsole) {
-            \Log::channel("console")->info("Run started");
+            \Log::channel("console")->info("Run started (Image thumbnail generation)");
         }
 
         $createdCount = 0;
         $deletedCount = 0;
         $delLocalCount = 0; // Deleted locally
         $pictures = Picture::where("hidden", false)->get();
+
+        $fileOwner = env("FILE_OWNER", "www-data");
+        $fileOwnerErrors = [];
 
         foreach ($pictures as $picture) {
             if (!$halfDisk->exists($picture->image)) {
@@ -111,6 +108,36 @@ class GenerateAllPictures extends Command
                 }
                 $createdCount++;
             }
+
+            // Check for correct file owners of images (needs to match with .env)
+            foreach (Disks::allDisks() as $disk) {
+                if ($disk->exists($picture->image)) {
+                    // Check if file owner is correct and matches one specified in .env file
+                    // Get file owner
+                    $owner = posix_getpwuid(fileowner($disk->path($picture->image)));
+                    if (!$owner) {
+                        $fileOwnerErrors[] = $picture->image . " has no owner";
+                    } else {
+                        if ($owner["name"] != $fileOwner) {
+                            if ($ouputConsole) {
+                                echo $picture->image .
+                                    " has wrong owner, needs to be " .
+                                    $fileOwner .
+                                    " but is " .
+                                    $owner["name"] .
+                                    " \n";
+                            }
+
+                            $fileOwnerErrors[] =
+                                $picture->image .
+                                " has wrong owner, needs to be " .
+                                $fileOwner .
+                                " but is " .
+                                $owner["name"];
+                        }
+                    }
+                }
+            }
         }
 
         // Check images locally
@@ -130,19 +157,22 @@ class GenerateAllPictures extends Command
         }
 
         if ($ouputConsole) {
+            // Created count
             echo $createdCount . " Images were created, aka for " . $createdCount / 2 . " records\n";
             \Log::channel("console")->info("Images were created, aka for " . $createdCount / 2 . " records");
-        }
-        if ($ouputConsole) {
+            // Deleted count
             echo $deletedCount . " Images were deleted, because existed only in database \n";
             \Log::channel("console")->info("Images were deleted, because existed only in database");
-        }
-        if ($ouputConsole) {
+            // Deleted local count
             echo $delLocalCount . " Images were deleted, because existed only locally \n";
             \Log::channel("console")->info("Images were deleted, because existed only locally");
-        }
-
-        if ($ouputConsole) {
+            // File owner errors
+            if (!empty($fileOwnerErrors)) {
+                \Log::channel("console")->info(implode("\n", $fileOwnerErrors));
+                $this->error(implode("\n", $fileOwnerErrors));
+                $this->error("Please run chown command, to set to the correct owner, aka " . $fileOwner);
+            }
+            // Run finished
             \Log::channel("console")->info("Run finished");
         }
     }

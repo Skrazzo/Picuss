@@ -85,6 +85,7 @@ export default function Login() {
                             setLogin(false);
                         }}
                         className={!login ? sty.selected : ""}
+                        test="register-btn"
                     >
                         REGISTER
                     </button>
@@ -97,6 +98,7 @@ export default function Login() {
                         name="username"
                         onChange={changeHandler}
                         placeholder="Username"
+                        test="username-input"
                     />
                     <TextInput
                         value={data.password}
@@ -105,6 +107,7 @@ export default function Login() {
                         onChange={changeHandler}
                         placeholder="Password"
                         type="password"
+                        test="password-input"
                     />
 
                     <Flex align={"center"} gap={"sm"}>

@@ -44,7 +44,7 @@ export default function TagMenu({ selectedTags, setTags }) {
         <>
             <Flex gap={8} ml={3}>
                 <ActionIcon variant="subtle" color={"red"}>
-                    <IconTrash {...iconProps} onClick={() => setDeleteModal.open()} />
+                    <IconTrash test="delete-tags-icon" {...iconProps} onClick={() => setDeleteModal.open()} />
                 </ActionIcon>
 
                 <ActionIcon variant="subtle" color={"dimmed"}>

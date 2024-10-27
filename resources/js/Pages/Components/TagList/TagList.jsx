@@ -67,6 +67,7 @@ export default function TagList({ tags, search, setTags }) {
                         indeterminate={selectedTags.length === tags.length}
                         onChange={(e) => selectAllHandler(e)}
                         checked={selectedTags.length === tags.length}
+                        test="select-all-checkbox"
                     />
                     <Flex align={"center"} gap={4}>
                         <IconTag {...iconProps} />
@@ -80,19 +81,10 @@ export default function TagList({ tags, search, setTags }) {
                 </Flex>
             </div>
             <div className={sty.tag_container}>
-                <Transition
-                    mounted={search}
-                    transition={"fade"}
-                    duration={150}
-                    timingFunction="ease-out"
-                >
+                <Transition mounted={search} transition={"fade"} duration={150} timingFunction="ease-out">
                     {(styles) => (
                         <div style={styles} className={sty.create_msg}>
-                            <IconTag
-                                color="var(--mantine-primary-color-filled-hover)"
-                                size={36}
-                                strokeWidth={1.25}
-                            />
+                            <IconTag color="var(--mantine-primary-color-filled-hover)" size={36} strokeWidth={1.25} />
                             <div>
                                 <Text>Create "{capitalizeFirstLetter(search)}" tag</Text>
                                 <Text c={"dimmed"} size="sm">
@@ -108,10 +100,7 @@ export default function TagList({ tags, search, setTags }) {
                 ) : (
                     <div>
                         {tags.map((tag) => {
-                            if (
-                                search === "" ||
-                                tag.name.toLowerCase().includes(search.toLowerCase())
-                            ) {
+                            if (search === "" || tag.name.toLowerCase().includes(search.toLowerCase())) {
                                 return (
                                     <CheckTag
                                         key={tag.name}

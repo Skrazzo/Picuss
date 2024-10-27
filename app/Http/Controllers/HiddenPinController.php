@@ -276,15 +276,11 @@ class HiddenPinController extends Controller
         // $halfImage = $disk->get($picture->image);
         if (Encrypt::isEncrypted($disk, $picture->image)) {
             $halfImage = Encrypt::decrypt($disk, $picture->image, session("pin"));
-            \Log::info("Decrypted image: " . $picture->image);
+
             return response($halfImage, 200);
         } else {
-            \Log::info("Image is not encrypted: " . $picture->image);
             return response($disk->get($picture->image), 200);
         }
-
-        // $halfImage = Encrypt::decrypt($disk, $picture->image, session("pin"));
-        // return response($halfImage, 200);
     }
 
     public function get_resized_images(Request $req, $page)
@@ -347,6 +343,13 @@ class HiddenPinController extends Controller
         ];
 
         foreach ($pictures as $pic) {
+            // Have to check if thumbnail is encrypted, in case permission bug has happened, and didnt encrypt the tumbnail
+            // TODO: Make sure that when automatic script for thumbnail generation launches, the thumbnails have correct file owner (www-data), this probably would be a good idea to specify in the .env file :)
+            $thumb = "data:image/jpeg;base64," . base64_encode($thumb->get($pic->image));
+            if (Encrypt::isEncrypted($thumb, $pic->image)) {
+                $thumb = Encrypt::decrypt2Base64($thumb, $pic->image, session("pin"));
+            }
+
             $rtn_arr["images"][] = [
                 "id" => $pic->public_id,
                 "name" => $pic->image,
@@ -354,7 +357,7 @@ class HiddenPinController extends Controller
                 "tags" => $pic->tags,
                 "uploaded" => $pic->created_at,
                 "uploaded_ago" => str_replace("before", "ago", $pic->created_at->diffForHumans(now())),
-                "thumb" => Encrypt::decrypt2Base64($thumb, $pic->image, session("pin")),
+                "thumb" => $thumb,
                 "width" => $pic->width,
                 "height" => $pic->height,
                 "aspectRatio" => round($pic->width / $pic->height, 2) . "/1",

@@ -10,9 +10,3 @@ Artisan::command("inspire", function () {
 })
     ->purpose("Display an inspiring quote")
     ->hourly();
-
-Artisan::command("d", function () {
-    $storage = Disks::half();
-    $o = Encrypt::decrypt($storage, "image 1730036086243.webp", "123456");
-    $storage->put("image 1730036086243.webp", $o);
-});

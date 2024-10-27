@@ -345,9 +345,9 @@ class HiddenPinController extends Controller
         foreach ($pictures as $pic) {
             // Have to check if thumbnail is encrypted, in case permission bug has happened, and didnt encrypt the tumbnail
             // TODO: Make sure that when automatic script for thumbnail generation launches, the thumbnails have correct file owner (www-data), this probably would be a good idea to specify in the .env file :)
-            $thumb = "data:image/jpeg;base64," . base64_encode($thumb->get($pic->image));
+            $thumbBase64 = "data:image/jpeg;base64," . base64_encode($thumb->get($pic->image));
             if (Encrypt::isEncrypted($thumb, $pic->image)) {
-                $thumb = Encrypt::decrypt2Base64($thumb, $pic->image, session("pin"));
+                $thumbBase64 = Encrypt::decrypt2Base64($thumb, $pic->image, session("pin"));
             }
 
             $rtn_arr["images"][] = [
@@ -357,7 +357,7 @@ class HiddenPinController extends Controller
                 "tags" => $pic->tags,
                 "uploaded" => $pic->created_at,
                 "uploaded_ago" => str_replace("before", "ago", $pic->created_at->diffForHumans(now())),
-                "thumb" => $thumb,
+                "thumb" => $thumbBase64,
                 "width" => $pic->width,
                 "height" => $pic->height,
                 "aspectRatio" => round($pic->width / $pic->height, 2) . "/1",

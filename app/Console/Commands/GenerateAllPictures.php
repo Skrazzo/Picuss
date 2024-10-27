@@ -119,21 +119,13 @@ class GenerateAllPictures extends Command
                         $fileOwnerErrors[] = $picture->image . " has no owner";
                     } else {
                         if ($owner["name"] != $fileOwner) {
-                            if ($ouputConsole) {
-                                echo $picture->image .
-                                    " has wrong owner, needs to be " .
-                                    $fileOwner .
-                                    " but is " .
-                                    $owner["name"] .
-                                    " \n";
+                            // Attempt to change owner
+                            $success = chown($disk->path($picture->image), $fileOwner);
+                            if (!$success) {
+                                $this->info("Changed file owner of " . $picture->image . " to " . $fileOwner);
+                            } else {
+                                $this->error("Could not change file owner of " . $picture->image . " to " . $fileOwner);
                             }
-
-                            $fileOwnerErrors[] =
-                                $picture->image .
-                                " has wrong owner, needs to be " .
-                                $fileOwner .
-                                " but is " .
-                                $owner["name"];
                         }
                     }
                 }
@@ -169,8 +161,8 @@ class GenerateAllPictures extends Command
             // File owner errors
             if (!empty($fileOwnerErrors)) {
                 \Log::channel("console")->info(implode("\n", $fileOwnerErrors));
-                $this->error(implode("\n", $fileOwnerErrors));
-                $this->error("Please run chown command, to set to the correct owner, aka " . $fileOwner);
+                // $this->error(implode("\n", $fileOwnerErrors));
+                // $this->error("Please run chown command, to set to the correct owner, aka " . $fileOwner);
             }
             // Run finished
             \Log::channel("console")->info("Run finished");

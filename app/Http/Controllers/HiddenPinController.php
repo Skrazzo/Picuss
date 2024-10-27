@@ -272,8 +272,19 @@ class HiddenPinController extends Controller
             return response("Not found", 404);
         }
 
-        $halfImage = Encrypt::decrypt($disk, $picture->image, session("pin"));
-        return response($halfImage, 200);
+        // Check if image is encrypted, decrypt it (Sometimes it isn't because of a bug I had in the past)
+        // $halfImage = $disk->get($picture->image);
+        if (Encrypt::isEncrypted($disk, $picture->image)) {
+            $halfImage = Encrypt::decrypt($disk, $picture->image, session("pin"));
+            \Log::info("Decrypted image: " . $picture->image);
+            return response($halfImage, 200);
+        } else {
+            \Log::info("Image is not encrypted: " . $picture->image);
+            return response($disk->get($picture->image), 200);
+        }
+
+        // $halfImage = Encrypt::decrypt($disk, $picture->image, session("pin"));
+        // return response($halfImage, 200);
     }
 
     public function get_resized_images(Request $req, $page)

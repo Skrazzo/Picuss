@@ -124,4 +124,163 @@ class Encrypt
             }
         }
     }
+
+    /**
+     * Common image signatures (magic numbers) and their corresponding formats
+     */
+    private static $IMAGE_SIGNATURES = [
+        "jpeg" => [
+            "\xFF\xD8\xFF\xE0", // JPEG/JFIF
+            "\xFF\xD8\xFF\xE1", // JPEG/Exif
+            "\xFF\xD8\xFF\xE8", // JPEG/SPIFF
+        ],
+        "png" => [
+            "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", // PNG
+        ],
+        "gif" => [
+            "GIF87a", // GIF87a
+            "GIF89a", // GIF89a
+        ],
+        "bmp" => [
+            "BM", // BMP
+        ],
+        "webp" => [
+            "RIFF", // WebP
+        ],
+    ];
+
+    /**
+     * Checks if a file is encrypted, with special handling for images.
+     *
+     * @param Storage $storage The storage to use
+     * @param string $file The file name to check
+     * @return bool Returns true if the file appears to be encrypted
+     */
+    public static function isEncrypted($storage, string $file): bool
+    {
+        $content = $storage->get($file);
+
+        if (empty($content)) {
+            return false;
+        }
+
+        // First, check if it's a valid image
+        if (self::isValidImage($content)) {
+            return false; // Valid images are not encrypted
+        }
+
+        // If it's not a valid image but has an image extension, it might be encrypted
+        $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+        $imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "webp"];
+
+        if (in_array($extension, $imageExtensions)) {
+            return true; // Invalid image with image extension is likely encrypted
+        }
+
+        // For non-image files, perform general encryption detection
+        $checks = [
+            "entropy" => self::calculateEntropy($content) > 7.5,
+            "binary" => self::containsBinary($content),
+            "block_size" => strlen($content) % 16 === 0,
+        ];
+
+        return !empty(array_filter($checks));
+    }
+
+    /**
+     * Checks if the content is a valid image by examining its signature
+     * and attempting basic format validation.
+     *
+     * @param string $content The file content to check
+     * @return bool Returns true if content appears to be a valid image
+     */
+    private static function isValidImage(string $content): bool
+    {
+        // Check file signatures (magic numbers)
+        foreach (self::$IMAGE_SIGNATURES as $format => $signatures) {
+            foreach ($signatures as $signature) {
+                if (str_starts_with($content, $signature)) {
+                    // Additional format-specific checks
+                    switch ($format) {
+                        case "jpeg":
+                            // Check for JPEG end marker
+                            return str_ends_with($content, "\xFF\xD9");
+
+                        case "png":
+                            // Check for PNG IEND chunk
+                            return str_contains($content, "IEND");
+
+                        case "gif":
+                            // Check for GIF trailer
+                            return str_ends_with($content, "\x00\x3B");
+
+                        default:
+                            // For other formats, signature match is enough
+                            return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Helper function for str_starts_with() compatibility with PHP < 8.0
+     */
+    private static function str_starts_with(string $haystack, string $needle): bool
+    {
+        return strpos($haystack, $needle) === 0;
+    }
+
+    /**
+     * Helper function for str_ends_with() compatibility with PHP < 8.0
+     */
+    private static function str_ends_with(string $haystack, string $needle): bool
+    {
+        $length = strlen($needle);
+        if ($length === 0) {
+            return true;
+        }
+        return substr($haystack, -$length) === $needle;
+    }
+
+    private static function calculateEntropy(string $data): float
+    {
+        $frequencies = array_fill(0, 256, 0);
+        $dataLength = strlen($data);
+
+        // Count byte frequencies
+        for ($i = 0; $i < $dataLength; $i++) {
+            $frequencies[ord($data[$i])]++;
+        }
+
+        // Calculate entropy
+        $entropy = 0.0;
+        foreach ($frequencies as $frequency) {
+            if ($frequency === 0) {
+                continue;
+            }
+
+            $probability = $frequency / $dataLength;
+            $entropy -= $probability * log($probability, 2);
+        }
+
+        return $entropy;
+    }
+
+    private static function containsBinary(string $data): bool
+    {
+        $suspiciousBytes = 0;
+        $sampleSize = min(strlen($data), 512);
+
+        for ($i = 0; $i < $sampleSize; $i++) {
+            $byte = ord($data[$i]);
+            if (($byte < 9 || ($byte > 13 && $byte < 32)) && $byte != 27) {
+                $suspiciousBytes++;
+            }
+        }
+
+        return $suspiciousBytes / $sampleSize > 0.3;
+    }
 }

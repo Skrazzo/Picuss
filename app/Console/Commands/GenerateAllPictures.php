@@ -124,7 +124,7 @@ class GenerateAllPictures extends Command
                             // Attempt to change owner
                             $success = true;
                             try {
-                                chown($disk->path($picture->image), $fileOwner);
+                                $success = chown($disk->path($picture->image), $fileOwner);
                             } catch (Exception $e) {
                                 $success = false;
                             }

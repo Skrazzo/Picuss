@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Helpers\Disks;
 use App\Models\Picture;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -120,8 +121,14 @@ class GenerateAllPictures extends Command
                     } else {
                         if ($owner["name"] != $fileOwner) {
                             // Attempt to change owner
-                            $success = chown($disk->path($picture->image), $fileOwner);
-                            if (!$success) {
+                            $success = true;
+                            try {
+                                chown($disk->path($picture->image), $fileOwner);
+                            } catch (Exception $e) {
+                                $success = false;
+                            }
+
+                            if ($success) {
                                 $this->info("Changed file owner of " . $picture->image . " to " . $fileOwner);
                             } else {
                                 $this->error("Could not change file owner of " . $picture->image . " to " . $fileOwner);

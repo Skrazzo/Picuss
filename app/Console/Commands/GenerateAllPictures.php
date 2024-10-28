@@ -42,6 +42,7 @@ class GenerateAllPictures extends Command
 
         if ($ouputConsole) {
             \Log::channel("console")->info("Run started (Image thumbnail generation)");
+            $this->info("Running script with username: " . get_current_user());
         }
 
         $createdCount = 0;

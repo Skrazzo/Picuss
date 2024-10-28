@@ -110,7 +110,10 @@ class GenerateAllPictures extends Command
                 }
                 $createdCount++;
             }
+        }
 
+        // Check all pictures for correct file permissions
+        foreach (Picture::all() as $picture) {
             // Check for correct file owners of images (needs to match with .env)
             foreach (Disks::allDisks() as $disk) {
                 if ($disk->exists($picture->image)) {

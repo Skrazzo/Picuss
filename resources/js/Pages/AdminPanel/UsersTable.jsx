@@ -1,5 +1,5 @@
 import { useForm } from "@inertiajs/inertia-react";
-import { ActionIcon, Flex, Input, InputWrapper, Menu, Progress, Table, Text } from "@mantine/core";
+import { ActionIcon, Flex, Input, InputWrapper, Menu, Progress, Table, Text, Tooltip } from "@mantine/core";
 import { IconCloud, IconDotsVertical, IconPasswordUser, IconTrash } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import UsersDropDown from "./UsersDropDown";
@@ -41,6 +41,18 @@ function UserTableRow({ user }) {
             onSuccess: () => changeLimitForm.reset("open"),
             onError: (err) => console.warn(err),
         });
+    };
+
+    const TimeDiffComponent = ({ date = null }) => {
+        if (!date) {
+            return <Text size="sm">Never</Text>;
+        }
+
+        return (
+            <Tooltip label={date.date || "No date"} withArrow>
+                <Text size="sm">{date.human || "No human readable date"}</Text>
+            </Tooltip>
+        );
     };
 
     return (
@@ -135,7 +147,12 @@ function UserTableRow({ user }) {
                     {user.limit && <Progress value={(user.images_size * 100) / (user.limit * 1024)} />}
                 </Table.Td>
                 <Table.Td>{user.tags_count}</Table.Td>
-                <Table.Td>{user.created_ago}</Table.Td>
+                <Table.Td>
+                    <TimeDiffComponent date={user.last_visit} />
+                </Table.Td>
+                <Table.Td>
+                    <TimeDiffComponent date={user.last_upload} />
+                </Table.Td>
                 <Table.Td>
                     <Menu shadow="md">
                         <Menu.Target>
@@ -174,7 +191,8 @@ export default function UsersTable({ users = [] }) {
                     <Table.Th>Images</Table.Th>
                     <Table.Th>Space used</Table.Th>
                     <Table.Th>Tags</Table.Th>
-                    <Table.Th>User created</Table.Th>
+                    <Table.Th>Last login</Table.Th>
+                    <Table.Th>Last upload</Table.Th>
                     <Table.Th></Table.Th>
                 </Table.Tr>
             </Table.Thead>

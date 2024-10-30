@@ -130,5 +130,11 @@ return [
             "path" => storage_path("logs/console.log"),
             "level" => "info",
         ],
+
+        "php-errors" => [
+            "driver" => "single",
+            "path" => storage_path("logs/errors.log"),
+            "level" => "info",
+        ],
     ],
 ];

@@ -29,6 +29,16 @@ class PictureController extends Controller
 
     public function dashboard_index(Request $req)
     {
+        // Log user as viewing dashboard
+        $user = auth()->user();
+        try {
+            $user->last_visit = now();
+            $user->save();
+        } catch (Exception $e) {
+            // Print error to the php error log, which will be displayed in the
+            \Log::channel("php-errors")->error($e->getMessage());
+        }
+
         // Get preselected tag from ?tag=
         // Check if tag exists, and if it belongs to user
 
@@ -239,6 +249,7 @@ class PictureController extends Controller
 
                     $image->save($thumbDISK->path($pic->image)); // Save image to the local path
                 } catch (Exception $err) {
+                    \Log::error($err->getMessage());
                     continue;
                 }
             }

@@ -2,19 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Dates;
 use App\Helpers\Disks;
 use App\Helpers\Users;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Carbon;
 
 class AdminController extends Controller
 {
     public function index(Request $req)
     {
         // User data
-        $users = User::select(["id", "username", "is_admin", "created_at", "limit"])->get();
+        $users = User::select(["id", "username", "is_admin", "created_at", "limit", "last_visit"])
+            ->get()
+            ->map(function ($user) {
+                // Last visit array creation
+                // Last_visit default is null
+                if ($user->last_visit) {
+                    $user->last_visit = Dates::formatDateDifference($user->last_visit);
+                }
+
+                // Last upload
+                $last_upload = $user->picture()->orderBy("created_at", "desc")->first();
+                $user->last_upload = $last_upload ? Dates::formatDateDifference($last_upload->created_at) : null;
+
+                return $user;
+            });
 
         // Return variables
         $title = "Admin panel";

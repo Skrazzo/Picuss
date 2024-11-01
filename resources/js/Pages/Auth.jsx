@@ -48,6 +48,9 @@ export default function Login() {
                         reset();
                     }
                 },
+                onSuccess: (res) => {
+                    console.log(res);
+                },
                 onFinish: () => setLoading(false),
             });
         }

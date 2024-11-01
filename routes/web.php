@@ -21,6 +21,10 @@ Route::get("/version", function () {
     return response()->json(["version" => config("app.version")]);
 });
 
+Route::get("/requested", function () {
+    return Inertia::render("RequestedAccount", ["title" => "Requested"]);
+});
+
 // api routes for auth
 Route::post("/login", [UserController::class, "login"])->name("post.login");
 Route::post("/register", [UserController::class, "register"])->name("post.register");

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Disks;
+use App\Models\RequestedAccount;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -21,6 +22,22 @@ class UserController extends Controller
             "username" => "required|unique:users,username",
             "password" => "required|min:8",
         ]);
+
+        // Check if registration is allowed
+        if (env("REGISTRATION_ALLOWED", false) == false) {
+            // Create requested account
+            $reqAcc = RequestedAccount::where("username", $data["username"])->first();
+            if ($reqAcc) {
+                return back()->withErrors(["username" => "Username is not available!"]);
+            }
+
+            // Create requested account
+            $success = RequestedAccount::create($data);
+            if (!$success) {
+                return back()->withErrors(["username" => "Could not create account"]);
+            }
+            return back()->with("status", "requested");
+        }
 
         // If user is first, then make him an admin user
         $isFirstUser = User::count() == 0;

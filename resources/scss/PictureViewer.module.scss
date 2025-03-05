@@ -17,7 +17,7 @@ $thumbnailScrollHeight: 106px;
     background-color: rgba(#242424, 0.5);
     backdrop-filter: blur(4px);
 
-    z-index: 100;
+    z-index: 10000;
 
     display: flex;
 
@@ -26,6 +26,7 @@ $thumbnailScrollHeight: 106px;
 
         background-color: var(--mantine-color-body);
         width: 460px;
+        max-width: 100%;
         height: 100vh;
 
         @include mixins.d-flex($dir: column, $justify: space-between, $align: stretch);
@@ -166,12 +167,12 @@ $thumbnailScrollHeight: 106px;
         }
     }
 
-    @media (max-width: 1000px) {
-        flex-direction: column-reverse;
-        height: 200dvh;
-
-        .side {
-            width: 100%;
-        }
-    }
+    // @media (max-width: 1000px) {
+    //     flex-direction: column-reverse;
+    //     height: 200dvh;
+    //
+    //     .side {
+    //         width: 100%;
+    //     }
+    // }
 }

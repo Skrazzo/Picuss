@@ -9,6 +9,7 @@ export default function ConfirmationModal({
     opened,
     title,
     onConfirm,
+    onClick,
     closeOnConfirm = true,
     onCancel = () => {},
     childrenText = true, // specifies if children are text, or custom elements
@@ -53,7 +54,7 @@ export default function ConfirmationModal({
     return (
         <Transition mounted={opened} transition={"fade"} duration={400}>
             {(styles) => (
-                <div style={styles} className={"confirm-modal-overlay"}>
+                <div onClick={onClick} style={styles} className={"confirm-modal-overlay"}>
                     <Transition mounted={modalOpened} transition={"pop"} duration={200}>
                         {(styles) => (
                             <div

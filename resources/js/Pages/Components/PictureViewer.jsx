@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import sty from "../../../scss/PictureViewer.module.scss";
-import { ActionIcon, Button, Checkbox, Loader, Menu, Paper, Table, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Checkbox, Menu, Paper, Table, Text, Tooltip } from "@mantine/core";
 import {
-    IconBadgeHd,
-    IconChevronLeft,
-    IconChevronRight,
     IconCopy,
     IconDotsVertical,
     IconDownload,
@@ -21,16 +18,9 @@ import {
 import capitalizeFirstLetter from "../Functions/capitalizeFirstLetter";
 import axios from "axios";
 import showNotification from "../Functions/showNotification";
-import LazyLoadImage from "./LazyLoadImage";
-import { useSwipeable } from "react-swipeable";
-import ThumbnailScroll from "./ThumbnailScroll";
-import useElementSize from "../Functions/useElementSize";
 import { useDisclosure } from "@mantine/hooks";
 import ConfirmationModal from "./ConfirmationModal";
 import copyToClipboard from "../Functions/copyToClipboard";
-import calculateImageSize from "../Functions/calculateImageSize";
-import scrollDown from "../Functions/scrollDown";
-import { PhotoProvider, PhotoView } from "react-photo-view";
 import PictureViewerSubTags from "./PictureViewerSubTags";
 
 export default function PictureViewer({
@@ -44,22 +34,18 @@ export default function PictureViewer({
     sub_tags_enabled = false,
 }) {
     // Find image and recheck if it exists
-    const image = images.filter((x) => x.id === selected[0])[0] || {};
+    const image = images[selected];
     if (!("id" in image)) return <></>;
 
-    // current images index
-    const imageIndex = images.findIndex((x) => x.id === image.id);
+    console.log("idx", selected);
+    console.log("after", images);
 
     // Use states
     const [selectedTags, setSelectedTags] = useState(image.tags);
     const [shared, setShared] = useState(image.shared);
     const [confirmDelete, setConfirmDelete] = useDisclosure(false);
-    const [imageSize, setImageSize] = useState([0, 0]);
-
-    const [imageLoading, setImageLoading] = useState(true);
 
     // use refs
-    const [containerSize, containerRef] = useElementSize();
     const firstLoad = useRef(true);
 
     // console.log(image);
@@ -70,13 +56,6 @@ export default function PictureViewer({
         firstLoad.current = true; // set this to true, so selected tags useeffect does not refresh
         setShared(image.shared);
     }, [image]);
-
-    // When window is resized, we need to change image size
-    useEffect(() => {
-        setImageSize(
-            calculateImageSize([containerSize.width, containerSize.height - 106], [image.width, image.height]),
-        );
-    }, [containerSize, image]);
 
     let d = new Date(image.uploaded);
     let formatedDate = d.toDateString();
@@ -150,7 +129,9 @@ export default function PictureViewer({
         axios
             .delete(route("delete.picture", image.id))
             .then(() => {
-                nextImage();
+                // nextImage();
+
+                console.log("before", images);
                 onDelete(image.id);
                 showNotification({
                     title: "Deleted",
@@ -165,32 +146,6 @@ export default function PictureViewer({
             });
     }
 
-    function previousImage() {
-        if (imageIndex === 0) {
-            setSelected(null);
-            return;
-        }
-
-        // Find cached half image
-        let url = findBlobUrl(images[imageIndex - 1].id);
-
-        setSelected([images[imageIndex - 1].id, url]);
-    }
-
-    function nextImage() {
-        if (imageIndex === images.length - 1) {
-            scrollDown({});
-            setSelected(null);
-            return;
-        }
-
-        // Check if url for half image hasn't been loaded yet and saved in cache
-        // If has, then use the cached image blob link
-        let url = findBlobUrl(images[imageIndex + 1].id);
-
-        setSelected([images[imageIndex + 1].id, url]);
-    }
-
     // Function for searching blob link in cached variable
     function findBlobUrl(imgId) {
         // Check if url for half image hasn't been loaded yet and saved in cache
@@ -203,12 +158,6 @@ export default function PictureViewer({
         return url;
     }
 
-    const swipeHandlers = useSwipeable({
-        onSwipedLeft: () => nextImage(),
-        onSwipedRight: () => previousImage(),
-        onSwipedDown: () => close(),
-    });
-
     const SectionTitle = ({ text, icon, rightSection = <></> }) => (
         <div className={sty.section_title}>
             <div>
@@ -218,33 +167,6 @@ export default function PictureViewer({
             {rightSection}
         </div>
     );
-
-    // register keyboard shortcuts
-    const handleKeyDown = (event) => {
-        switch (event.key) {
-            case "ArrowLeft":
-                previousImage();
-                break;
-            case "ArrowRight":
-                nextImage();
-                break;
-            case "Escape":
-                setSelected(null);
-                break;
-            default:
-                break;
-        }
-    };
-
-    useEffect(() => {
-        window.addEventListener("keydown", handleKeyDown);
-
-        setSelectedTags(image.tags);
-
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [imageIndex]);
 
     function shareHandler() {
         axios
@@ -275,8 +197,9 @@ export default function PictureViewer({
     };
 
     return (
-        <div className={sty.container}>
+        <div className={sty.container} onClick={close}>
             <ConfirmationModal
+                onClick={(e) => e.stopPropagation()}
                 color={"red"}
                 opened={confirmDelete}
                 icon={<IconTrash />}
@@ -288,14 +211,14 @@ export default function PictureViewer({
                 Are you sure you want to delete this picture?
             </ConfirmationModal>
 
-            <div className={sty.side}>
+            <div className={sty.side} onClick={(e) => e.stopPropagation()}>
                 <div>
                     <div className={sty.title}>
                         <Text test="image-name" size={"20px"} fw={600} className={`${sty.green_text}`}>
                             {image.name}
                         </Text>
 
-                        <Menu>
+                        <Menu zIndex={10000}>
                             <Menu.Target>
                                 <ActionIcon variant="subtle">
                                     <IconDotsVertical />
@@ -346,13 +269,13 @@ export default function PictureViewer({
                                 </Menu.Item>
                             </Menu.Dropdown>
                         </Menu>
+
+                        <ActionIcon variant="subtle" onClick={() => close()}>
+                            <IconX />
+                        </ActionIcon>
                     </div>
 
-                    <SectionTitle
-                        text={"File"}
-                        icon={<IconFileInfo />}
-                        rightSection={imageLoading ? <Loader size={18} /> : <IconBadgeHd {...iconProps} size={24} />}
-                    />
+                    <SectionTitle text={"File"} icon={<IconFileInfo />} />
                     <div className={sty.info_container}>
                         <Table>
                             <Table.Tbody>{fileInfoRows}</Table.Tbody>
@@ -397,57 +320,6 @@ export default function PictureViewer({
                         </>
                     )}
                 </div>
-
-                <div className={sty.buttons}>
-                    {imageIndex !== 0 && (
-                        <Button variant="default" leftSection={<IconChevronLeft />} onClick={previousImage}>
-                            Previous
-                        </Button>
-                    )}
-
-                    {imageIndex !== images.length - 1 && (
-                        <Button variant="default" rightSection={<IconChevronRight />} onClick={nextImage}>
-                            Next
-                        </Button>
-                    )}
-                </div>
-            </div>
-
-            <div className={sty.picture_container} ref={containerRef}>
-                <ActionIcon onClick={close} variant="light" className={sty.closeBtn}>
-                    <IconX />
-                </ActionIcon>
-
-                <div onClick={close} className={sty.picture} {...swipeHandlers}>
-                    <div
-                        onClick={(e) => {
-                            e.stopPropagation();
-                        }}
-                    >
-                        <PhotoProvider bannerVisible={false}>
-                            <PhotoView src={route(hiddenImages ? "get.hidden.full.image" : "get.image", image.id)}>
-                                <LazyLoadImage
-                                    useLayoutId={false}
-                                    blur={false}
-                                    src={route(hiddenImages ? "get.hidden.full.image" : "get.image", image.id)}
-                                    thumbnail={selected[1]}
-                                    style={{
-                                        width: imageSize[0],
-                                        height: imageSize[1],
-                                    }}
-                                    setLoading={setImageLoading}
-                                />
-                            </PhotoView>
-                        </PhotoProvider>
-                    </div>
-                </div>
-
-                <ThumbnailScroll
-                    images={images}
-                    currentIndex={imageIndex}
-                    onClick={(idx) => selectFromScroll(idx)}
-                    pictureContainerSize={containerSize}
-                />
             </div>
         </div>
     );

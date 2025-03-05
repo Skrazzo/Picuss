@@ -5,6 +5,7 @@ import {
     IconDotsVertical,
     IconDownload,
     IconEyeOff,
+    IconInfoSquare,
     IconPhotoOff,
     IconSelectAll,
     IconShare,
@@ -31,13 +32,28 @@ import showNotification from "./Functions/showNotification";
 import ConfirmationModal from "./Components/ConfirmationModal";
 import PinAuthenticate from "./Components/Hidden/PinAuthenticate";
 import segmentalSwitch from "./Functions/segmentalSwitch";
+import { PhotoProvider, PhotoView } from "react-photo-view";
+
+const EnablePhotoViewer = React.memo(function ({ enabled, children, imageId }) {
+    if (enabled) {
+        return (
+            <PhotoView key={imageId} src={route("get.image", imageId)}>
+                {children}
+            </PhotoView>
+        );
+    }
+
+    return <>{children}</>;
+});
 
 export default function Dashboard({ auth, title = "", preSelected = null, sub_tags_enabled = false }) {
     const [page, setPage] = useState(1);
     const [images, setImages] = useState(null);
     const [totalPages, setTotalPages] = useState(1);
     const [processing, setProcessing] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
+    // const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImageIdx, setSelectedImageIdx] = useState(null);
+    const [showImageInfo, setShowImageInfo] = useState(false);
 
     // For hidden picutre pin-code
     const [hiddenModal, setHiddenModal] = useState(false);
@@ -51,7 +67,7 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
 
     // Divide by months year etc
     // [0] -> value [1] -> set value
-    const segmentControl = useState("month");
+    const segmentControl = useState("all");
 
     // For multi select
     const [holding, setHolding] = useState([false, null]); // currently holding on image [if holding, image_id]
@@ -148,16 +164,24 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
     );
 
     function onImageDelete(id) {
-        // setSelectedImage(null);
+        // Hide the image info
+        setShowImageInfo(false);
 
         let newImages = [];
         images.forEach((imgArr) => {
             let rtn = [imgArr[0], imgArr[1].filter((image) => image.id !== id)];
-
             newImages.push(rtn);
         });
 
         setImages(newImages);
+
+        // Set selected index to - 1
+        let newIndex = selectedImageIdx - 1;
+        if (newIndex < 0) {
+            console.log(newIndex);
+            newIndex = newImages.length - 1;
+        }
+        setSelectedImageIdx(newIndex);
     }
 
     //#region Multi select
@@ -354,7 +378,6 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             page={page}
             setPage={setPage}
             maxPage={totalPages}
-            className={selectedImage ? sty.no_scroll : ""}
             onSubSearchHandler={(search) => {
                 imageSearch({ subSearch: search });
                 setPage(1);
@@ -427,13 +450,12 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
             </ConfirmationModal>
 
             <Title title={title} />
-            {selectedImage && (
+            {showImageInfo && (
                 <PictureViewer
-                    close={() => setSelectedImage(null)}
+                    close={() => setShowImageInfo(false)}
                     onDelete={onImageDelete}
                     images={images.map((img) => img[1]).flat()}
-                    selected={selectedImage}
-                    setSelected={setSelectedImage}
+                    selected={selectedImageIdx}
                     tags={userTags}
                     sub_tags_enabled={sub_tags_enabled}
                 />
@@ -529,7 +551,18 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
                         <>
                             <PictureDivider title={segment[0]} />
                             <div className={`${sty.container}`}>
-                                <>
+                                <PhotoProvider
+                                    onIndexChange={setSelectedImageIdx}
+                                    toolbarRender={() => (
+                                        <ActionIcon
+                                            variant="subtle"
+                                            color="white"
+                                            onClick={() => setShowImageInfo(true)}
+                                        >
+                                            <IconInfoSquare {...iconProps} />
+                                        </ActionIcon>
+                                    )}
+                                >
                                     {segImages.map((img, i) => {
                                         return (
                                             <div
@@ -549,23 +582,37 @@ export default function Dashboard({ auth, title = "", preSelected = null, sub_ta
                                                         <IconCheck size={20} />
                                                     </div>
                                                 )}
-                                                <LazyLoadImage
-                                                    thumbnail={img.thumb}
-                                                    id={img.id}
-                                                    src={route("get.half.image", img.id)}
-                                                    onClick={(id, thumb) =>
-                                                        multiSelect !== null
-                                                            ? onSelectHandler(id)
-                                                            : setSelectedImage([id, thumb])
-                                                    }
-                                                    style={{
-                                                        aspectRatio: img.aspectRatio,
-                                                    }}
-                                                />
+                                                <EnablePhotoViewer enabled={multiSelect === null} imageId={img.id}>
+                                                    <LazyLoadImage
+                                                        thumbnail={img.thumb}
+                                                        id={img.id}
+                                                        src={route("get.half.image", img.id)}
+                                                        onClick={(id, thumb) =>
+                                                            multiSelect !== null
+                                                                ? onSelectHandler(id)
+                                                                : setSelectedImageIdx(i)
+                                                        }
+                                                        style={{
+                                                            aspectRatio: img.aspectRatio,
+                                                        }}
+                                                    />
+                                                </EnablePhotoViewer>
+
+                                                {/* <PhotoView key={pic.id} src={route("share.tags.get.picture", pic.id)}> */}
+                                                {/*     <LazyLoadImage */}
+                                                {/*         id={pic.id} */}
+                                                {/*         src={route("share.get.half", pic.id)} */}
+                                                {/*         style={{ aspectRatio: `1/${pic.height / pic.width}` }} */}
+                                                {/*         thumbnail={pic.thumb} */}
+                                                {/*         rounded */}
+                                                {/*         onClick={() => setViewingIndex(idx)} */}
+                                                {/*         useLayoutId={true} */}
+                                                {/*     /> */}
+                                                {/* </PhotoView> */}
                                             </div>
                                         );
                                     })}
-                                </>
+                                </PhotoProvider>
                             </div>
                         </>
                     );

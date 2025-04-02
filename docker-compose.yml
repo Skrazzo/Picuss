@@ -1,0 +1,8 @@
+services:
+    picuss:
+        build: .
+        container_name: picuss-server
+        restart: on-failure
+        # environment:
+        ports:
+            - 3000:80

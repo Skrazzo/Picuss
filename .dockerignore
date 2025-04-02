@@ -1,0 +1,15 @@
+node_modules/*
+vendor/*
+cypress/*
+test_suite_analysis/
+Yolo
+
+
+storage/app/half images/*
+storage/app/images/*
+storage/app/thumbnails/*
+storage/app/tmpZipFiles/*
+
+Dockerfile
+
+

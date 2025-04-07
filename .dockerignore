@@ -11,5 +11,6 @@ storage/app/thumbnails/*
 storage/app/tmpZipFiles/*
 
 Dockerfile
-
+database/database.sqlite
+.env
 

@@ -1,8 +1,14 @@
 services:
     picuss:
         build: .
+        user: root
         container_name: picuss-server
-        restart: on-failure
+        restart: no
+        volumes:
+            - ../picuss-docker/database.sqlite:/app/database/database.sqlite
+            - ../picuss-docker/data:/app/storage/app
         # environment:
+        env_file:
+            - ./docker/env_file
         ports:
             - 3000:80

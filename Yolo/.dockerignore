@@ -1,0 +1,7 @@
+include
+bin
+lib
+share
+
+Dockerfile
+tags.env.example

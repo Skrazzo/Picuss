@@ -2,3 +2,9 @@
 log.txt
 .DS_store
 pyvenv.cfg
+
+include
+bin
+lib
+share
+

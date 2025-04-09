@@ -65,12 +65,19 @@ log(f"Last run: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 print("Loading models...")
 from ultralytics import YOLO
 import cv2
+print("Import package loaded")
+
+# Create models directory
+if not os.path.exists("models"):
+    os.makedirs("models")
 
 # Load the YOLOv11 classification model
-cls_model = YOLO('yolo11x-cls.pt')
+cls_model = YOLO('models/yolo11x-cls.pt')
 
 # Load the YOLOv11 object detection model
-det_model = YOLO('yolo11x.pt')
+det_model = YOLO('models/yolo11x.pt')
+
+print("Models loaded")
 
 def classify_image(image_path):
     try:
@@ -89,17 +96,17 @@ def detect_objects(image_path):
     try:
         img = cv2.imread(image_path)
         results = det_model(img)
-        
+
         detections = []
         for result in results:
             for box in result.boxes:
                 confidence = box.conf.item()
                 class_id = box.cls.item()
                 class_name = det_model.names[int(class_id)]
-                
+
                 if confidence > CONFIDENCE:
                     detections.append(class_name)
-                
+
         return detections
     except Exception as e:
         print(f"Error detecting objects in image {image_path}: {e}")
@@ -113,20 +120,20 @@ pictures = cur.execute("SELECT id, image FROM pictures WHERE hidden = false AND 
 for picture in pictures:
     picture_id, image_name = picture
     picture_path = os.path.join(IMAGE_PATH, str(image_name))
-    
+
     if not os.path.exists(picture_path):
         print(f"Image not found: {picture_path}")
         continue
-    
+
     # Perform image classification
     classification_tags = classify_image(picture_path)
-    
+
     # Perform object detection
     object_detections = detect_objects(picture_path)
-    
+
     # Combine classification tags and object detection results
     combined_tags = classification_tags + object_detections
-    
+
     # Ensure unique values
     unique_tags = list(set(combined_tags))
     unique_tags = [tag.replace("_", " ") for tag in unique_tags]

@@ -5,10 +5,18 @@ services:
         container_name: picuss-server
         restart: no
         volumes:
-            - ../picuss-docker/database.sqlite:/app/database/database.sqlite
-            - ../picuss-docker/data:/app/storage/app
+            - ./picuss-data/database.sqlite:/app/database/database.sqlite
+            - ./picuss-data/data:/app/storage/app
         # environment:
         env_file:
             - ./docker/env_file
         ports:
             - 3000:80
+    yolo:
+        build: ./Yolo
+        container_name: yolo-image-recognison
+        volumes:
+            - ./picuss-data:/data
+            - ./picuss-data/models:/app/models
+        depends_on:
+            - picuss

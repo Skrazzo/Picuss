@@ -1,0 +1,4 @@
+# Generates all image thumbnails
+0 */6 * * * cd /app && php artisan app:generate-all-pictures
+# Run AI scan for unprocessed images
+# 0 4 * * * cd /var/www/Picuss/Yolo ; ./run.sh

@@ -1,5 +1,6 @@
 # Base: Alpine Linux - small and tight
 FROM alpine:3.19
+WORKDIR /app
 
 # Install Nginx & PHP-FPM (using php82 here, adjust if needed)
 RUN apk update && \
@@ -20,10 +21,10 @@ RUN sed -i 's/user = nobody/user = root/g' /etc/php82/php-fpm.d/www.conf && \
     mkdir -p /run/php && \
     chown root:root /run/php
 
-WORKDIR /app
 
 # Install composer
 RUN apk update && apk add --no-cache \
+    cronie \
     php \
     php-phar \
     php-json \
@@ -73,8 +74,8 @@ COPY docker/env_file ./.env
 # PHP.ini
 COPY docker/php.ini /etc/php82/php.ini
 
-# allow fpm run as root
-# RUN echo "allow_to_run_as_root = yes" >> /etc/php82/php-fpm.conf
+# Copy crontab file
+COPY docker/crontab /etc/crontabs/root
 
 # Nginx listens on 80
 EXPOSE 80

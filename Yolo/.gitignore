@@ -1,9 +1,2 @@
-bin
-include
-lib
-lib64
-share
-pyvenv.cfg
-tags.env
-*.pt
-log.txt
+# Created by venv; see https://docs.python.org/3/library/venv.html
+*

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Start crontabd
+crond
+
 # Migration
 cd /app && php artisan migrate
 

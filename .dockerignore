@@ -2,8 +2,8 @@ node_modules/*
 vendor/*
 cypress/*
 test_suite_analysis/
-Yolo
 
+Yolo
 
 storage/app/half images/*
 storage/app/images/*

@@ -4,17 +4,58 @@ Picuss is a tag based photo gallery, made with **Laravel** and **React**
 
 # Main focus for the project
 
--   Client side image compression and convertion
--   Low bandwidth usage
--   Fast image loading
--   Image tag system to easily find pictues by tags
--   Share images and tags
+- Client side image compression and convertion
+- Low bandwidth usage
+- Fast image loading
+- Image tag system to easily find pictues by tags
+- Share images and tags
 
 ## Features
 
--   Loads fast with low bandwidth usage
-    -   Client side image compression (fast image upload)
-    -   Lazy loading (thumbnails, and scaled down images)
+- Loads fast with low bandwidth usage
+  - Client side image compression (fast image upload)
+  - Lazy loading (thumbnails, and scaled down images)
+
+## Docker installation
+
+Before installing via compose, create `picuss-data/database.sqlite`
+
+```sh
+mkdir picuss-data
+touch database.sqlite
+```
+
+This will install everything
+
+```sh
+docker compose up -d
+```
+
+For ai object recognition, you can set crontab when you want it to scan for new images. In `Yolo/yolo-contab`
+For picuss crontab thumbnail generation you can set when you want it in `docker/crontab`
+They're 2 different containers because I couldn't add AI into picuss docker image sadly.
+
+To change any php limitation you can change `docker/php.ini`
+For nginx setup see `docker/nginx.conf` and `docker/nginx-site.conf`
+
+For picuss env see `docker/env_file`
+For AI see `Yolo/tags.env` but its already set for docker. Only thing you should be touching is confidence in object recognition.
+
+### Https errors
+
+When I was setting it up, I tried to proxy it via caddy, and I had issue where laravel would set urls to http, and it would get blocked because I was on https.
+
+To solve that add this line in `AppServiceProvider::boot() method`
+
+```
+\Illuminate\Support\Facades\URL::forceScheme('https');
+```
+
+And then build app again and see if it has solved the issue
+
+```sh
+docker compose up -d --build
+```
 
 ## Crontab installation
 

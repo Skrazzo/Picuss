@@ -41,6 +41,10 @@ For nginx setup see `docker/nginx.conf` and `docker/nginx-site.conf`
 For picuss env see `docker/env_file`
 For AI see `Yolo/tags.env` but its already set for docker. Only thing you should be touching is confidence in object recognition.
 
+### Database setup (**important before first run**)
+
+Currently docker will use sqlite database, and default location is `picuss-data/database.sqlite` for it to work nicely, we need to run `mkdir picuss-data && touch picuss-data/database.sqlite`. Which will create picuss-data folder, and create empty database file. It is important for proper mount in docker. If you want to change the path to the database, do the same steps accordingly to the changed directory.
+
 ### Https errors
 
 When I was setting it up, I tried to proxy it via caddy, and I had issue where laravel would set urls to http, and it would get blocked because I was on https.
